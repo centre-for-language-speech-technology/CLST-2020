@@ -1,5 +1,14 @@
 # CLST: GiPHouse project
 
-The git repo with the CLST dashboard project. We have two folder:
-- organisation: keeps track of the  _process_, sprint plannings, customer contact and the likes 
-- code: keeps track of the _product_, back-end and front-end code, documentation
+
+Getting started
+---------------
+
+0. Get at least Python 3.7 and install poetry and the requirements as per below.
+1. Clone this repository
+2. Make sure `poetry` uses your python 3 installation: `poetry env use python3`
+3. Run `poetry install`
+4. Run `poetry shell`
+5. `cd equestria`
+6. `./manage.py migrate` to initialise the database
+7. `./manage.py runserver` to run a testing server
