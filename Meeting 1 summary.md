@@ -1,4 +1,4 @@
-# Requirements SDM
+# Meeting 1 summary
 In short: the tool is for aligning speech with text. It is used by two different audiences
 
 1. Students from ‘letterkunde’
