@@ -18,34 +18,65 @@ Progess bar test
 
 {% block progress %}
 <br>
-<div>
+<!--
+<div class="chevrondiv" style="width: 100em; margin: 0 auto;">
     <ul id="wizard-view-tabs2" class="chevronbar">
-        <li class="first" name="Default">
-            <a class="" href="#Default">Default</a>
+        <li class="first" name="">
+            <a class="" href="upload_wav">Upload .wav</a>
         </li>
         <li class="active">
-            <a class="" href="#A" title="A">A</a>
+            <a class="" href="upload_txt">Upload .txt</a>
         </li>
-        <li class=""  class="">
-            <a class="" href="#B" title="B">B</a>
+        <li class="">
+            <a class="" href="forced_alignment">Forced Alignment</a>
         </li>
-        <li class=""  class="">
-            <a class="" href="#C" title="C">C</a>
+        <li class="">
+            <a class="" href="update_dict">Update Dictionary</a>
         </li>
-        <li class=""  class="">
-            <a class="" href="#D" title="D">D</a>
+        <li class="">
+            <a class="" href="auto_segmentation">Automatic Segmentation</a>
         </li>
-        <li class=""  class="">
-            <a class="" href="#E" title="E">E</a>
+        <li class="">
+            <a class="" href="praat">Run Praat Scripts</a>
         </li>
-	<li class=""  class="">
-            <a class="" href="#E" title="E">EE</a>
-        </li>
-        <li class="last"  class="active">
-            <a class="" href="#F" title="F">F</a>
+	<li class="last">
+            <a class="" href="download">Download results</a>
         </li>
     </ul>
-</div>
+</div>-->
+<nav class="navbar navbar-expand-lg navbar-dark info-color">
+    <a class="navbar-brand" href="#">Navbar</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+               <a class="nav-link waves-effect waves-light" href="#">Home <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link waves-effect waves-light" href="#">Features</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link waves-effect waves-light" href="#">Pricing</a>
+            </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle waves-effect waves-light" id="navbarDropdownMenuLink"               data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Dropdown</a>
+                <div class="dropdown-menu dropdown-info" aria-labelledby="navbarDropdownMenuLink">
+                    <a class="dropdown-item waves-effect waves-light" href="#">Action</a>
+                    <a class="dropdown-item waves-effect waves-light" href="#">Another action</a>
+                    <a class="dropdown-item waves-effect waves-light" href="#">Something else here</a>
+                </div>
+            </li>
+        </ul>
+        <form class="form-inline">
+            <div class="md-form my-0">
+                <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
+            </div>
+        </form>
+    </div>
+    <br><br><br>
+</nav>
 <br><br><br>
 {% endblock %}
 

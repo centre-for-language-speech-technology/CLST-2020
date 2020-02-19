@@ -1,0 +1,66 @@
+:root {
+    --background-color: #292929;
+    --background-lighter: #373737;
+    --acent-color: #18bc9c;
+    --acent-darker: #1c613f;
+    --text-color: #ffeeee;
+}
+
+body {
+    background-color: var(--background-color) !important;
+    color: var(--text-color) !important;
+}
+
+button:not(.hamburger):not(.navbar-toggler) {
+    background-color: var(--background-color) !important;
+    color: var(--text-color) !important;
+}
+
+a {
+    color: var(--text-color) !important;
+}
+
+a:hover {
+    color: var(--acent-color) !important;
+}
+
+.list-element a {
+    color: var(--text-color) !important;
+}
+
+.list-element :hover {
+    color: var(--acent-color) !important;
+    text-shadow: var(--background-color);
+}
+
+.text-secondary {
+    color: var(--text-color) !important;
+}
+
+hr {
+    border-color: var(--text-color) !important;
+}
+
+iframe {
+    width: 100%;
+}
+
+.btn-accent {
+    background-color: var(--acent-color);
+}
+
+.btn-accent:hover {
+    background-color: var(--acent-darker);
+}
+
+.panel-body {
+    background-color: var(--background-lighter);
+}
+
+.list-item:hover {
+    color: var(--acent-color);
+}
+
+.list-item-current {
+    background-color: var(--background-lighter) !important;
+}

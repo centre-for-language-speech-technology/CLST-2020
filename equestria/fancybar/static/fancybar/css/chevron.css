@@ -1,10 +1,12 @@
 <style type="text/css">
+
     ul.chevronbar {
         list-style: none;
         padding: 0;
-        margin: 0;
-        margin: 0 0 0px;
-        height: 38px;
+	text-align: center;
+	margin-left: auto;
+	margin-right: auto;
+        height: 4em;
         border: 1px solid #222;
         border-radius: 5px;
         box-shadow: 0 1px 2px rgba(0,0,0,.08);
@@ -13,10 +15,11 @@
     ul.chevronbar li {
         float: left;
         text-align: center;
+	min-width: 10vw;
+	height: 38px;
         vertical-align: top;
         position: relative;
         background: #666;
-        color: #fff;
         display: inline;
         border: none;
         margin-right: 17px;
@@ -25,8 +28,6 @@
     ul.chevronbar li a {
         line-height: 38px;
         text-decoration: none;
-        padding: 5px;
-        color: #fff;
     }
 
     ul.chevronbar li:before, ul.chevronbar li:after {
@@ -65,16 +66,16 @@
         border: none !important;
     }
     ul.chevronbar li.active {
-        background: #0064cd;
+        background: #1c613f;
     }
     ul.chevronbar li.active:before {
-        border-top-color: #0064cd;
-        border-bottom-color: #0064cd;
-        border-right-color: #0064cd;
+        border-top-color: #1c613f;
+        border-bottom-color: #1c613f;
+        border-right-color: #1c613f;
         right: 100%;
     }
     ul.chevronbar li.active:after {
-        border-left-color: #0064cd;
+        border-left-color: #1c613f;
         left: 100%;
     }
 </style>

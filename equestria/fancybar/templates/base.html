@@ -24,7 +24,7 @@
     {% endblock %}
 
     <!-- Font Awesome (for symbols and glyphs) -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css">
+    <link rel="stylesheet" href="{% static 'fancybar/css/font-awesome.css' %}">
     <!-- Google Fonts (so the website handles weird unicode characters nicely) -->
     <link href="https://fonts.googleapis.com/css?family=Roboto:300,400&amp;subset=cyrillic,cyrillic-ext,greek,greek-ext,latin-ext,vietnamese"
           rel="stylesheet">
@@ -51,6 +51,10 @@
 {% endblock %}
 
 <!-- scripts are below body, so that page load does not wait for script execution -->
+<!-- JQuery (dependency of bootstrap) -->
+<script type="text/javascript" src="{% static 'fancybar/js/jquery.min.js' %}"></script>
+<!-- Bootstrap tooltips -->
+<script type="text/javascript" src="{% static 'fancybar/js/popper.min.js' %}"></script>
 <!-- Bootstrap core JavaScript -->
 <script type="text/javascript" src="{% static 'fancybar/js/bootstrap.min.js' %}"></script>
 <!-- MDB core JavaScript -->
