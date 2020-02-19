@@ -40,7 +40,7 @@ TODO
 ## style my page with css
 ### Really?
 1. Do you just need bootstrap, font awesome, etc? Check if its not already imported by a higher template.
-2. cd into /fancybar/static/fancybar
+2. cd into /fancybar/static/fancybar/css/
 3. Check existing files: Does one of them contain what you want?
 4. If so, goto 6, else continue
 ### Create file
@@ -53,5 +53,5 @@ TODO
 10. Ensure the top of the file contains `{% load static %}`
 11. In the html header, write 
 ```html
-<link href="{% static 'fancybar/[your_file].css' %}" rel="stylesheet">
+<link href="{% static 'fancybar/css/[your_file].css' %}" rel="stylesheet">
 ```

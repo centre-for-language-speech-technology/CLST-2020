@@ -10,7 +10,7 @@ from django.db.models import Q
 
 
 class Fancybar(TemplateView):
-	template_name = 'index.html'
+	template_name = 'template.html'
 	
 	def get(self, request):
 		return render(request, self.template_name)

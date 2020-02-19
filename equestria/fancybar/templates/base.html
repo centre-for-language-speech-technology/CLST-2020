@@ -1,0 +1,62 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" class="full-height">
+
+<head>
+    <!-- Required meta tags always come first -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <link rel="stylesheet" href="{% static 'fancybar/css/theme.css' %}">
+    <meta name="description" content="">
+    <meta name="author" content="GipHouse">
+
+    <link rel="icon" type="image/png" sizes="64x64" href="{% static 'fancybar/favicon/favicon-64x64.png' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'fancybar/favicon/favicon-32x32.png' %}">
+
+    <title>
+        {% block title %}
+            Title
+        {% endblock %}
+    </title>
+    
+    {% block head %}
+    {% endblock %}
+
+    <!-- Font Awesome (for symbols and glyphs) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css">
+    <!-- Google Fonts (so the website handles weird unicode characters nicely) -->
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400&amp;subset=cyrillic,cyrillic-ext,greek,greek-ext,latin-ext,vietnamese"
+          rel="stylesheet">
+
+    <!-- Bootstrap core CSS -->
+    <link href="{% static 'fancybar/css/bootstrap.min.css' %}" rel="stylesheet">
+
+    <!-- Material Design Bootstrap -->
+    <link href="{% static 'fancybar/css/mdb.min.css' %}" rel="stylesheet">
+
+    {% block style %}
+    {% endblock %}
+</head>
+
+<body id="page-top">
+
+{% block prebody %}
+{% endblock %}
+
+{% block progress %}
+{% endblock %}
+
+{% block body %}
+{% endblock %}
+
+<!-- scripts are below body, so that page load does not wait for script execution -->
+<!-- Bootstrap core JavaScript -->
+<script type="text/javascript" src="{% static 'fancybar/js/bootstrap.min.js' %}"></script>
+<!-- MDB core JavaScript -->
+<script type="text/javascript" src="{% static 'fancybar/js/mdb.min.js' %}"></script>
+
+{% block scripts %}
+{% endblock %}
+</body>
+</html>

@@ -1,14 +1,24 @@
+{% extends 'base.html' %}
+
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-    <link href="{% static 'fancybar/chevron.css' %}" rel="stylesheet">
-</head>
-<body>
+
+{% block title %}
+Progess bar test
+{% endblock %}
+
+{% block head %}
+<link href="{% static 'fancybar/css/chevron.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block style %}
+{% endblock %}
+
+{% block prebody %}
+{% endblock %}
+
+{% block progress %}
 <br>
-<div class="row-fluid">
+<div>
     <ul id="wizard-view-tabs2" class="chevronbar">
         <li class="first" name="Default">
             <a class="" href="#Default">Default</a>
@@ -28,11 +38,19 @@
         <li class=""  class="">
             <a class="" href="#E" title="E">E</a>
         </li>
+	<li class=""  class="">
+            <a class="" href="#E" title="E">EE</a>
+        </li>
         <li class="last"  class="active">
             <a class="" href="#F" title="F">F</a>
         </li>
     </ul>
 </div>
+<br><br><br>
+{% endblock %}
 
-</body>
-</html>
+{% block body %}
+{% endblock %}
+
+{% block scripts %}
+{% endblock %}
