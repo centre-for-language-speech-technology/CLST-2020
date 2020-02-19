@@ -1,8 +1,14 @@
 import sys
+import os
+import time
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+print(BASE_DIR)
 
 if len(sys.argv) < 3:
-	print("not enough arguments")
-	exit(0)
+    print("not enough arguments")
+    exit(0)
 
 
 input_filename = sys.argv[1]
@@ -17,4 +23,5 @@ fw.write(str1)
 fw.write("TESTING")
 fr.close()
 fw.close()
+time.sleep(10)
 print("done")
