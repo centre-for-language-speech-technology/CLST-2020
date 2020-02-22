@@ -64,3 +64,27 @@ iframe {
 .list-item-current {
     background-color: var(--background-lighter) !important;
 }
+ul.chevronbar li:after {
+    border-left-color: var(--background-lighter) !important; /* front */
+
+}
+ul.chevronbar li {
+    border: 1px solid var(--background-lighter);
+    background:var(--background-lighter);
+}
+ul.chevronbar li:before {
+    border-top-color: var(--background-lighter) !important; /* upper left */
+    border-bottom-color: var(--background-lighter) !important; /* lower left */
+    border-right-color: var(--background-lighter) !important; /* left middle */
+ }
+li.nav-item.active  {
+    background: var(--acent-darker) !important;
+}
+li.nav-item.active:after {
+    border-left-color: var(--acent-darker) !important; /* front */
+}
+li.nav-item.active:before {
+    border-top-color: var(--acent-darker) !important; /* upper left */
+    border-bottom-color: var(--acent-darker) !important; /* lower left */
+    border-right-color: var(--acent-darker) !important; /* left middle */
+}

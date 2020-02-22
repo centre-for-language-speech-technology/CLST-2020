@@ -2,7 +2,7 @@ from django.db import models
 
 # Create your models here.
 
-class PraatScript(models.Model):
+class PraatScripts(models.Model):
     name = models.CharField(max_length=512)
     # I haven't looked up how to reference local (server-side) files
     path = models.FileField(default="", blank=True, upload_to='praat_scripts')

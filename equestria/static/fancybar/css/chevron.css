@@ -1,73 +1,55 @@
-<style type="text/css">
-    ul.chevronbar {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-        margin: 0 0 0px;
-        height: 3em;
-	width: 100vw;
-        border: 1px solid #222;
-        border-radius: 5px;
-        box-shadow: 0 1px 2px rgba(0,0,0,.08);
-    }
+ul.chevronbar {
+    list-style-type: none;
+    vertical-align: center;
+    margin: 0;
+    padding: 0;
+    height:50px;
+    width:auto;
+    overflow:hidden;
+}
 
-    .chevron {
-	transform: skew(20deg);
-    }
+ul.chevronbar li {
+    margin: 0;
+    padding: 0 0;
+    height:50px;
+    width:auto;
+    position:relative;
+    float:left;
+    font-size: 1.5em;
+    margin-right: 1em;
+    padding: 0 0;
+}
 
-    ul.chevronbar li a {
-        line-height: 38px;
-        text-decoration: none;
-        padding: 5px;
-        color: #fff;
-    }
-
-    ul.chevronbar li:before, ul.chevronbar li:after {
-        content: ' ';
-        height: 0;
-        position: absolute;
-        width: 0;
-        border: 19px solid transparent;
-        border-left-width: 8px;
-        border-right-width: 8px;
-        top: 0;
-    }
-    
-
-    ul.chevronbar li:before {
-        border-top-color: #666;
-        border-bottom-color: #666;
-        border-right-color: #666;
-        right: 100%;
-    }
-
-    ul.chevronbar li:after {
-        border-left-color: #666;
-        left: 100%;
-    }
-
-    ul.chevronbar li.first {
-        
-    }
-
-    ul.chevronbar li.first:before {
-        border: none !important;
-    }
-
-    ul.chevronbar li.last:after {
-        border: none !important;
-    }
-    ul.chevronbar li.active {
-        background: #0064cd;
-    }
-    ul.chevronbar li.active:before {
-        border-top-color: #0064cd;
-        border-bottom-color: #0064cd;
-        border-right-color: #0064cd;
-        right: 100%;
-    }
-    ul.chevronbar li.active:after {
-        border-left-color: #0064cd;
-        left: 100%;
-    }
-</style>
+ul.chevronbar li a {
+    text-decoration: none;
+    line-height: 1em;
+    font-size: 0.8em;
+    vertical-align: middle;
+    display:block;
+}
+ul.chevronbar li:before, ul.chevronbar li:after {
+    content: ' ';
+    height: 0;
+    width: 0;
+    position: absolute;
+    top:-2px;
+    border: 1.2em solid transparent;
+    border-left-width: 0.45em;
+    border-right-width: 0.45em;
+}
+ul.chevronbar li:before {
+     right: 100%;
+}
+ul.chevronbar li:after {
+    left: 100%;
+    margin-left: -0.01em;
+}
+li.first {
+    padding-left: 0.5em;
+}
+li.first:before {
+    border: none !important ;
+}
+li.last:after {
+    border: none !important;
+}

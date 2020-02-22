@@ -1,4 +1,5 @@
 from django.conf.urls import include
+from django.views.static import serve
 """equestria URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:

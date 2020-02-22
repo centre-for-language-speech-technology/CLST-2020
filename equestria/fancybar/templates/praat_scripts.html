@@ -3,7 +3,7 @@
 {% load static %}
 
 {% block title %}
-Dear Princess Celestia
+Run Praat Script
 {% endblock %}
 
 {% block style %}
@@ -16,7 +16,7 @@ Dear Princess Celestia
 <li class="nav-item">
   <a class="nav-link waves-effect waves-light" href="upload_wav">Upload wav</a>
 </li>
-<li class="nav-item active">
+<li class="nav-item">
   <a class="nav-link waves-effect waves-light" href="upload_txt"><i class="fas fa-upload"></i>Upload txt</a>
 </li>
 <li class="nav-item">
@@ -28,7 +28,7 @@ Dear Princess Celestia
 <li class="nav-item">
   <a class="nav-link waves-effect waves-light" href="auto_segmentation">Automatic Segmentation</a>
 </li>
-<li class="nav-item">
+<li class="nav-item active">
   <a class="nav-link waves-effect waves-light" href="praat_scripts">Praat Scripts</a>
 </li>
 <li class="nav-item">
@@ -37,9 +37,22 @@ Dear Princess Celestia
 {% endblock %}
 
 {% block body %}
-<h1>Dear Princess Celestria,</h1>
-<br>
-PRAAT
+<h3>I originally wanted a simple seletion like this, but all good designs are pricy:</h3>
+<a href="https://themes.getbootstrap.com/product/material-kit-pro/">800USD for a cool button</a>
+<br />
+<select class="mdb-select md-form">
+  <option value="" disabled selected>Choose a script</option>
+{% for script in scripts %}
+  <option value="" data-icon="https://mdbootstrap.com/img/Photos/Avatars/avatar-1.jpg" class="rounded-circle">
+    {{ script.name }}
+  </option>
+{% endfor %}
+</select>
+<h3>So I made my own selection:</h3>
+{% for script in scripts %}
+<p>{{ script.name }}</p>
+<img src="{{ script.img.url }}" alt="{{ script.icon }}" />
+{% endfor %}
 {% endblock %}
 
 {% block scripts %}
