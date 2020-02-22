@@ -33,6 +33,12 @@
         def post(self, request):
                 return render(request, self.template_name)
    ```
+  
+6.1. *UPDATE:* While that still works, if you just want to render a simple html file, it is simpler to extend `GenericTemplate` like this:
+   ```python
+   class Fancybar(GenericTemplate):
+        template_name = 'mytemplate.html'
+   ```
 
 7. Make sure the template file exists in templates/mytemplate.html, if not continue
 ## Create a new template

@@ -8,8 +8,7 @@ from django.db.models import Q
 
 # Create your views here.
 
-
-class Fancybar(TemplateView):
+class GenericTemplate(TemplateView):
         template_name = 'template.html'
 
         def get(self, request):
@@ -19,14 +18,11 @@ class Fancybar(TemplateView):
         def post(self, request):
                 return render(request, self.template_name)
 
+        
+       
+class Fancybar(GenericTemplate):
+        template_name = 'template.html'
 
 
-class PraatScripts(TemplateView):
+class PraatScripts(GenericTemplate):
         template_name = 'praat_scripts.html'
-
-        def get(self, request):
-                return render(request, self.template_name)
-
-
-        def post(self, request):
-                return render(request, self.template_name)
