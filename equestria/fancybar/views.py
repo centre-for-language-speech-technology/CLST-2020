@@ -10,11 +10,23 @@ from django.db.models import Q
 
 
 class Fancybar(TemplateView):
-	template_name = 'template.html'
-	
-	def get(self, request):
-		return render(request, self.template_name)
+        template_name = 'template.html'
 
-	
-	def post(self, request):
-		return render(request, self.template_name)
+        def get(self, request):
+                return render(request, self.template_name)
+
+
+        def post(self, request):
+                return render(request, self.template_name)
+
+
+
+class PraatScripts(TemplateView):
+        template_name = 'praat_scripts.html'
+
+        def get(self, request):
+                return render(request, self.template_name)
+
+
+        def post(self, request):
+                return render(request, self.template_name)
