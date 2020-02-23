@@ -37,22 +37,57 @@ Run Praat Script
 {% endblock %}
 
 {% block body %}
-<h3>I originally wanted a simple seletion like this, but all good designs are pricy:</h3>
+<div class="rounded shadow lighter padding">
+<h3>I originally wanted a simple selection like this, but all good designs are pricy:</h3>
 <a href="https://themes.getbootstrap.com/product/material-kit-pro/">800USD for a cool button</a>
 <br />
 <select class="mdb-select md-form">
   <option value="" disabled selected>Choose a script</option>
-{% for script in scripts %}
+  {% for script in scripts %}
   <option value="" data-icon="https://mdbootstrap.com/img/Photos/Avatars/avatar-1.jpg" class="rounded-circle">
     {{ script.name }}
   </option>
-{% endfor %}
+  {% endfor %}
 </select>
 <h3>So I made my own selection:</h3>
-{% for script in scripts %}
-<p>{{ script.name }}</p>
-<img src="{{ script.img.url }}" alt="{{ script.icon }}" />
-{% endfor %}
+</div>
+
+<br /><br /><br />
+<h3>Please select a script to run:</h3>
+<br />
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-7">
+      {% for script in scripts %}
+      <div class="row shadow rounded">
+	<div class="col-md-4 lighter padding">
+	  <img class="rounded-circle shadow bg-border" width="100px" height="100px" src="{{ script.img.url }}" alt="{{ script.icon }}" />
+	</div>
+	<div class="col-md-6 lighter padding">
+	  <h5>{{ script.name }}</h5>
+	  <p>{{ script.desc }}</p>
+	</div>
+	<div class="col-md-2 lighter padding">
+	  <a class="btn btn-sm">
+	    Run
+	  </a>
+	</div>
+      </div>
+      {% if not forloop.last %}
+      <br />
+      {% endif %}
+      {% endfor %}
+    </div>
+    <div class="col-md-1">
+    </div>
+    <div class="col-md-4 lighter shadow padding rounded">
+      <h5>Console Output</h5>
+      <div class="shadow padding" style="height: 90%">
+	
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}
 
 {% block scripts %}

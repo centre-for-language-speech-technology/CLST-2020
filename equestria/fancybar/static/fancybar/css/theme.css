@@ -1,9 +1,30 @@
 :root {
     --background-color: #292929;
     --background-lighter: #373737;
-    --acent-color: #18bc9c;
-    --acent-darker: #1c613f;
+    --accent-color: #18bc9c;
+    --accent-darker: #1c613f;
     --text-color: #ffeeee;
+}
+
+.lighter {
+    background-color: var(--background-lighter) !important;
+    color: var(--text-color) !important;
+}
+
+.accent {
+    background-color: var(--accent-color) !important;
+}
+
+.accent-darker {
+    background-color: var(--accent-darker) !important;
+}
+
+.accent-border {
+    border: 1px solid var(--accent-color);
+}
+
+.bg-border {
+    border: 1px solid var(--background-color);
 }
 
 body {
@@ -21,7 +42,7 @@ a {
 }
 
 a:hover {
-    color: var(--acent-color) !important;
+    color: var(--accent-color) !important;
 }
 
 .list-element a {
@@ -29,7 +50,7 @@ a:hover {
 }
 
 .list-element :hover {
-    color: var(--acent-color) !important;
+    color: var(--accent-color) !important;
     text-shadow: var(--background-color);
 }
 
@@ -46,11 +67,11 @@ iframe {
 }
 
 .btn-accent {
-    background-color: var(--acent-color);
+    background-color: var(--accent-color);
 }
 
 .btn-accent:hover {
-    background-color: var(--acent-darker);
+    background-color: var(--accent-darker);
 }
 
 .panel-body {
@@ -58,7 +79,7 @@ iframe {
 }
 
 .list-item:hover {
-    color: var(--acent-color);
+    color: var(--accent-color);
 }
 
 .list-item-current {
@@ -78,13 +99,13 @@ ul.chevronbar li:before {
     border-right-color: var(--background-lighter) !important; /* left middle */
  }
 li.nav-item.active  {
-    background: var(--acent-darker) !important;
+    background: var(--accent-darker) !important;
 }
 li.nav-item.active:after {
-    border-left-color: var(--acent-darker) !important; /* front */
+    border-left-color: var(--accent-darker) !important; /* front */
 }
 li.nav-item.active:before {
-    border-top-color: var(--acent-darker) !important; /* upper left */
-    border-bottom-color: var(--acent-darker) !important; /* lower left */
-    border-right-color: var(--acent-darker) !important; /* left middle */
+    border-top-color: var(--accent-darker) !important; /* upper left */
+    border-bottom-color: var(--accent-darker) !important; /* lower left */
+    border-right-color: var(--accent-darker) !important; /* left middle */
 }

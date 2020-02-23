@@ -1,3 +1,16 @@
 body {
     padding: 1em;
 }
+
+.padding {
+    padding: 10px;
+}
+
+.margin {
+    margin: 10px;
+}
+
+.full {
+    height: 100%;
+    width: 100%;
+}
