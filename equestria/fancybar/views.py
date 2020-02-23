@@ -37,4 +37,7 @@ class PraatScripts(TemplateView):
 
         
         def post(self, request):
-                return render(request, self.template_name)
+                name = request.POST.get("script_name", "")
+                print('"Running" script ' + name + "...")
+                self.arg['script_run'] = name
+                return render(request, self.template_name, self.arg)
