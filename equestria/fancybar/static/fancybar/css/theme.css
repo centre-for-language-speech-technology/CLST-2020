@@ -109,3 +109,8 @@ li.nav-item.active:before {
     border-bottom-color: var(--accent-darker) !important; /* lower left */
     border-right-color: var(--accent-darker) !important; /* left middle */
 }
+
+input {
+    background-color: var(--background-color) !important;
+    color: var(--text-color) !important;
+}

@@ -54,15 +54,23 @@ Run Praat Script
 
 <br /><br /><br />
 <h3>Please select a script to run:</h3>
+
 <br />
 <div class="container-fluid">
   <div class="row">
-    <div class="col-md-7">
+    <div class="col-md-7" id="entry-list">
+      <div class="row shadow rounded">
+      <div class="search col-md-12 lighter padding shadow rounded">
+	<span class="fa fa-search"></span>
+	<input type="text" id="searchbar" onkeyup="search()" class="rounded shadow" style="width:90%; float:right" name="search" placeholder="Search..">
+      </div>
+      </div>
+      <br />
       {% for script in scripts %}
       <form method="post">
 	{% csrf_token %}
 	<input type=hidden name="script_name" value="{{ script.name }}"/>
-      <div class="row shadow rounded">
+      <div class="row shadow rounded entry">
 	<div class="col-md-3 lighter padding">
 	  <img class="rounded-circle shadow bg-border" width="100px" height="100px" src="{{ script.img.url }}" alt="{{ script.icon }}" />
 	</div>
@@ -103,4 +111,5 @@ Run Praat Script
 {% endblock %}
 
 {% block scripts %}
+<script src="{% static 'fancybar/js/search.js' %}"></script>
 {% endblock %}
