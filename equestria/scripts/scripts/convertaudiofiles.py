@@ -2,6 +2,7 @@ import subprocess
 from argparse import ArgumentParser
 from shlex import quote
 import string
+import os
 
 SOX_INFO_CMD = "sox --info -r {}"
 SOX_CONVERT_CMD = "sox {} -r 16000 {}"
@@ -29,9 +30,14 @@ def convert_file_to_16khz(file_to_convert, converted_file):
 if __name__ == "__main__":
 	parser = ArgumentParser(description="Convert audio files to 16khz")
 	parser.add_argument("file_to_convert", help="file to convert to 16khz")
+	parser.add_argument("-o", "--output", help="output directory")
 	args = parser.parse_args()
 
 	file_to_convert = args.file_to_convert
 
+	output_file = file_to_convert.replace(".wav", "-16khz.wav")
+	if args.output:
+		output_file = os.path.join(args.output, os.path.basename(output_file))
+
 	if ".wav" in file_to_convert:
-		convert_file_to_16khz(file_to_convert, file_to_convert.replace(".wav", "-16khz.wav"))
+		convert_file_to_16khz(file_to_convert, output_file)

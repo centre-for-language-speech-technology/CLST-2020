@@ -1,6 +1,5 @@
 from django.db import models
 from django.conf import settings
-<<<<<<< HEAD
 from .cron import JSONFile, JSONProcess, ProcessList, PROC_STARTING, PROC_RUNNING, PROC_FINISHED
 from django.urls import reverse
 
@@ -45,34 +44,3 @@ class Process(models.Model):
 
     def get_absolute_url(self):
         return reverse("scripts:script-detail", kwargs={"id": self.process_id})
-=======
-import subprocess
-import os
-import threading
-
-
-def spawn_wait_thread():
-    process = subprocess.Popen(['python3', os.path.join(settings.BASE_DIR, 'scripts/scriptje.py'), 'manage.py', 'bla'])
-    Process.objects.create(process_id=process.pid, executing=True)
-    print(process)
-    process.communicate()
-    notify_process_done(process)
-
-
-def notify_process_done(process):
-    print("Process is done!")
-
-
-# TODO we may need to pass some POST arguments later on.
-# (that is why this function looks so empty)
-def execute_script():
-    t1 = threading.Thread(target=spawn_wait_thread)
-    t1.start()
-
-
-class Process(models.Model):
-    process_id = models.IntegerField(blank=False)
-    input_file = models.FilePathField(path=settings.FILE_PATH_FIELD_DIRECTORY)
-    output_file = models.FilePathField(path=settings.FILE_PATH_FIELD_DIRECTORY)
-    executing = models.BooleanField(default=False)
->>>>>>> parent of 193d483... Process write to JSON
