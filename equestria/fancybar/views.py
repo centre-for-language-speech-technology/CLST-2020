@@ -41,3 +41,23 @@ class PraatScripts(TemplateView):
                 print('"Running" script ' + name + "...")
                 self.arg['script_run'] = name
                 return render(request, self.template_name, self.arg)
+
+class UploadWav(TemplateView):
+        template_name = 'upload_wav.html'
+
+        def get(self, request):
+                return render(request, self.template_name)
+
+
+        def post(self, request):
+                return render(request, self.template_name)
+
+class UploadTxt(TemplateView):
+        template_name = 'upload_txt.html'
+
+        def get(self, request):
+                return render(request, self.template_name)
+
+
+        def post(self, request):
+                return render(request, self.template_name)
