@@ -1,0 +1,60 @@
+# Report wednesday Februari 26th
+This is the fourth weekly report. Even though we proposed to send a bi-weekly mail, we prefer sending the notes this week as well. We might switch to keeping track of progress only by using Github projects instead of manually writing these notes for the tasks every meeting.
+
+## Last week
+__The managers are working on:__
+| Task                                   | Done? |
+|----------------------------------------|--|
+| The posibility to work with 'Ponyland'. Looking into the best implementation|✅|
+| Meeting with Wessel from Ponyland|✅|
+| Creating (sprint) planning|✅|
+| Creating developer individual tasks (Github)|✅|
+| Guiding developers / managing the team|✅|
+| Project plan|✅|
+
+__Meanwhile, our developers are working on:__
+| Task                                   | Done? |
+|----------------------------------------|--|
+| Setting up the development environment on the computers of our developers|✅| 
+| Gaining access to the required development systems (which we are gathering from the client today)|✅| 
+| Executing their assigned tasks (specified on Github)|✅|
+
+__Remaining parts required (from client)__
+| Task                                   | Done? |
+|----------------------------------------|--|
+| access to Ponyland|✅|
+| access to Giphouse: werkgroepmap|✅|
+| example input files|✅|
+
+## This week
+### Development
+__New task division__
+
+Valentijn & David: front end. (Technically, Lars Willemsen is also working on this)
+| Task                                   | Done? |
+|----------------------------------------|--|
+|Look into Ajax to support large files|⌛️|
+|Also showed bootstrap example and looked good|⌛️|
+
+Lars van Rhijn & Matti:
+| Task                                   | Done? |
+|----------------------------------------|--| 
+|Working on the list of back-end scripts. Figuring out how they work and how to use them|⌛️|
+
+Michel & Martin
+| Task                                   | Done? |
+|----------------------------------------|--|
+| Python scripts getting running and uploading scripts. Merging front-end and back-end|⌛️|
+| Making the scripts how they work with front end. And then after we make it use in Jango. And then it gets handled in the back-end|⌛️|
+
+### Management
+__To do for managers__
+| Task                                   | Done? |
+|----------------------------------------|--|
+| Further coordinate meeting|✅|
+| Arrange contact with customers Same place same time|⌛️|
+| Prepare questions for client|⌛️|
+| Improve project plan|⌛️|
+| Arrange an AWS test server via Joren for CLAM|⌛️|
+| Prepare presentation|⌛️|
+| Send mail to Lars Willemsen to try and improve cooperation|✅|
