@@ -9,6 +9,7 @@ from scripts.models import execute_script
 
 # Create your views here.
 
+
 class GenericTemplate(TemplateView):
     template_name = 'template.html'
 

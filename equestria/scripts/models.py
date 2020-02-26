@@ -6,7 +6,8 @@ import threading
 
 
 def spawn_wait_thread():
-    process = subprocess.Popen(['python3', os.path.join(settings.BASE_DIR, 'scripts/scriptje.py'), 'manage.py', 'bla'])
+    process = subprocess.Popen(['python3', os.path.join(
+        settings.BASE_DIR, 'scripts/scriptje.py'), 'manage.py', 'bla'])
     Process.objects.create(process_id=process.pid, executing=True)
     print(process)
     process.communicate()
