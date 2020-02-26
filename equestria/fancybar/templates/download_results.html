@@ -3,7 +3,7 @@
 {% load static %}
 
 {% block title %}
-Upload wav
+Download Results
 {% endblock %}
 
 {% block style %}
@@ -13,7 +13,7 @@ Upload wav
 {% endblock %}
 
 {% block navbaritems %}
-<li class="nav-item active">
+<li class="nav-item">
     <a class="nav-link waves-effect waves-light" href="upload_wav">Upload wav</a>
 </li>
 <li class="nav-item">
@@ -31,24 +31,14 @@ Upload wav
 <li class="nav-item">
     <a class="nav-link waves-effect waves-light" href="praat_scripts">Praat Scripts</a>
 </li>
-<li class="nav-item">
+<li class="nav-item active">
     <a class="nav-link waves-effect waves-light" href="download_results">Download Results</a>
 </li>
 {% endblock %}
 
 {% block body %}
 <div class="rounded shadow lighter padding">
-    <!-- TODO: can we check if the files are .wav? -->
-    <h3>Use CTRL+click to select multiple files:</h3>
-    <form class="md-form" action="#">
-        <div class="input-group mb-3">
-            <div class="custom-file">
-                <input type="file" multiple class="custom-file-input" id="inputGroupFile02">
-                <label class="custom-file-label" for="inputGroupFile02" aria-describedby="inputGroupFileAddon02">Choose wav files</label>
-            </div>
-        </div>
-        <span class="btn btn-dark" id="inputGroupFileAddon02">Upload wav files</span>
-    </form>
+    <span class="btn btn-dark">Download results</span>
 </div>
 {% endblock %}
 

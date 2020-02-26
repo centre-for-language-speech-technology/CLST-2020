@@ -3,7 +3,7 @@
 {% load static %}
 
 {% block title %}
-Dear Princess Celestia
+Home Page
 {% endblock %}
 
 {% block style %}
@@ -14,34 +14,41 @@ Dear Princess Celestia
 
 {% block navbaritems %}
 <li class="nav-item">
-  <a class="nav-link waves-effect waves-light" href="upload_wav">Upload wav</a>
-</li>
-<li class="nav-item active">
-  <a class="nav-link waves-effect waves-light" href="upload_txt"><i class="fas fa-upload"></i>Upload txt</a>
+    <a class="nav-link waves-effect waves-light" href="upload_wav">Upload wav</a>
 </li>
 <li class="nav-item">
-  <a class="nav-link waves-effect waves-light" href="forced_alignment">Forced Alignment</a>
+    <a class="nav-link waves-effect waves-light" href="upload_txt">Upload txt</a>
 </li>
 <li class="nav-item">
-  <a class="nav-link waves-effect waves-light" href="update_dictionary">Update Dictionary</a>
+    <a class="nav-link waves-effect waves-light" href="forced_alignment">Forced Alignment</a>
 </li>
 <li class="nav-item">
-  <a class="nav-link waves-effect waves-light" href="auto_segmentation">Automatic Segmentation</a>
+    <a class="nav-link waves-effect waves-light" href="update_dictionary">Update Dictionary</a>
 </li>
 <li class="nav-item">
-  <a class="nav-link waves-effect waves-light" href="praat_scripts">Praat Scripts</a>
+    <a class="nav-link waves-effect waves-light" href="auto_segmentation">Automatic Segmentation</a>
 </li>
 <li class="nav-item">
-  <a class="nav-link waves-effect waves-light" href="download_results">Download Results</a>
+    <a class="nav-link waves-effect waves-light" href="praat_scripts">Praat Scripts</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link waves-effect waves-light" href="download_results">Download Results</a>
 </li>
 {% endblock %}
 
 {% block body %}
 <h1>Dear Princess Celestria,</h1>
 <br>
-<h2 align="center">Today my friends and I solved the Riemann ζ function, prooved P=NP, colonized Titan, managed to call our ISP without being placed on hold, increased the global GPD by 1337%, united Pakistan, Israel, North Korea, Palestine, India and South Korea into a single nation, reversed climate change and explained the Navier-Stokes model to an unborn fetus while deriving it from Maxwells equations alone, all with the power of friendship, of course! :)</h2>
+<h2 align="center">Today my friends and I solved the Riemann ζ function, proved P=NP, colonized Titan, managed to call our ISP without being placed on hold, increased the global GPD by 1337%, united Pakistan, Israel, North Korea, Palestine, India and South Korea into a single nation, reversed climate change and explained the Navier-Stokes model to an unborn fetus while deriving it from Maxwells equations alone, all with the power of friendship, of course! :)</h2>
 <br>
 <h4 align="right">- Your best student, Twilight Sparkle!<h4>
+<div class="rounded shadow lighter padding">
+    <h1> Welcome to the forced alignment tool!</h1>
+    <h2> Here you can easily do the forced alignment, through simple button presses! Just click the button below to begin!</h2>
+    <a href="upload_wav.html">
+        <span class="btn btn-dark" id="inputGroupFileAddon02">Begin the forced alignment!</span>
+    </a>
+</div>
 {% endblock %}
 
 {% block scripts %}

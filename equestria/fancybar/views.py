@@ -20,7 +20,6 @@ class GenericTemplate(TemplateView):
                 return render(request, self.template_name)
 
         
-       
 class Fancybar(GenericTemplate):
         template_name = 'template.html'
 
@@ -54,6 +53,46 @@ class UploadWav(TemplateView):
 
 class UploadTxt(TemplateView):
         template_name = 'upload_txt.html'
+
+        def get(self, request):
+                return render(request, self.template_name)
+
+
+        def post(self, request):
+                return render(request, self.template_name)
+
+class ForcedAlignment(TemplateView):
+        template_name = 'forced_alignment.html'
+
+        def get(self, request):
+                return render(request, self.template_name)
+
+
+        def post(self, request):
+                return render(request, self.template_name)
+
+class UpdateDictionary(TemplateView):
+        template_name = 'update_dictionary.html'
+
+        def get(self, request):
+                return render(request, self.template_name)
+
+
+        def post(self, request):
+                return render(request, self.template_name)
+
+class AutoSegmentation(TemplateView):
+        template_name = 'auto_segmentation.html'
+
+        def get(self, request):
+                return render(request, self.template_name)
+
+
+        def post(self, request):
+                return render(request, self.template_name)
+
+class DownloadResults(TemplateView):
+        template_name = 'download_results.html'
 
         def get(self, request):
                 return render(request, self.template_name)
