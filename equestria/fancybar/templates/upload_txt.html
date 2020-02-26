@@ -38,15 +38,15 @@ Upload txt
 
 {% block body %}
 <div class="rounded shadow lighter padding">
-    <!--<h3> TODO: can we check if the files are .txt? Is there a txt for every wav file? </h3>-->
+    <!-- TODO: can we check if the files are .txt? Is there a txt for every wav file? -->
     <h3>Use CTRL+click to select multiple files:</h3>
     <form class="md-form" action="#">
         <div class="input-group mb-3">
             <div class="custom-file">
                 {{form.as_p}}
                 {%csrf_token%}
-                <!-- <input type="file" multiple class="custom-file-input" id="inputGroupFile02">
-                <label class="custom-file-label" for="inputGroupFile02" aria-describedby="inputGroupFileAddon02">Choose txt files</label> -->
+                <!-- <input type="file" multiple class="custom-file-input" id="inputGroupFile02"> -->
+                <!-- <label class="custom-file-label" for="inputGroupFile02" aria-describedby="inputGroupFileAddon02">Choose txt files</label> -->
             </div>
         </div>
         <span class="btn btn-dark" id="inputGroupFileAddon02" onclick="myform.submit()">Upload txt files</span>
