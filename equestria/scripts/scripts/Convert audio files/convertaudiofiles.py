@@ -26,7 +26,7 @@ def convert_file_to_16khz(file_to_convert, converted_file):
 		else:
 			print("Conversion failed with return code {}.".format(result.returncode))
 
-
+# Run as: python3 convertaudiofiles.py [wav_file_to_convert] -o [output_file_to_write_to]
 if __name__ == "__main__":
 	parser = ArgumentParser(description="Convert audio files to 16khz")
 	parser.add_argument("file_to_convert", help="file to convert to 16khz")
