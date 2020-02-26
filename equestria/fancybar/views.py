@@ -5,7 +5,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
 from django.db.models import Q
 from fancybar.models import *
-
+from scripts.models import execute_script
 
 # Create your views here.
 
@@ -16,6 +16,7 @@ class GenericTemplate(TemplateView):
         return render(request, self.template_name)
 
     def post(self, request):
+        print(request)
         return render(request, self.template_name)
 
 
@@ -48,8 +49,15 @@ class UploadTxt(GenericTemplate):
     template_name = 'upload_txt.html'
 
 
-class ForcedAlignment(GenericTemplate):
+class ForcedAlignment(TemplateView):
     template_name = 'forced_alignment.html'
+
+    def get(self, request):
+        return render(request, self.template_name)
+
+    def post(self, request):
+        execute_script()
+        return render(request, self.template_name)
 
 
 class UpdateDictionary(GenericTemplate):
