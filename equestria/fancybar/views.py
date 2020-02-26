@@ -5,6 +5,8 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
 from django.db.models import Q
 from fancybar.models import *
+from .forms import UploadFileForm
+from django.core.files.storage import FileSystemStorage
 
 
 # Create your views here.
@@ -56,8 +58,28 @@ class UploadTxt(TemplateView):
         template_name = 'upload_txt.html'
 
         def get(self, request):
-                return render(request, self.template_name)
+                form = UploadFileForm()
+                return render(request, self.template_name, {'form':form})
 
 
         def post(self, request):
+                form = UploadFileForm(request.POST, request.FILES)
+		f = request.FILES['f']
+		fs = FileSystemStorage()
+		fs.save(f.name,f)
                 return render(request, self.template_name)
+
+
+class UploadView(TemplateView):
+	template_name = 'upload.html'
+
+	def get(self, request):
+		form = UploadFileForm()
+		return render(request, self.template_name, {'form': form})
+
+	def post(self, request):
+		form = UploadFileForm(request.POST, request.FILES)
+		f = request.FILES['f']
+		fs = FileSystemStorage()
+		fs.save(f.name,f)
+		return render(request, self.template_name, {'form': form})
