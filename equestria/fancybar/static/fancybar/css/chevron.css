@@ -1,0 +1,55 @@
+ul.chevronbar {
+    list-style-type: none;
+    vertical-align: center;
+    margin: 0;
+    padding: 0;
+    height:50px;
+    width:auto;
+    overflow:hidden;
+}
+
+ul.chevronbar li {
+    margin: 0;
+    padding: 0 0;
+    height:50px;
+    width:auto;
+    position:relative;
+    float:left;
+    font-size: 1.5em;
+    margin-right: 1em;
+    padding: 0 0;
+}
+
+ul.chevronbar li a {
+    text-decoration: none;
+    line-height: 1em;
+    font-size: 0.8em;
+    vertical-align: middle;
+    display:block;
+}
+ul.chevronbar li:before, ul.chevronbar li:after {
+    content: ' ';
+    height: 0;
+    width: 0;
+    position: absolute;
+    top:-2px;
+    border: 1.2em solid transparent;
+    border-left-width: 0.45em;
+    border-right-width: 0.45em;
+}
+ul.chevronbar li:before {
+     right: 100%;
+}
+ul.chevronbar li:after {
+    left: 100%;
+    margin-left: -0.01em;
+}
+li.first {
+    padding-left: 0.5em;
+}
+li.first:before {
+    border: none !important ;
+}
+li.last:after {
+    border: none !important;
+}
