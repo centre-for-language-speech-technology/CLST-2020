@@ -1,0 +1,63 @@
+1. Engels of Nederlands (lang)
+2. Run path wordt gespecificeerd
+3. Check of er al results zijn
+4. Maak een clst-asr-fa map aan in de home folder van de gebruiker
+5. Maak een config bestand aan voor de forced aligner
+    1. Als er dutch is gekozen in stap 1 wordt acmod=exp/osnl-nnet2-online naar de config file geschreven
+    2. Als er English is gekozen in stap 1 wordt er acmod=exp/UTwente-chain naar de config file geschreven
+6. 
+
+Stap 1/4
+
+Conversiestap commando’s:
+
+> sox —info -r [filename]
+Geeft de sample rate van [filename]
+
+> sox [filename] -r 16000 [new_filename]
+Converteert [filename] met andere sample rate dan 16khz naar [new_filename] met sample rate van 16khz
+
+Wordt nu gedaan met convertaudiofiles.pl
+
+Converteren short textured naar full textgrid?
+
+> praat —run converrtextgrid.praat [folder_with_converted_wav_files]
+Doet iets met converteren van een textgrid, geen idee?
+
+Converteren van UTF-16BE naar UTF-8 Format
+
+> file -i [filename]
+Geeft informatie over de file met naam [filename], daarna wordt gekeken of de string een van de volgende substrings bevat:
+
+- Utf-16be
+- Utf16le
+
+> iconv -f [from_encoding] -t utf-8 [filename] -o [new_filename]
+Converteert file met naam [filename] in encoding [from_encoding] naar file in utf-8 encoding met file naam [new_filename].
+
+Daarna worden ook alle EFBBBF binaire strings uit de file gehaald, ik weet niet waarom?
+
+> sed -i 's/^\xEF\xBB\xBF//' [filename]
+Verwijderd de binaire string EFBBBF uit file met naam [filename]
+
+Stap 2/4
+Deze stap wordt uitgevoerd voor elk .wav bestand (geconverteerd naar 16khz)
+
+> cp -p data/local/dict/{extra_questions.txt,nonsilence_phones.txt,optional_silence.txt,phones.txt,silence_phones.txt} [directory]/dict
+Een aantal txt bestanden waaronder het lexicon worden gekopieerd naar [directory]/dict.
+
+> python data/local/data_prep.py —align_tier_name [align_tier_name] —speaker_adapt SA —wav_file [filename] —annot_folder [wav_folder] —data_folder [directory] —dict_file [lexicon]
+Er wordt iets met data preparatie gedaan
+[align_tier_name]: een setting uit align_config.rc, staat standaard op transcription
+[filename]: de file om te preprocessen
+[wav_folder]: de folder met alle wav files
+[directory]: de folder waarin de dict map staat
+
+
+
+
+
+Benodigdheden:
+
+- Sox
+- Praat
