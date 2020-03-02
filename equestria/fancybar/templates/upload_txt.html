@@ -45,8 +45,8 @@ Upload txt
             <div class="custom-file">
                 {{form.as_p}}
                 {%csrf_token%}
-                <!-- <input type="file" multiple class="custom-file-input" id="inputGroupFile02"> -->
-                <!-- <label class="custom-file-label" for="inputGroupFile02" aria-describedby="inputGroupFileAddon02">Choose txt files</label> -->
+                <input type="file" multiple class="custom-file-input" id="inputGroupFile02">
+                <label class="custom-file-label" for="inputGroupFile02" aria-describedby="inputGroupFileAddon02">Choose txt files</label>
             </div>
         </div>
         <span class="btn btn-dark" id="inputGroupFileAddon02" onclick="myform.submit()">Upload txt files</span>

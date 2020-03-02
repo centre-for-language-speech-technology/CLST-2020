@@ -38,9 +38,6 @@ Run Praat Script
 
 {% block body %}
 <div class="rounded shadow lighter padding">
-<h3>I originally wanted a simple selection like this, but all good designs are pricy:</h3>
-<a href="https://themes.getbootstrap.com/product/material-kit-pro/">800USD for a cool button</a>
-<br />
 <select class="mdb-select md-form">
     <option value="" disabled selected>Choose a script</option>
     {% for script in scripts %}
@@ -49,7 +46,7 @@ Run Praat Script
     </option>
     {% endfor %}
 </select>
-<h3>So I made my own selection:</h3>
+<br />
 <span class="btn btn-dark">Run script</span>
 </div>
 
@@ -97,7 +94,7 @@ Run Praat Script
             <div class="shadow padding" style="height: 90%">
 	        {% if not script_run %}
 	        <p>
-	            I wanted to print the output of the command here live (for transparency/debugging by the user), but we probably need a websocket or AJAX for that
+	            <!-- I wanted to print the output of the command here live (for transparency/debugging by the user), but we probably need a websocket or AJAX for that -->
 	        </p>
 	        {% else %}
 	        <p>Running script with name <code>{{ script_run }}</code>...</p>
