@@ -1,4 +1,5 @@
 {% extends 'progbase.html' %}
+{% load crispy_forms_tags %}
 {% load static %}
 
 {% block title %}
@@ -41,13 +42,11 @@ Upload txt
     <form class="md-form" action="#">
         <div class="input-group mb-3">
             <div class="custom-file">
-                {{form}}
+                {% crispy form %}
                 {%csrf_token%}
-                <!-- <input type="file" multiple class="custom-file-input" id="inputGroupFile02">
-                <label class="custom-file-label" for="inputGroupFile02" aria-describedby="inputGroupFileAddon02">Choose txt files</label> -->
             </div>
-            <button type="submit" class="btn btn-primary">Sumit</button>
         </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
     </form>
 </div>
 {% endblock %}

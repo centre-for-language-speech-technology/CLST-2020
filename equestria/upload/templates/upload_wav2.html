@@ -1,8 +1,9 @@
 {% extends 'progbase.html' %}
+{% load crispy_forms_tags %}
 {% load static %}
 
 {% block title %}
-Upload txt
+Upload wav
 {% endblock %}
 
 {% block style %}
@@ -12,11 +13,11 @@ Upload txt
 {% endblock %}
 
 {% block navbaritems %}
-<li class="nav-item">
-    <a class="nav-link waves-effect waves-light" href="upload_wav">Upload wav</a>
-</li>
 <li class="nav-item active">
-    <a class="nav-link waves-effect waves-light" href="upload_txt"><i class="fas fa-upload"></i>Upload txt</a>
+    <a class="nav-link waves-effect waves-light" href="wav">Upload wav</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link waves-effect waves-light" href="txt"><i class="fas fa-upload"></i>Upload txt</a>
 </li>
 <li class="nav-item">
     <a class="nav-link waves-effect waves-light" href="forced_alignment">Forced Alignment</a>
@@ -38,15 +39,14 @@ Upload txt
 {% block body %}
 <div class="rounded shadow lighter padding">
     <h3>Use CTRL+click to select multiple files:</h3>
-    <form class="md-form" action="#">
+    <h2>Is this the right from?</h2>
+    <form class="md-form" action="#" method="post" enctype="multipart/form-data">
         <div class="input-group mb-3">
             <div class="custom-file">
-                {{form}}
+                {% crispy form %}
                 {%csrf_token%}
-                <!-- <input type="file" multiple class="custom-file-input" id="inputGroupFile02">
-                <label class="custom-file-label" for="inputGroupFile02" aria-describedby="inputGroupFileAddon02">Choose txt files</label> -->
+                <input type="submit" value="Submit" class="btn btn-primary">
             </div>
-            <button type="submit" class="btn btn-primary">Sumit</button>
         </div>
     </form>
 </div>
