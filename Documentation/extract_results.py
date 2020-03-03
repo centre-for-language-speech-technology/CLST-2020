@@ -12,9 +12,9 @@ def create_dataframe():
     :return: The dataframe that is created
     """
     columns = ['type', 'file_name', "duur_tot", 'tot_int', 'expression', 'nr_undefined', 'dur_mean', 'pitch_min_mean',
-                'pitch_max_mean', 'pitch_mean_mean', 'pitch_std_mean', 'pitch_var_mean',
-                'intensity_min_mean', 'intensity_max_mean', 'intensity_mean_mean', 'intensity_std_mean', 'f0_mean',
-                'f1_mean', 'f2_mean', 'f3_mean', 'grav_center_mean']
+               'pitch_max_mean', 'pitch_mean_mean', 'pitch_std_mean', 'pitch_var_mean',
+               'intensity_min_mean', 'intensity_max_mean', 'intensity_mean_mean', 'intensity_std_mean', 'f0_mean',
+               'f1_mean', 'f2_mean', 'f3_mean', 'grav_center_mean']
     return pd.DataFrame(columns=columns)
 
 
@@ -54,11 +54,11 @@ def extract_from_results(file_name):
             # Add the number of intervals
             row_dict['tot_int'] = int(line_list[-3])
 
-
             # Extract the expression that is said and how many of the measurements are not defined
             nr_und = 0
-            means = [0 for _ in range(15)]  # duration, pitch min max mean std var,
-                                                 # intensity min max mean std, f0, f1, f2, f3, grav
+            # duration, pitch min max mean std var,
+            means = [0 for _ in range(15)]
+            # intensity min max mean std, f0, f1, f2, f3, grav
             nr_means = means.copy()
             expression = ['dummy']
             line_list = list(filter(None, line_list))
@@ -120,7 +120,8 @@ def run():
 
     # Save the dataframe
     output = "extracted_info.xlsx"
-    print(str(len(files_total)) + " files processed. Storing the extracted data into " + output)
+    print(str(len(files_total)) +
+          " files processed. Storing the extracted data into " + output)
     data.to_excel(output, index=False)
 
 

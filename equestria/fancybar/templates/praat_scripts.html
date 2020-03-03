@@ -13,99 +13,98 @@ Run Praat Script
 
 {% block navbaritems %}
 <li class="nav-item">
-  <a class="nav-link waves-effect waves-light" href="upload_wav">Upload wav</a>
+    <a class="nav-link waves-effect waves-light" href="upload_wav">Upload wav</a>
 </li>
 <li class="nav-item">
-  <a class="nav-link waves-effect waves-light" href="upload_txt"><i class="fas fa-upload"></i>Upload txt</a>
+    <a class="nav-link waves-effect waves-light" href="upload_txt">Upload txt</a>
 </li>
 <li class="nav-item">
-  <a class="nav-link waves-effect waves-light" href="forced_alignment">Forced Alignment</a>
+    <a class="nav-link waves-effect waves-light" href="forced_alignment">Forced Alignment</a>
 </li>
 <li class="nav-item">
-  <a class="nav-link waves-effect waves-light" href="update_dictionary">Update Dictionary</a>
+    <a class="nav-link waves-effect waves-light" href="update_dictionary">Update Dictionary</a>
 </li>
 <li class="nav-item">
-  <a class="nav-link waves-effect waves-light" href="auto_segmentation">Automatic Segmentation</a>
+    <a class="nav-link waves-effect waves-light" href="auto_segmentation">Automatic Segmentation</a>
 </li>
 <li class="nav-item active">
-  <a class="nav-link waves-effect waves-light" href="praat_scripts">Praat Scripts</a>
+    <a class="nav-link waves-effect waves-light" href="praat_scripts">Praat Scripts</a>
 </li>
 <li class="nav-item">
-  <a class="nav-link waves-effect waves-light" href="download_results">Download Results</a>
+    <a class="nav-link waves-effect waves-light" href="download_results">Download Results</a>
 </li>
 {% endblock %}
 
 {% block body %}
+<!--
 <div class="rounded shadow lighter padding">
-<h3>I originally wanted a simple selection like this, but all good designs are pricy:</h3>
-<a href="https://themes.getbootstrap.com/product/material-kit-pro/">800USD for a cool button</a>
-<br />
 <select class="mdb-select md-form">
-  <option value="" disabled selected>Choose a script</option>
-  {% for script in scripts %}
-  <option value="" data-icon="https://mdbootstrap.com/img/Photos/Avatars/avatar-1.jpg" class="rounded-circle">
-    {{ script.name }}
-  </option>
-  {% endfor %}
+    <option value="" disabled selected>Choose a script</option>
+    {% for script in scripts %}
+    <option value="" data-icon="https://mdbootstrap.com/img/Photos/Avatars/avatar-1.jpg" class="rounded-circle">
+        {{ script.name }}
+    </option>
+    {% endfor %}
 </select>
-<h3>So I made my own selection:</h3>
+<br />
+<span class="btn btn-dark">Run script</span>
 </div>
-
-<br /><br /><br />
+-->
+<br />
 <h3>Please select a script to run:</h3>
 
 <br />
 <div class="container-fluid">
-  <div class="row">
-    <div class="col-md-7" id="entry-list">
-      <div class="row shadow rounded">
-      <div class="search col-md-12 lighter padding shadow rounded">
-	<span class="fa fa-search"></span>
-	<input type="text" id="searchbar" onkeyup="search()" class="rounded shadow" style="width:90%; float:right" name="search" placeholder="Search..">
-      </div>
-      </div>
-      <br />
-      {% for script in scripts %}
-      <form method="post">
-	{% csrf_token %}
-	<input type=hidden name="script_name" value="{{ script.name }}"/>
-      <div class="row shadow rounded entry">
-	<div class="col-md-3 lighter padding">
-	  <img class="rounded-circle shadow bg-border" width="100px" height="100px" src="{{ script.img.url }}" alt="{{ script.icon }}" />
-	</div>
-	<div class="col-md-7 lighter padding">
-	  <h5>{{ script.name }}</h5>
-	  <p>{{ script.desc }}</p>
-	</div>
-	<div class="col-md-2 lighter padding">
-	  <input type="submit" class="btn btn-md" value="Run" id="button_{{ script.name }}" formaction="/praat_scripts#button_{{ script.name}}">
-	  </input>
-	</div>
-      </div>
-      </form>
-      {% if not forloop.last %}
-      <br />
-      {% endif %}
-      {% endfor %}
+    <div class="row">
+        <div class="col-md-7" id="entry-list">
+            <div class="row shadow rounded">
+        <div class="search col-md-12 lighter padding shadow rounded">
+	    <span class="fa fa-search"></span>
+	    <input type="text" id="searchbar" onkeyup="search()" class="rounded shadow" style="width:90%; float:right" name="search" placeholder="Search..">
+            </div>
+            </div>
+            <br />
+            {% for script in scripts %}
+            <form method="post">
+	    {% csrf_token %}
+	    <input type=hidden name="script_name" value="{{ script.name }}"/>
+            <div class="row shadow rounded entry">
+	    <div class="col-md-3 lighter padding">
+	        <img class="rounded-circle shadow bg-border" width="100px" height="100px" src="{{ script.img.url }}" alt="{{ script.icon }}" />
+	    </div>
+	    <div class="col-md-7 lighter padding">
+	        <h5>{{ script.name }}</h5>
+	        <p>{{ script.desc }}</p>
+	    </div>
+	    <div class="col-md-2 lighter padding">
+	        <input type="submit" class="btn btn-md" value="Run" id="button_{{ script.name }}" formaction="/praat_scripts#button_{{ script.name}}">
+	        </input>
+	    </div>
+            </div>
+            </form>
+            {% if not forloop.last %}
+            <br />
+            {% endif %}
+            {% endfor %}
+        </div>
+        <div class="col-md-1">
+        </div>
+        <div class="col-md-4 lighter shadow padding rounded">
+            <h5>Console Output</h5>
+            <div class="shadow padding" style="height: 90%">
+	        {% if not script_run %}
+	        <p>
+	            <!-- I wanted to print the output of the command here live (for transparency/debugging by the user), but we probably need a websocket or AJAX for that -->
+	        </p>
+	        {% else %}
+	        <p>Running script with name <code>{{ script_run }}</code>...</p>
+	        <p>This is passed via the backend btw, not js</p>
+	        <p>Look at the ./manage.py runserver output in your console</p>
+	        <p>Done. Script ran <span style="color: green">successfully</span>!</p>
+	        {% endif %}
+            </div>
+        </div>
     </div>
-    <div class="col-md-1">
-    </div>
-    <div class="col-md-4 lighter shadow padding rounded">
-      <h5>Console Output</h5>
-      <div class="shadow padding" style="height: 90%">
-	  {% if not script_run %}
-	  <p>
-	    I wanted to print the output of the command here live (for transparency/debugging by the user), but we probably need a websocket or AJAX for that
-	  </p>
-	  {% else %}
-	  <p>Running script with name <code>{{ script_run }}</code>...</p>
-	  <p>This is passed via the backend btw, not js</p>
-	  <p>Look at the ./manage.py runserver output in your console</p>
-	  <p>Done. Script ran <span style="color: green">successfully</span>!</p>
-	  {% endif %}
-      </div>
-    </div>
-  </div>
 </div>
 {% endblock %}
 

@@ -16,7 +16,7 @@ Upload txt
     <a class="nav-link waves-effect waves-light" href="upload_wav">Upload wav</a>
 </li>
 <li class="nav-item active">
-    <a class="nav-link waves-effect waves-light" href="upload_txt"><i class="fas fa-upload"></i>Upload txt</a>
+    <a class="nav-link waves-effect waves-light" href="upload_txt">Upload txt</a>
 </li>
 <li class="nav-item">
     <a class="nav-link waves-effect waves-light" href="forced_alignment">Forced Alignment</a>
@@ -37,14 +37,15 @@ Upload txt
 
 {% block body %}
 <div class="rounded shadow lighter padding">
+    <!-- TODO: can we check if the files are .txt? Is there a txt for every wav file? -->
     <h3>Use CTRL+click to select multiple files:</h3>
     <form class="md-form" action="#">
         <div class="input-group mb-3">
             <div class="custom-file">
                 {{form}}
                 {%csrf_token%}
-                <!-- <input type="file" multiple class="custom-file-input" id="inputGroupFile02">
-                <label class="custom-file-label" for="inputGroupFile02" aria-describedby="inputGroupFileAddon02">Choose txt files</label> -->
+                <input type="file" multiple class="custom-file-input" id="inputGroupFile02">
+                <label class="custom-file-label" for="inputGroupFile02" aria-describedby="inputGroupFileAddon02">Choose txt files</label>
             </div>
             <button type="submit" class="btn btn-primary">Sumit</button>
         </div>

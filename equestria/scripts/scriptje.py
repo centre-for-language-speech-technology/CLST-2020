@@ -12,7 +12,7 @@ if len(sys.argv) < 3:
 
 
 input_filename = sys.argv[1]
-output_filename =sys.argv[2]
+output_filename = sys.argv[2]
 fr = open(input_filename, "r")
 
 str1 = fr.readline()

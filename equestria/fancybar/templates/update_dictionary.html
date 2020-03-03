@@ -1,8 +1,9 @@
 {% extends 'progbase.html' %}
+
 {% load static %}
 
 {% block title %}
-Home Page
+Update Dictionary
 {% endblock %}
 
 {% block style %}
@@ -21,7 +22,7 @@ Home Page
 <li class="nav-item">
     <a class="nav-link waves-effect waves-light" href="forced_alignment">Forced Alignment</a>
 </li>
-<li class="nav-item">
+<li class="nav-item active">
     <a class="nav-link waves-effect waves-light" href="update_dictionary">Update Dictionary</a>
 </li>
 <li class="nav-item">
@@ -37,11 +38,8 @@ Home Page
 
 {% block body %}
 <div class="rounded shadow lighter padding">
-    <h1>Welcome to Equestria!</h1>
-    <h4>With this tool you will be able to perform forced alignment and analyse the result using Praat scripts. </h4>
-    <a href="upload_wav.html">
-        <span class="btn btn-dark" id="inputGroupFileAddon02">Start your adventure!</span>
-    </a>
+    <!-- TODO: which words are not in the dictionary? -> proceed accordingly -->
+    <span class="btn btn-dark"">Update dictionary</span>
 </div>
 {% endblock %}
 

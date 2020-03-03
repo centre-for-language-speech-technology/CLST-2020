@@ -14,10 +14,13 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Process',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('id', models.AutoField(auto_created=True,
+                                        primary_key=True, serialize=False, verbose_name='ID')),
                 ('process_id', models.IntegerField()),
-                ('input_file', models.FilePathField(path='/home/micheldeboer/Documents/SoftEng/CLST-2020/equestria')),
-                ('output_file', models.FilePathField(path='/home/micheldeboer/Documents/SoftEng/CLST-2020/equestria')),
+                ('input_file', models.FilePathField(
+                    path='/home/micheldeboer/Documents/SoftEng/CLST-2020/equestria')),
+                ('output_file', models.FilePathField(
+                    path='/home/micheldeboer/Documents/SoftEng/CLST-2020/equestria')),
                 ('executing', models.BooleanField(default=False)),
             ],
         ),

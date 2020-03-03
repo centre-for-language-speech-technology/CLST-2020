@@ -1,8 +1,9 @@
 {% extends 'progbase.html' %}
+
 {% load static %}
 
 {% block title %}
-Home Page
+Forced Alignment
 {% endblock %}
 
 {% block style %}
@@ -18,7 +19,7 @@ Home Page
 <li class="nav-item">
     <a class="nav-link waves-effect waves-light" href="upload_txt">Upload txt</a>
 </li>
-<li class="nav-item">
+<li class="nav-item active">
     <a class="nav-link waves-effect waves-light" href="forced_alignment">Forced Alignment</a>
 </li>
 <li class="nav-item">
@@ -36,12 +37,14 @@ Home Page
 {% endblock %}
 
 {% block body %}
+<form action="forced_alignment" method="post">
+    {% csrf_token %}
+    <input type="submit" value="_forced_alignment">
+</form>
+
 <div class="rounded shadow lighter padding">
-    <h1>Welcome to Equestria!</h1>
-    <h4>With this tool you will be able to perform forced alignment and analyse the result using Praat scripts. </h4>
-    <a href="upload_wav.html">
-        <span class="btn btn-dark" id="inputGroupFileAddon02">Start your adventure!</span>
-    </a>
+    <!-- TODO: can we show some sort of progress bar?/show whats happening? -->
+    <span class="btn btn-dark">Do forced alignment</span>
 </div>
 {% endblock %}
 
