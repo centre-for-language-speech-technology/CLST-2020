@@ -1,13 +1,36 @@
 from django.db import models
 from django.conf import settings
-from django.urls import reverse
 import subprocess
 import os
 import threading
 
-# TODO: Set this in settings.py
-DATABASE_FILE = "database.txt"
 
+PROC_STARTING = "starting"
+PROC_RUNNING = "running"
+PROC_STOPPED = "stopped"
+
+# Starts a script
+# process_id: The process_id as in the Process model, this id must be unique
+# cmd: The script to run
+# args: The arguments for the script in this format:
+# dict(
+#   parameter_name: parameter_value,
+# )
+# input_files: list with input file locations
+def script_start(process_id, cmd, args, input_files):
+    return True
+
+# Returns the status of a script, either PROC_STARTING, PROC_RUNNING or PROC_STOPPED
+def script_status(process_id):
+    return PROC_STOPPED
+
+# Kills a script
+def script_kill(process_id):
+    pass
+
+# Returns a list containing all output files
+def script_get_output_files(process_id):
+    return []
 
 def spawn_wait_thread():
     process = subprocess.Popen(['python3', os.path.join(
