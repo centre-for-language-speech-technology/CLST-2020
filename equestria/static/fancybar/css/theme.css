@@ -1,0 +1,90 @@
+:root {
+    --background-color: #292929;
+    --background-lighter: #373737;
+    --acent-color: #18bc9c;
+    --acent-darker: #1c613f;
+    --text-color: #ffeeee;
+}
+
+body {
+    background-color: var(--background-color) !important;
+    color: var(--text-color) !important;
+}
+
+button:not(.hamburger):not(.navbar-toggler) {
+    background-color: var(--background-color) !important;
+    color: var(--text-color) !important;
+}
+
+a {
+    color: var(--text-color) !important;
+}
+
+a:hover {
+    color: var(--acent-color) !important;
+}
+
+.list-element a {
+    color: var(--text-color) !important;
+}
+
+.list-element :hover {
+    color: var(--acent-color) !important;
+    text-shadow: var(--background-color);
+}
+
+.text-secondary {
+    color: var(--text-color) !important;
+}
+
+hr {
+    border-color: var(--text-color) !important;
+}
+
+iframe {
+    width: 100%;
+}
+
+.btn-accent {
+    background-color: var(--acent-color);
+}
+
+.btn-accent:hover {
+    background-color: var(--acent-darker);
+}
+
+.panel-body {
+    background-color: var(--background-lighter);
+}
+
+.list-item:hover {
+    color: var(--acent-color);
+}
+
+.list-item-current {
+    background-color: var(--background-lighter) !important;
+}
+ul.chevronbar li:after {
+    border-left-color: var(--background-lighter) !important; /* front */
+
+}
+ul.chevronbar li {
+    border: 1px solid var(--background-lighter);
+    background:var(--background-lighter);
+}
+ul.chevronbar li:before {
+    border-top-color: var(--background-lighter) !important; /* upper left */
+    border-bottom-color: var(--background-lighter) !important; /* lower left */
+    border-right-color: var(--background-lighter) !important; /* left middle */
+ }
+li.nav-item.active  {
+    background: var(--acent-darker) !important;
+}
+li.nav-item.active:after {
+    border-left-color: var(--acent-darker) !important; /* front */
+}
+li.nav-item.active:before {
+    border-top-color: var(--acent-darker) !important; /* upper left */
+    border-bottom-color: var(--acent-darker) !important; /* lower left */
+    border-right-color: var(--acent-darker) !important; /* left middle */
+}
