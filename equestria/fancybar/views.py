@@ -21,7 +21,6 @@ class GenericTemplate(TemplateView):
         return render(request, self.template_name)
 
     def post(self, request):
-        print(request)
         return render(request, self.template_name)
 
 
