@@ -1,7 +1,7 @@
 .DS_Store
 *.pyc
 .idea/
-db.sqlite3
-venv
 venv/
 *.egg-info/
+equestria.egg-info/
+

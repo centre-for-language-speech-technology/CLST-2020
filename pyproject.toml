@@ -7,6 +7,7 @@ authors = ["GiPHouse <unknown@unknown.com>"]
 [tool.poetry.dependencies]
 python = "^3.7"
 django = "^3.0.3"
+pillow = "^7.0.0"
 
 [build-system]
 requires = ["poetry>=0.12"]
