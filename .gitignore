@@ -1,0 +1,7 @@
+.DS_Store
+*.pyc
+.idea/
+venv/
+*.egg-info/
+equestria.egg-info/
+
