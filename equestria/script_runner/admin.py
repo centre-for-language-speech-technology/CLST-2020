@@ -1,5 +1,17 @@
 from django.contrib import admin
-from script_runner.models import *
+from script_runner import models
 
 # Register your models here.
-admin.site.register(Script)
+
+
+class ArgumentInline(admin.StackedInline):
+    model = models.Argument
+
+
+class ScriptA(admin.ModelAdmin):
+    inlines = [
+        ArgumentInline,
+    ]
+
+
+admin.site.register(models.Script, ScriptA)
