@@ -6,12 +6,19 @@ from script_runner import models
 
 class ArgumentInline(admin.StackedInline):
     model = models.Argument
+    extra = 0
 
 
-class ScriptA(admin.ModelAdmin):
+class OutputFileInline(admin.StackedInline):
+    model = models.OutputFile
+    extra = 0
+
+
+class ScriptAdmin(admin.ModelAdmin):
     inlines = [
         ArgumentInline,
+        OutputFileInline,
     ]
 
 
-admin.site.register(models.Script, ScriptA)
+admin.site.register(models.Script, ScriptAdmin)
