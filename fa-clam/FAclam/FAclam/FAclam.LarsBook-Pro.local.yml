@@ -1,7 +1,0 @@
-
-#This is a host-specific configuration file for the webservice on LarsBook-Pro.local
-#Here you can add host-specific options. This file
-#always takes presence over configurations that are not host specific
-host: LarsBook-Pro.local
-root: /Users/lars/Desktop/fa-clam/FAclam/userdata
-port: 8080
