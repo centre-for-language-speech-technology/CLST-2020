@@ -15,6 +15,18 @@
     <link rel="icon" type="image/png" sizes="64x64" href="{% static 'fancybar/favicon/favicon-64x64.png' %}">
     <link rel="icon" type="image/png" sizes="32x32" href="{% static 'fancybar/favicon/favicon-32x32.png' %}">
 
+    <!-- scripts are above body, so that they can be used within other templates within the body -->
+    <!-- JQuery (dependency of bootstrap) -->
+    <script type="text/javascript" src="{% static 'fancybar/js/jquery.min.js' %}"></script>
+    <!-- Bootstrap tooltips -->
+    <script type="text/javascript" src="{% static 'fancybar/js/popper.min.js' %}"></script>
+    <!-- Bootstrap core JavaScript -->
+    <script type="text/javascript" src="{% static 'fancybar/js/bootstrap.min.js' %}"></script>
+    <!-- MDB core JavaScript -->
+    <script type="text/javascript" src="{% static 'fancybar/js/mdb.min.js' %}"></script>
+    <!-- Main script -->
+    <script type="text/javascript" src="{% static 'fancybar/js/main.js' %}"></script>
+
     <title>
         {% block title %}
             Title
@@ -51,18 +63,6 @@
 
 {% block body %}
 {% endblock %}
-
-<!-- scripts are below body, so that page load does not wait for script execution -->
-<!-- JQuery (dependency of bootstrap) -->
-<script type="text/javascript" src="{% static 'fancybar/js/jquery.min.js' %}"></script>
-<!-- Bootstrap tooltips -->
-<script type="text/javascript" src="{% static 'fancybar/js/popper.min.js' %}"></script>
-<!-- Bootstrap core JavaScript -->
-<script type="text/javascript" src="{% static 'fancybar/js/bootstrap.min.js' %}"></script>
-<!-- MDB core JavaScript -->
-<script type="text/javascript" src="{% static 'fancybar/js/mdb.min.js' %}"></script>
-<!-- Main script -->
-<script type="text/javascript" src="{% static 'fancybar/js/main.js' %}"></script>
 
 {% block scripts %}
 {% endblock %}

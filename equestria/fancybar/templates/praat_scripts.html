@@ -6,6 +6,7 @@ Run Praat Script
 {% endblock %}
 
 {% block style %}
+<link href="{% static 'fancybar/css/dropdown.css' %}" type="text/css" />
 {% endblock %}
 
 {% block prebody %}
@@ -54,33 +55,68 @@ Run Praat Script
 <h3>Please select a script to run:</h3>
 
 <br />
+<br /><br /><br /><br /><br />
 <div class="container-fluid">
     <div class="row">
         <div class="col-md-7" id="entry-list">
-            <div class="row shadow rounded">
-        <div class="search col-md-12 lighter padding shadow rounded">
-	    <span class="fa fa-search"></span>
-	    <input type="text" id="searchbar" onkeyup="search()" class="rounded shadow" style="width:90%; float:right" name="search" placeholder="Search..">
+          <div class="row shadow rounded">
+            <div class="search col-md-12 lighter padding shadow rounded">
+	      <span class="fa fa-search"></span>
+	      <input type="text" id="searchbar" onkeyup="search()" class="rounded shadow" style="width:90%; float:right" name="search" placeholder="Search..">
             </div>
-            </div>
+          </div>
             <br />
             {% for script in scripts %}
-            <form method="post">
-	    {% csrf_token %}
-	    <input type=hidden name="script_name" value="{{ script.name }}"/>
-            <div class="row shadow rounded entry">
-	    <div class="col-md-3 lighter padding">
-	        <img class="rounded-circle shadow bg-border" width="100px" height="100px" src="{{ script.img.url }}" alt="{{ script.icon }}" />
+            <form method="post" class="accent-darker shadow rounded" id="form_{{ script.id }}">
+	      {% csrf_token %}
+	      <input type=hidden name="script_name" value="{{ script.name }}"/>
+	      <input type=hidden name="script_id" value="{{ script.id }}"/>
+              <div class="row shadow rounded entry">
+		  <div class="col-md-3 lighter padding" type="button" data-toggle="collapse" data-target="#collapse{{ forloop.counter }}">
+	            <img class="rounded-circle shadow bg-border" width="100px" height="100px" src="{{ script.img.url }}" alt="{{ script.icon }}" />
+		  </div>
+		  <div class="col-md-9 lighter padding" type="button" data-toggle="collapse" data-target="#collapse{{ forloop.counter }}">
+	            <h5>{{ script.name }}</h5>
+	            <p>{{ script.description }}</p>
+		  </div>
+	    
+	    <div class="collapse padding-xl" id="collapse{{ forloop.counter }}">
+	      {% for argument in script.args %}
+	      <h5>{{ argument.name }}</h5>
+	      <p>{{ argument.description }}</p>
+	      {% if argument.arg_type == USER_SPECIFIED_FILE %}
+  	          <input type="file" name="script_{{ script.id }}_argument_{{ argument.id }}" {% if argument.required %} required {% endif %}/>
+	      {% elif argument.arg_type == USER_SPECIFIED_TEXT %}
+	          <input type="text" name="script_{{ script.id }}_argument_{{ argument.id }}" {% if argument.required %} required {% endif %}/>
+	      {% elif argument.arg_type == USER_SPECIFIED_BOOL %}
+	          <input type="checkbox" name="script_{{ script.id }}_argument_{{ argument.id }}" {% if argument.required %} required {% endif %}/>
+	      {% elif argument.arg_type == USER_SPECIFIED_INT %}
+	          <input type="number" name="script_{{ script.id }}_argument_{{ argument.id }}" {% if argument.required %} required {% endif %}/>
+	      {% else %}
+	          <p>You should not be able to see this text.</p>
+	      {% endif %}
+	      {% if not forloop.last %}
+		  <br /><hr/>
+              {% endif %}
+	      {% endfor %}
+		  <br />
+	      <input type="submit" class="btn btn-md" value="Run" id="button_{{ script.id }}">
 	    </div>
-	    <div class="col-md-7 lighter padding">
-	        <h5>{{ script.name }}</h5>
-	        <p>{{ script.desc }}</p>
-	    </div>
-	    <div class="col-md-2 lighter padding">
-	        <input type="submit" class="btn btn-md" value="Run" id="button_{{ script.name }}" formaction="/praat_scripts#button_{{ script.name}}">
-	        </input>
-	    </div>
-            </div>
+	    
+              </div>
+	      <script>
+		$( document ).ready(function() {
+		    $(function() {
+			$('#form_{{ script.id }}').on('submit', function(e) {
+			    e.preventDefault();
+			    $.post('praat_scripts', $(this).serialize(), function (data) {
+				// This is executed when the call to mail.php was succesful.
+				// 'data' contains the response from the request
+			    })
+			});
+		    });
+		});
+	      </script>
             </form>
             {% if not forloop.last %}
             <br />
@@ -110,4 +146,5 @@ Run Praat Script
 
 {% block scripts %}
 <script src="{% static 'fancybar/js/search.js' %}"></script>
+<script src="{% static 'fancybar/js/dropdown.js' %}"></script>
 {% endblock %}

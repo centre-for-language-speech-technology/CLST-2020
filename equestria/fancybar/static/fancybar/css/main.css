@@ -6,6 +6,10 @@ body {
     padding: 10px;
 }
 
+.padding-xl {
+    padding: 20px;
+}
+
 .margin {
     margin: 10px;
 }
