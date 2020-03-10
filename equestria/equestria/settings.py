@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'fancybar',
     'upload',
     'crispy_forms',
+    'script_runner',
 ]
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
