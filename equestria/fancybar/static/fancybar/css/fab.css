@@ -16,6 +16,39 @@
   text-decoration: none;
 }
 
+.fab-inactive:before {
+  position: absolute;
+  content: "";
+  left: 0;
+  top: 50%;
+  right: 0;
+  border-top: 1px solid;
+  border-color: inherit;
+
+  -webkit-transform:rotate(-45deg);
+  -moz-transform:rotate(-45deg);
+  -ms-transform:rotate(-45deg);
+  -o-transform:rotate(-45deg);
+  transform:rotate(-45deg);
+}
+
+.fab-inactive:after {
+  position: absolute;
+  content: "";
+  left: 0;
+  top: 50%;
+  right: 0;
+  border-top: 1px solid;
+  border-color: inherit;
+
+  -webkit-transform:rotate(45deg);
+  -moz-transform:rotate(45deg);
+  -ms-transform:rotate(45deg);
+  -o-transform:rotate(45deg);
+  transform:rotate(45deg);
+}
+
+
 .fab-list {
 	position:fixed;
 	right:40px;
@@ -92,3 +125,4 @@ a#download-button:hover > i{
     from {transform: rotate(360deg);}
     to {transform: rotate(0deg);}
 }
+
