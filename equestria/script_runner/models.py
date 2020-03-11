@@ -14,9 +14,9 @@ class Script(Model):
     command = CharField(help_text="or a command to execute",
                         max_length=2**10, blank=True)
     primary_output_file = FilePathField(help_text="The file to be used for live output",
-                                        path="scripts/", blank=True)  # TODO change this
+                                        path="outputs/", blank=True)  # TODO change this
     output_file_or_directory = FilePathField(help_text="Additional outputs generated",
-                                             path="scripts/", blank=True, allow_folders=True, recursive=False)  # TODO change this
+                                             path="outputs/", blank=True, allow_folders=True, recursive=False)  # TODO change this
     img = ImageField(upload_to='script_img', blank=True,
                      help_text='Thumbnail to symbolize script')
     # If no image is provided, the icon is used instead

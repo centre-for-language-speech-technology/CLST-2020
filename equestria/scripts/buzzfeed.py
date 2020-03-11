@@ -8,11 +8,11 @@ import random
 
 
 def show(text=""):
-    with open("buzzfeed.py.out", "a") as f:
+    with open("outputs/buzzfeed.py.out", "a") as f:
         f.write(text + "\n")
 
 
-open("buzzfeed.py.out", "w+").close()
+open("outputs/buzzfeed.py.out", "w+").close()
 show("Calculating result based on your input...")
 show("Please stand by")
 time.sleep(3)

@@ -109,9 +109,9 @@ Run Praat Script
 		    $(function() {
 			$('#form_{{ script.id }}').on('submit', function(e) {
 			    e.preventDefault();
+			    $("#file_to_load").text("{{ script.primary_output_file  }}");
 			    $.post('praat_scripts', $(this).serialize(), function (data) {
-				// This is executed when the call to mail.php was succesful.
-				// 'data' contains the response from the request
+				// what to do when the request was successfull
 			    })
 			});
 		    });
@@ -126,18 +126,21 @@ Run Praat Script
         <div class="col-md-1">
         </div>
         <div class="col-md-4 lighter shadow padding rounded">
-            <h5>Console Output</h5>
-            <div class="shadow padding" style="height: 90%">
-	        {% if not script_run %}
-	        <p>
-	            <!-- I wanted to print the output of the command here live (for transparency/debugging by the user), but we probably need a websocket or AJAX for that -->
-	        </p>
-	        {% else %}
-	        <p>Running script with name <code>{{ script_run }}</code>...</p>
-	        <p>This is passed via the backend btw, not js</p>
-	        <p>Look at the ./manage.py runserver output in your console</p>
-	        <p>Done. Script ran <span style="color: green">successfully</span>!</p>
-	        {% endif %}
+          <h5>Console Output</h5>
+	  <p class="clock"></p>
+	  <p>Showing file: <code id="file_to_load">None</code></p>
+          <div class="shadow padding" style="height: 90%">
+	      <div id="console_output" ></div>
+	        <!-- {% if not script_run %} -->
+	        <!-- <p> -->
+	        <!--     <\!-- I wanted to print the output of the command here live (for transparency/debugging by the user), but we probably need a websocket or AJAX for that -\-> -->
+	        <!-- </p> -->
+	        <!-- {% else %} -->
+	        <!-- <p>Running script with name <code>{{ script_run }}</code>...</p> -->
+	        <!-- <p>This is passed via the backend btw, not js</p> -->
+	        <!-- <p>Look at the ./manage.py runserver output in your console</p> -->
+	        <!-- <p>Done. Script ran <span style="color: green">successfully</span>!</p> -->
+	        <!-- {% endif %} -->
             </div>
         </div>
     </div>
@@ -147,4 +150,6 @@ Run Praat Script
 {% block scripts %}
 <script src="{% static 'fancybar/js/search.js' %}"></script>
 <script src="{% static 'fancybar/js/dropdown.js' %}"></script>
+<script src="{% static 'fancybar/js/clock.js' %}"></script>
+<script src="{% static 'fancybar/js/output_loading.js' %}"></script>
 {% endblock %}

@@ -4,8 +4,10 @@
 # 1,3 and 5 are strings
 # 2 and 4 are integer
 
-echo $1 > echo.sh.out
+OUTPUT="outputs/echo.sh.out"
+
+echo $1 > $OUTPUT
 sleep $2
-echo $3 >> echo.sh.out
+echo $3 >> $OUTPUT
 sleep $4
-echo $5 >> echo.sh.out
+echo $5 >> $OUTPUT

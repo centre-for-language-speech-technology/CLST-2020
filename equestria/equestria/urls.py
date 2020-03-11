@@ -9,7 +9,9 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include(('fancybar.urls', 'fancybar'), namespace='fancybar')),
-    path('upload/', include(('upload.urls', 'upload'), namespace='upload'))
+    path('upload/', include(('upload.urls', 'upload'), namespace='upload')),
+    path('outputs/', include(('script_runner.urls',
+                              'script_runner'), namespace='script_runner')),
 ]
 
 urlpatterns += staticfiles_urlpatterns()

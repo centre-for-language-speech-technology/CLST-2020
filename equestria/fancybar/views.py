@@ -60,7 +60,8 @@ class PraatScripts(TemplateView):
             ]
         print('"Running" script ' + name + "...")
         print(args)
-        backend_interface.run(script_id, args)
+        backend_interface.run(
+            Script.objects.get(pk=script_id), args)
         self.arg['script_run'] = name
         return render(request, self.template_name, self.arg)
 

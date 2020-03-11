@@ -61,7 +61,7 @@ ROOT_URLCONF = 'equestria.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ['templates'],
+        'DIRS': ['templates', 'outputs'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
