@@ -7,6 +7,7 @@ Progess bar test
 
 {% block head %}
 <link href="{% static 'fancybar/css/chevron.css' %}" rel="stylesheet">
+<link href="{% static 'fancybar/css/fab.css' %}" rel="stylesheet">
 <script src="{% static 'fancybar/js/chevron.js' %}"></script>
 {% endblock %}
 
@@ -31,6 +32,21 @@ Progess bar test
     <br><br><br>
 </nav>
 <br>
+<a href="#" class="fab fab-inactive" id="download-button">
+<i class="fa fa-download fab-glyph"></i>
+</a>
+<ul class="fab-list">
+<li class="fab-list-element"><a class="fab-circle fab-text" href="#">
+      zip
+</a></li>
+<li class="fab-list-element"><a class="fab-circle fab-text" href="#">
+tar.gz
+</a></li>
+<li class="fab-list-element"><a class="fab-circle fab-text" href="#">
+tar.bz2
+</a></li>
+</ul>
+
 {% endblock %}
 
 {% block body %}
