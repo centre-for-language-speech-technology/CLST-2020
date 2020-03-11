@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'upload',
     'crispy_forms',
     'script_runner',
+    'accounts',
 ]
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
