@@ -2,7 +2,7 @@ name: Master-workflow
 
 on:
   push:
-    branches: [ master, CI/*]
+    branches: [CI/*]
   pull_request:
     branches: [ master ]
 
