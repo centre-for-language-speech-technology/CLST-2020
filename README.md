@@ -1,5 +1,5 @@
 # CLST: GiPHouse project
-
+### 
 
 Getting started
 ---------------
@@ -13,3 +13,4 @@ Getting started
 6. `./manage.py migrate` to initialise the database
 7. `./manage.py createsuperuser` to create the first user
 8. `./manage.py runserver` to run a testing server
+9. ./manage.py makemigrations app1 when adding app1 to database

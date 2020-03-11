@@ -1,0 +1,5 @@
+include README*
+include FAclam/*.py
+include FAclam/*.sh
+include FAclam/*.wsgi
+include FAclam/*.yml

@@ -1,0 +1,20 @@
+body {
+    padding: 1em;
+}
+
+.padding {
+    padding: 10px;
+}
+
+.padding-xl {
+    padding: 20px;
+}
+
+.margin {
+    margin: 10px;
+}
+
+.full {
+    height: 100%;
+    width: 100%;
+}
