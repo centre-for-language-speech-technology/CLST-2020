@@ -36,6 +36,23 @@ Run Praat Script
 </li>
 {% endblock %}
 
+{% block fab %}
+<a href="#" class="fab" id="download-button">
+<i class="fa fa-download fab-glyph"></i>
+</a>
+<ul class="fab-list">
+<li class="fab-list-element"><a class="fab-circle fab-text" href="#">
+      zip
+</a></li>
+<li class="fab-list-element"><a class="fab-circle fab-text" href="#">
+tar.gz
+</a></li>
+<li class="fab-list-element"><a class="fab-circle fab-text" href="#">
+tar.bz2
+</a></li>
+</ul>
+{% endblock %}
+
 {% block body %}
 <!--
 <div class="rounded shadow lighter padding">

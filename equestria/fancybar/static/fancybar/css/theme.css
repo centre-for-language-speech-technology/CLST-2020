@@ -114,3 +114,21 @@ input {
     background-color: var(--background-color) !important;
     color: var(--text-color) !important;
 }
+
+.fab-circle {
+    	background-color: var(--accent-darker);
+	color: var(--text-color);
+	box-shadow: 2px 2px 3px var(--background-lighter);
+}
+
+.fab {
+    background-color: var(--accent-darker);
+    color: var(--text-color);
+    box-shadow: 2px 2px 3px var(--background-lighter);
+}
+
+.fab-inactive {
+    background-color: var(--background-lighter);
+    color: var(--background);
+    box-shadow: 2px 2px 3px var(--background-lighter);
+}
