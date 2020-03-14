@@ -22,6 +22,7 @@ class Script(Model):
 
     name = CharField(max_length=512)
     # I haven't looked up how to reference local (server-side) files
+
     script_file = FilePathField(
         help_text="specify either a file to execute",
         # TODO: change this path
@@ -118,6 +119,57 @@ class Argument(Model):
 
         ordering = ["name"]
         verbose_name_plural = "Arguments"
+
+
+class Process(Model):
+    """
+    Database model for processes in CLAM.
+
+    Attributes:
+        name                          Name of the process. 
+                                      Used for identification only, can be anything.
+        clam_id                       Identification number given by CLAM.
+    """
+
+    name = CharField(max_length=512)
+    clam_id = CharField(max_length=256)
+
+    def __str__(self):
+        """Use name of process in admin display."""
+        return self.name
+
+    class Meta:
+        """
+        Display configuration for admin pane.
+
+        Order admin list alphabetically by name.
+        Display plural correctly.
+        """
+
+        ordering = ["name"]
+        verbose_name_plural = "Scripts"
+
+
+class InputFile(Model):
+    """
+    Database model for files used as inputs of scripts.
+
+    Attributes:
+        name                          Name of the file. 
+                                      Used for identification only, can be anything.
+        input_file                    Input file on disk.
+        description                   Documentation of the purpose/content of the file.
+        associated_process            Process object the file belongs to.
+    """
+
+    name = CharField(max_length=512)
+    input_file = FilePathField(path="uploads/")  # TODO change this
+    description = TextField(max_length=32768)
+    associated_process = ManyToManyField(Process, default=None)
+
+    def __str__(self):
+        """Use name of input file in admin display."""
+        return self.name
 
 
 class OutputFile(Model):

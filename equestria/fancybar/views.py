@@ -5,6 +5,7 @@ from django.core.files.storage import FileSystemStorage
 from upload import forms as uploadForms
 from script_runner.constants import *
 from script_runner import backend_interface
+from script_runner.backend_interface import ClamConfiguration
 
 
 # Create your views here.
@@ -74,9 +75,20 @@ class PraatScripts(TemplateView):
                 ),
             ]
         print('"Running" script ' + name + "...")
-        print(args)
-        backend_interface.run(Script.objects.get(pk=script_id), args)
+        script = Script.objects.get(pk=script_id)
+        clam_config = ClamConfiguration(
+            script.hostname, "45"
+        )  # TODO change that
+        # script.primary_output_file = clam_config.get_output_files()[0][1]
+        backend_interface.run(script, args)
         self.arg["script_run"] = name
+
+        script = Script.objects.get(pk=script_id)
+        clam_config = ClamConfiguration(
+            script.hostname, "45"
+        )  # TODO change that
+        # script.primary_output_file = clam_config.get_output_files()[0][1]
+        backend_interface.run(script, args)
         return render(request, self.template_name, self.arg)
 
 
@@ -135,9 +147,4 @@ class DownloadResults(GenericTemplate):
 
     template_name = "download_results.html"
 
-
-# _. Dummy outline topic header -- see ‘allout-mode’ docstring: ‘C-h m’.
-# _. Local emacs vars.
-# _ , Local variables:
-# _ , allout-layout: (-1 : 0)
-# _ , End:
+    template_name = "download_results.html"

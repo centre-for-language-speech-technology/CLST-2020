@@ -35,4 +35,11 @@ class ScriptAdmin(admin.ModelAdmin):
     ]
 
 
+class ProcessAdmin(admin.ModelAdmin):
+    """Process does not have inline fields (but may get them later)."""
+
+    inlines = []
+
+
 admin.site.register(models.Script, ScriptAdmin)
+admin.site.register(models.Process, ProcessAdmin)
