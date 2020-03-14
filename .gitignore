@@ -4,4 +4,5 @@
 venv/
 *.egg-info/
 equestria.egg-info/
+db.sqlite3
 

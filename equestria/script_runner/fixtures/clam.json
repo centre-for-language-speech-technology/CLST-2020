@@ -1,0 +1,16 @@
+[
+  {
+    "model": "script_runner.Script",
+    "pk": 1,
+    "fields": {
+      "name": "Test script",
+      "script_file": "",
+      "command": "",
+      "primary_output_file": "",
+      "output_file_or_directory": "",
+      "img": "script_img/pony.png",
+      "icon": "",
+      "description": "This is a script"
+    }
+  }
+]

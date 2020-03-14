@@ -2,4 +2,6 @@ from django.apps import AppConfig
 
 
 class UploadConfig(AppConfig):
-    name = 'upload'
+    """Config class for Django app 'upload'."""
+
+    name = "upload"

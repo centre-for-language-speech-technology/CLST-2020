@@ -2,4 +2,6 @@ from django.apps import AppConfig
 
 
 class FancybarConfig(AppConfig):
-    name = 'fancybar'
+    """Config class for Django app 'fancybar'."""
+
+    name = "fancybar"
