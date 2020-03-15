@@ -71,6 +71,12 @@ tar.bz2
 <br />
 <h3>Please select a script to run:</h3>
 
+    <form method="post" class="accent-darker shadow rounded" id="form_create_project">
+	      {% csrf_token %}
+        <input type="hidden" name="form_handler" value="create_project"/>
+        <input type="submit" class="btn btn-md" value="Create" id="button_create_project">
+    </form>
+
 <br />
 <br /><br /><br /><br /><br />
 <div class="container-fluid">
@@ -83,61 +89,51 @@ tar.bz2
             </div>
           </div>
             <br />
-            {% for script in scripts %}
-            <form method="post" class="accent-darker shadow rounded" id="form_{{ script.id }}">
-	      {% csrf_token %}
-	      <input type=hidden name="script_name" value="{{ script.name }}"/>
-	      <input type=hidden name="script_id" value="{{ script.id }}"/>
-              <div class="row shadow rounded entry">
-		  <div class="col-md-3 lighter padding" type="button" data-toggle="collapse" data-target="#collapse{{ forloop.counter }}">
-	            <img class="rounded-circle shadow bg-border" width="100px" height="100px" src="{{ script.img.url }}" alt="{{ script.icon }}" />
-		  </div>
-		  <div class="col-md-9 lighter padding" type="button" data-toggle="collapse" data-target="#collapse{{ forloop.counter }}">
-	            <h5>{{ script.name }}</h5>
-	            <p>{{ script.description }}</p>
-		  </div>
-	    
-	    <div class="collapse padding-xl" id="collapse{{ forloop.counter }}">
-	      {% for argument in script.args %}
-	      <h5>{{ argument.name }}</h5>
-	      <p>{{ argument.description }}</p>
-	      {% if argument.arg_type == USER_SPECIFIED_FILE %}
-  	          <input type="file" name="script_{{ script.id }}_argument_{{ argument.id }}" {% if argument.required %} required {% endif %}/>
-	      {% elif argument.arg_type == USER_SPECIFIED_TEXT %}
-	          <input type="text" name="script_{{ script.id }}_argument_{{ argument.id }}" {% if argument.required %} required {% endif %}/>
-	      {% elif argument.arg_type == USER_SPECIFIED_BOOL %}
-	          <input type="checkbox" name="script_{{ script.id }}_argument_{{ argument.id }}" {% if argument.required %} required {% endif %}/>
-	      {% elif argument.arg_type == USER_SPECIFIED_INT %}
-	          <input type="number" name="script_{{ script.id }}_argument_{{ argument.id }}" {% if argument.required %} required {% endif %}/>
-	      {% else %}
-	          <p>You should not be able to see this text.</p>
-	      {% endif %}
-	      {% if not forloop.last %}
-		  <br /><hr/>
-              {% endif %}
-	      {% endfor %}
-		  <br />
-	      <input type="submit" class="btn btn-md" value="Run" id="button_{{ script.id }}">
-	    </div>
-	    
-              </div>
-	      <script>
-		$( document ).ready(function() {
-		    $(function() {
-			$('#form_{{ script.id }}').on('submit', function(e) {
-			    e.preventDefault();
-			    $("#file_to_load").text("{{ script.primary_output_file  }}");
-			    $.post('praat_scripts', $(this).serialize(), function (data) {
-				// what to do when the request was successfull
-			    })
-			});
-		    });
-		});
-	      </script>
-            </form>
-            {% if not forloop.last %}
-            <br />
-            {% endif %}
+            {% for process in processes %}
+                <input type=hidden name="script_name" value="{{ process.name }}"/>
+                <input type=hidden name="script_id" value="{{ process.id }}"/>
+                    <div class="row shadow rounded entry">
+                <div class="col-md-3 lighter padding" type="button" data-toggle="collapse" data-target="#collapse{{ forloop.counter }}">
+                    <img class="rounded-circle shadow bg-border" width="100px" height="100px" src="{{ script.img.url }}" alt="{{ script.icon }}" />
+                </div>
+                <div class="col-md-9 lighter padding" type="button" data-toggle="collapse" data-target="#collapse{{ forloop.counter }}">
+                    <h5>{{ process.name }}</h5>
+                    <p>{{ process.description }}</p>
+                </div>
+
+                <div class="collapse padding-xl" id="collapse{{ forloop.counter }}">
+                    {% for profile in process.profiles %}
+                        <form method="post" class="accent-darker shadow rounded" id="form_{{ profile.id }}" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <h5>Profile {{ forloop.counter }}</h5>
+                        {%  for input_template in profile.input_templates %}
+                            {{ input_template.label }}
+                            <input type="file" accept="{{ input_template.extension }}" name="template_id_{{ input_template.id }}" {% if not input_template.optional %} required {% endif %} />
+                            <p>Accepts {{ input_template.extension }}</p>
+                        {% endfor %}
+                        <input type="hidden" name="form_handler" value="run_profile"/>
+                        <input type="hidden" name="profile_id" value="{{ profile.id }}"/>
+                        <input type="submit" class="btn btn-md" value="Run" id="button_{{ profile.id }}">
+                        </form>
+                    {% endfor %}
+                    <br />
+                </div>
+              <script>
+            $( document ).ready(function() {
+                $(function() {
+                $('#form_{{ script.id }}').on('submit', function(e) {
+                    e.preventDefault();
+                    $("#file_to_load").text("{{ script.primary_output_file  }}");
+                    $.post('praat_scripts', $(this).serialize(), function (data) {
+                    // what to do when the request was successfull
+                    })
+                });
+                });
+            });
+              </script>
+                {% if not forloop.last %}
+                <br />
+                {% endif %}
             {% endfor %}
         </div>
         <div class="col-md-1">
