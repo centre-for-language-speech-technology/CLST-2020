@@ -130,18 +130,54 @@ class Argument(Model):
 
 
 class Profile(Model):
+    """
+    Database model for profiles.
+
+    A profile is a set of InputTemplates (possibly more later on)
+    Attributes:
+        process                 The process associated with this profile.
+    """
+
     process = ForeignKey(Process, on_delete=SET_NULL, null=True)
 
     class Meta:
+        """
+        Display configuration for admin pane.
+
+        Order admin list by id.
+        Display plural correctly.
+        """
+
         ordering = ["id"]
         verbose_name = "Profile"
         verbose_name_plural = "Profiles"
 
     def __str__(self):
+        """
+        Use identifier in admin pane.
+
+        :return: string including the identifier of this object
+        """
         return str(self.id)
 
 
 class InputTemplate(Model):
+    """
+    Database model for input templates provided by the CLAM server.
+
+    An input template is provided by CLAM and puts restrictions on what types of input files can be uploaded
+    Attributes:
+        template_id             The identifier of this input template in the CLAM server.
+        format                  The format of this input template as a CLAM format.
+        label                   The label of this input template.
+        extension               The accepted extension by this input template.
+        optional                Whether or not this template is optional before starting the associated script.
+        unique                  Whether or not there is only one of these files per process. If this equals True a file
+                                must first be deleted before overwriting it on the CLAM server.
+        accept_archive          Whether or not this template accepts archive files.
+        corresponding_profile   The corresponding profile of this input template.
+    """
+
     template_id = CharField(max_length=1024)
     format = CharField(max_length=1024)
     label = CharField(max_length=1024)
@@ -152,6 +188,13 @@ class InputTemplate(Model):
     corresponding_profile = ForeignKey(Profile, on_delete=SET_NULL, null=True)
 
     class Meta:
+        """
+        Display configuration for admin pane.
+
+        Order admin list by id.
+        Display plural correctly.
+        """
+
         ordering = ["id"]
         verbose_name = "Input template"
         verbose_name_plural = "Input templates"
