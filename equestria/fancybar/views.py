@@ -92,13 +92,17 @@ class PraatScripts(TemplateView):
 
     def post(self, request):
         """Process command line arguments and run selected script."""
-        if request.POST.get('form_handler') == "create_project":
+        if request.POST.get("form_handler") == "create_project":
             # TODO: Change this
             clamclient = clam.common.client.CLAMClient("http://localhost:8080")
             project_name = str(random.getrandbits(64))
             clamclient.create(project_name)
             data = clamclient.get(project_name)
-            process = Process.objects.create(name="new process", script=Script.objects.get(pk=1), clam_id=project_name)
+            process = Process.objects.create(
+                name="new process",
+                script=Script.objects.get(pk=1),
+                clam_id=project_name,
+            )
             new_profile = Profile.objects.create(process=process)
             for input_template in data.inputtemplates():
                 InputTemplate.objects.create(
@@ -109,19 +113,35 @@ class PraatScripts(TemplateView):
                     optional=input_template.optional,
                     unique=input_template.unique,
                     accept_archive=input_template.acceptarchive,
-                    corresponding_profile=new_profile
+                    corresponding_profile=new_profile,
                 )
             return render(request, self.template_name, self.arg)
-        elif request.POST.get('form_handler') == "run_profile":
+        elif request.POST.get("form_handler") == "run_profile":
             profile_id = request.POST.get("profile_id")
             profile = Profile.objects.get(pk=profile_id)
             argument_files = list()
-            for input_template in InputTemplate.objects.select_related().filter(corresponding_profile=profile):
+            for input_template in InputTemplate.objects.select_related().filter(
+                corresponding_profile=profile
+            ):
                 # TODO: This is now writing to the main directory, replace this with files from the uploaded files
-                with open(request.FILES["template_id_{}".format(input_template.id)].name, 'wb') as file:
-                    for chunk in request.FILES["template_id_{}".format(input_template.id)]:
+                with open(
+                    request.FILES[
+                        "template_id_{}".format(input_template.id)
+                    ].name,
+                    "wb",
+                ) as file:
+                    for chunk in request.FILES[
+                        "template_id_{}".format(input_template.id)
+                    ]:
                         file.write(chunk)
-                argument_files.append((request.FILES["template_id_{}".format(input_template.id)].name, input_template.template_id))
+                argument_files.append(
+                    (
+                        request.FILES[
+                            "template_id_{}".format(input_template.id)
+                        ].name,
+                        input_template.template_id,
+                    )
+                )
 
             process_to_run = Process.objects.get(pk=profile.process.id)
             clam_server = Script.objects.get(pk=process_to_run.script.id)
