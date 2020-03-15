@@ -1,0 +1,6 @@
+#!/usr/bin/env sh
+
+rm db.sqlite3
+./manage.py migrate
+./manage.py loaddata clam
+./manage.py runserver
