@@ -35,11 +35,29 @@ class ScriptAdmin(admin.ModelAdmin):
     ]
 
 
+class ProfileInline(admin.StackedInline):
+    model = models.Profile
+    extra = 0
+
+
 class ProcessAdmin(admin.ModelAdmin):
     """Process does not have inline fields (but may get them later)."""
 
-    inlines = []
+    inlines = [
+        ProfileInline
+    ]
 
+
+class InputTemplateInline(admin.StackedInline):
+    model = models.InputTemplate
+    extra = 0
+
+
+class ProfileAdmin(admin.ModelAdmin):
+    inlines = [
+        InputTemplateInline
+    ]
 
 admin.site.register(models.Script, ScriptAdmin)
 admin.site.register(models.Process, ProcessAdmin)
+admin.site.register(models.Profile, ProfileAdmin)

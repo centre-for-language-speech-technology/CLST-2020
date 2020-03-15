@@ -20,40 +20,18 @@ class Script(Model):
         description                   Documentation of the purpose of the script.
     """
 
-    name = CharField(max_length=512)
-    # I haven't looked up how to reference local (server-side) files
+    name = CharField(max_length=512, blank=False, null=False)
 
-    script_file = FilePathField(
-        help_text="specify either a file to execute",
-        # TODO: change this path
-        path="./",
-        blank=True,
-    )  # TODO change this
-    command = CharField(
-        help_text="or a command to execute", max_length=2 ** 10, blank=True
-    )
-    primary_output_file = FilePathField(
-        help_text="The file to be used for live output", path="./", blank=True,
-    )  # TODO change this
-    output_file_or_directory = FilePathField(
-        help_text="Additional outputs generated",
-        path="./",
-        blank=True,
-        allow_folders=True,
-        recursive=False,
-    )  # TODO change this
+    hostname = URLField(blank=False, null=False)
+
     img = ImageField(
         upload_to="script_img",
         blank=True,
         help_text="Thumbnail to symbolize script",
     )
     # If no image is provided, the icon is used instead
-    icon = CharField(
-        max_length=4,
-        blank=True,
-        help_text="FontAwesome glyph to show if image is unavailable",
-    )
-    description = TextField(max_length=32768)
+
+    description = TextField(max_length=32768, blank=True)
 
     def __str__(self):
         """Use name of script in admin display."""
@@ -69,6 +47,36 @@ class Script(Model):
 
         ordering = ["name"]
         verbose_name_plural = "Scripts"
+
+
+class Process(Model):
+    """
+    Database model for processes in CLAM.
+
+    Attributes:
+        name                          Name of the process.
+                                      Used for identification only, can be anything.
+        clam_id                       Identification number given by CLAM.
+    """
+
+    name = CharField(max_length=512, blank=False)
+    script = ForeignKey(Script, on_delete=SET_NULL, blank=False, null=True)
+    clam_id = CharField(max_length=256, blank=True)
+
+    def __str__(self):
+        """Use name of process in admin display."""
+        return self.name
+
+    class Meta:
+        """
+        Display configuration for admin pane.
+
+        Order admin list alphabetically by name.
+        Display plural correctly.
+        """
+
+        ordering = ["name"]
+        verbose_name_plural = "Processes"
 
 
 class Argument(Model):
@@ -121,33 +129,32 @@ class Argument(Model):
         verbose_name_plural = "Arguments"
 
 
-class Process(Model):
-    """
-    Database model for processes in CLAM.
-
-    Attributes:
-        name                          Name of the process. 
-                                      Used for identification only, can be anything.
-        clam_id                       Identification number given by CLAM.
-    """
-
-    name = CharField(max_length=512)
-    clam_id = CharField(max_length=256)
-
-    def __str__(self):
-        """Use name of process in admin display."""
-        return self.name
+class Profile(Model):
+    process = ForeignKey(Process, on_delete=SET_NULL, null=True)
 
     class Meta:
-        """
-        Display configuration for admin pane.
+        ordering = ["id"]
+        verbose_name = "Profile"
+        verbose_name_plural = "Profiles"
 
-        Order admin list alphabetically by name.
-        Display plural correctly.
-        """
+    def __str__(self):
+        return str(self.id)
 
-        ordering = ["name"]
-        verbose_name_plural = "Scripts"
+
+class InputTemplate(Model):
+    template_id = CharField(max_length=1024)
+    format = CharField(max_length=1024)
+    label = CharField(max_length=1024)
+    extension = CharField(max_length=32)
+    optional = BooleanField()
+    unique = BooleanField()
+    accept_archive = BooleanField()
+    corresponding_profile = ForeignKey(Profile, on_delete=SET_NULL, null=True)
+
+    class Meta:
+        ordering = ["id"]
+        verbose_name = "Input template"
+        verbose_name_plural = "Input templates"
 
 
 class InputFile(Model):
