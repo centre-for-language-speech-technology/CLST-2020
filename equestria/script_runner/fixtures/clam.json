@@ -3,14 +3,10 @@
     "model": "script_runner.Script",
     "pk": 1,
     "fields": {
-      "name": "Test script",
-      "script_file": "",
-      "command": "",
-      "primary_output_file": "",
-      "output_file_or_directory": "",
-      "img": "script_img/pony.png",
-      "icon": "",
-      "description": "This is a script"
+      "name": "Test scipt on port 8080",
+      "hostname": "http://localhost:8080",
+      "img": "",
+      "description": "Test script for a running CLAM server on port 8080"
     }
   }
 ]
