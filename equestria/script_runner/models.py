@@ -190,7 +190,13 @@ class InputTemplate(Model):
     corresponding_profile = ForeignKey(Profile, on_delete=SET_NULL, null=True)
 
     class Meta:
-        """Order by id."""
+        """
+        Display configuration for admin pane.
+
+        Order admin list by id.
+        Display plural correctly.
+        """
+
         ordering = ["id"]
         verbose_name = "Input template"
         verbose_name_plural = "Input templates"

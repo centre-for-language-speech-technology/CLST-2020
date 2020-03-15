@@ -94,7 +94,7 @@ class PraatScripts(TemplateView):
 
     def post(self, request):
         """Process command line arguments and run selected script."""
-        if request.POST.get("form_handler", ) == "create_project":
+        if request.POST.get("form_handler") == "create_project":
             # TODO: Change this
             clamclient = clam.common.client.CLAMClient("http://localhost:8080")
             project_name = str(random.getrandbits(64))
@@ -118,8 +118,8 @@ class PraatScripts(TemplateView):
                     corresponding_profile=new_profile,
                 )
             return render(request, self.template_name, self.arg)
-        elif request.POST.get("form_handler", ) == "run_profile":
-            profile_id = request.POST.get("profile_id", )
+        elif request.POST.get("form_handler") == "run_profile":
+            profile_id = request.POST.get("profile_id")
             profile = Profile.objects.get(pk=profile_id)
             argument_files = list()
             for input_template in InputTemplate.objects.select_related().filter(
