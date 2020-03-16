@@ -90,9 +90,7 @@ tar.bz2
           </div>
             <br />
             {% for process in processes %}
-                <input type=hidden name="script_name" value="{{ process.name }}"/>
-                <input type=hidden name="script_id" value="{{ process.id }}"/>
-                    <div class="row shadow rounded entry">
+            <div class="row shadow rounded entry">
                 <div class="col-md-3 lighter padding" type="button" data-toggle="collapse" data-target="#collapse{{ forloop.counter }}">
                     <img class="rounded-circle shadow bg-border" width="100px" height="100px" src="{{ script.img.url }}" alt="{{ script.icon }}" />
                 </div>
@@ -115,22 +113,10 @@ tar.bz2
                         <input type="hidden" name="profile_id" value="{{ profile.id }}"/>
                         <input type="submit" class="btn btn-md" value="Run" id="button_{{ profile.id }}">
                         </form>
-                    {% endfor %}
+			{% endfor %}
                     <br />
                 </div>
-              <script>
-            $( document ).ready(function() {
-                $(function() {
-                $('#form_{{ script.id }}').on('submit', function(e) {
-                    e.preventDefault();
-                    $("#file_to_load").text("{{ script.primary_output_file  }}");
-                    $.post('praat_scripts', $(this).serialize(), function (data) {
-                    // what to do when the request was successfull
-                    })
-                });
-                });
-            });
-              </script>
+	    </div>
                 {% if not forloop.last %}
                 <br />
                 {% endif %}
