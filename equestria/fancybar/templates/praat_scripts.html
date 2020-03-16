@@ -105,7 +105,7 @@ Run Praat Script
 
 		<div class="container-fluid collapse padding-xl" id="collapse{{ forloop.counter }}">
 		  <div class="row accent-darker padding shadow rounded">
-		<div class="col-md-11">
+		<div class="col-md-10">
                     {% for profile in process.profiles %}
                         <form method="post" class="" id="form_{{ profile.id }}" enctype="multipart/form-data">
                         {% csrf_token %}
@@ -122,17 +122,19 @@ Run Praat Script
 			{% endfor %}
                     <br />
                 </div>
-		<div class="col-md-1">
+		<div class="col-md-2">
+		  <p style="text-align: right">
 		    <i class="fa fa-download fab-glyph clickable" data-toggle="collapse" data-target="#downloadcollapse{{ forloop.counter }}"></i>
+		  </p>
 		    <div class="collapse" id="downloadcollapse{{ forloop.counter }}">
 
 		      <form method="post" class="" id="form_download_{{ process.id }}" enctype="multipart/form-data">
 			{% csrf_token %}
 			<input type="hidden" name="form_handler" value="download_process"/>
 			<input type="hidden" name="process_id" value="{{ process.id }}"/>
-			<input type="submit" style="width: 10em" class="btn btn-md" name="archive_type" value="zip"     id="button_download_zip_{{ process.id }}">
-			<input type="submit" style="width: 10em" class="btn btn-md" name="archive_type" value="tar.gz"  id="button_download_gz_{{ process.id }}">
-			<input type="submit" style="width: 10em" class="btn btn-md" name="archive_type" value="tar.bz2" id="button_download_bz_{{ process.id }}">
+			<input type="submit" style="width: 10em;" class="btn btn-md" name="archive_type" value="zip"     id="button_download_zip_{{ process.id }}">
+			<input type="submit" style="width: 10em;" class="btn btn-md" name="archive_type" value="tar.gz"  id="button_download_gz_{{ process.id }}">
+			<input type="submit" style="width: 10em;" class="btn btn-md" name="archive_type" value="tar.bz2" id="button_download_bz_{{ process.id }}">
 		      </form>
 		    </div>
 		  </div>
