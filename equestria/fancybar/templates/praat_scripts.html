@@ -95,8 +95,12 @@ Run Praat Script
             <br />
             {% for process in processes %}
             <div class="row shadow rounded entry">
-                <div class="col-md-3 lighter padding" type="button" data-toggle="collapse" data-target="#collapse{{ forloop.counter }}">
-                    <img class="rounded-circle shadow bg-border" width="100px" height="100px" src="{{ script.img.url }}" alt="{{ script.icon }}" />
+              <div class="col-md-3 lighter padding" type="button" data-toggle="collapse" data-target="#collapse{{ forloop.counter }}">
+		{% if script.img %}
+                <img class="rounded-circle shadow bg-border" width="100px" height="100px" src="{{ script.img.url }}" alt="{{ script.icon }}" />
+		{% else %}
+		<img class="rounded-circle shadow bg-border" width="100px" height="100px" src="https://static.tvtropes.org/pmwiki/pub/images/830px-Mysterious_Mare_Do_Well-1_9628.png" alt="{{ script.icon }}" />
+		  {% endif %}
                 </div>
                 <div class="col-md-9 lighter padding" type="button" data-toggle="collapse" data-target="#collapse{{ forloop.counter }}">
                     <h5>{{ process.name }}</h5>
