@@ -37,20 +37,6 @@ Run Praat Script
 {% endblock %}
 
 {% block fab %}
-<a href="#" class="fab" id="download-button">
-<i class="fa fa-download fab-glyph"></i>
-</a>
-<ul class="fab-list">
-<li class="fab-list-element"><a class="fab-circle fab-text" href="#">
-      zip
-</a></li>
-<li class="fab-list-element"><a class="fab-circle fab-text" href="#">
-tar.gz
-</a></li>
-<li class="fab-list-element"><a class="fab-circle fab-text" href="#">
-tar.bz2
-</a></li>
-</ul>
 {% endblock %}
 
 {% block body %}
@@ -99,9 +85,11 @@ tar.bz2
                     <p>{{ process.description }}</p>
                 </div>
 
-                <div class="collapse padding-xl" id="collapse{{ forloop.counter }}">
+		<div class="container-fluid collapse padding-xl" id="collapse{{ forloop.counter }}">
+		  <div class="row accent-darker padding shadow rounded">
+		<div class="col-md-11">
                     {% for profile in process.profiles %}
-                        <form method="post" class="accent-darker shadow rounded" id="form_{{ profile.id }}" enctype="multipart/form-data">
+                        <form method="post" class="" id="form_{{ profile.id }}" enctype="multipart/form-data">
                         {% csrf_token %}
                         <h5>Profile {{ forloop.counter }}</h5>
                         {%  for input_template in profile.input_templates %}
@@ -116,6 +104,21 @@ tar.bz2
 			{% endfor %}
                     <br />
                 </div>
+		<div class="col-md-1">
+		    <i class="fas fa-download fab-glyph clickable" data-toggle="collapse" data-target="#downloadcollapse{{ forloop.counter }}"></i>
+		    <div class="collapse" id="downloadcollapse{{ forloop.counter }}">
+
+		      <form method="post" class="" id="form_download_{{ process.id }}" enctype="multipart/form-data">
+			{% csrf_token %}
+			<input type="hidden" name="form_handler" value="download_process"/>
+			<input type="submit" style="width: 10em" class="btn btn-md" value="zip"     id="button_download_zip_{{ process.id }}">
+			<input type="submit" style="width: 10em" class="btn btn-md" value="tar.gz"  id="button_download_gz_{{ process.id }}">
+			<input type="submit" style="width: 10em" class="btn btn-md" value="tar.bz2" id="button_download_bz_{{ process.id }}">
+		      </form>
+		    </div>
+		  </div>
+		  </div>
+		</div>
 	    </div>
                 {% if not forloop.last %}
                 <br />
