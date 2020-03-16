@@ -54,6 +54,24 @@ Run Praat Script
 <span class="btn btn-dark">Run script</span>
 </div>
 -->
+
+{% if download_in_progress %}
+<div id="notification-bar" class="regular closable shadow accent rounded container-fluid clickable" onclick="$('#notification-bar').fadeOut()">
+  <div class="row">
+    <div class="nb-content-wrapper col-md-11">
+        <div class="nb-text-wrapper">
+          <div class="nb-headline-text">
+	    <h4>Your download is being prepared and will start soon...</h4>
+            </div>
+        </div>
+    </div>
+    <div class="nb-close-wrapper col-md-1">
+      <h2 class="icon-close">&#10006;</h2>
+    </div>
+  </div>
+</div>
+{% endif %}
+
 <br />
 <h3>Please select a script to run:</h3>
 
@@ -105,15 +123,16 @@ Run Praat Script
                     <br />
                 </div>
 		<div class="col-md-1">
-		    <i class="fas fa-download fab-glyph clickable" data-toggle="collapse" data-target="#downloadcollapse{{ forloop.counter }}"></i>
+		    <i class="fa fa-download fab-glyph clickable" data-toggle="collapse" data-target="#downloadcollapse{{ forloop.counter }}"></i>
 		    <div class="collapse" id="downloadcollapse{{ forloop.counter }}">
 
 		      <form method="post" class="" id="form_download_{{ process.id }}" enctype="multipart/form-data">
 			{% csrf_token %}
 			<input type="hidden" name="form_handler" value="download_process"/>
-			<input type="submit" style="width: 10em" class="btn btn-md" value="zip"     id="button_download_zip_{{ process.id }}">
-			<input type="submit" style="width: 10em" class="btn btn-md" value="tar.gz"  id="button_download_gz_{{ process.id }}">
-			<input type="submit" style="width: 10em" class="btn btn-md" value="tar.bz2" id="button_download_bz_{{ process.id }}">
+			<input type="hidden" name="process_id" value="{{ process.id }}"/>
+			<input type="submit" style="width: 10em" class="btn btn-md" name="archive_type" value="zip"     id="button_download_zip_{{ process.id }}">
+			<input type="submit" style="width: 10em" class="btn btn-md" name="archive_type" value="tar.gz"  id="button_download_gz_{{ process.id }}">
+			<input type="submit" style="width: 10em" class="btn btn-md" name="archive_type" value="tar.bz2" id="button_download_bz_{{ process.id }}">
 		      </form>
 		    </div>
 		  </div>

@@ -1,5 +1,5 @@
 from django.views.generic import TemplateView
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from script_runner.models import Script, Argument
 from django.core.files.storage import FileSystemStorage
 from upload import forms as uploadForms
@@ -11,6 +11,7 @@ import clam.common.client
 import clam.common.data
 import clam.common.status
 import random
+from urllib.request import urlretrieve
 
 
 # Create your views here.
@@ -69,6 +70,7 @@ class PraatScripts(TemplateView):
 
     def post(self, request):
         """Process command line arguments and run selected script."""
+        self.arg["download_in_progress"] = False
         if request.POST.get("form_handler") == "create_project":
             # TODO: Change this
             clamclient = clam.common.client.CLAMClient("http://localhost:8080")
@@ -133,6 +135,21 @@ class PraatScripts(TemplateView):
             clamclient.startsafe(process_to_run.clam_id)
 
             return render(request, self.template_name, self.arg)
+        elif request.POST.get("form_handler") == "download_process":
+            process_id = request.POST.get("process_id")
+            archive_type = request.POST.get("archive_type")
+            clam_server = Script.objects.get(pk=process_id)
+            clam_id = Process.objects.get(pk=process_id).clam_id
+            urlretrieve(
+                "{}/{}/output?format=".format(
+                    clam_server.hostname, clam_id, archive_type
+                ),
+                "outputs/{}.{}".format(clam_id, archive_type),
+            )
+            return redirect(
+                "script_runner:downloads",
+                path="outputs/{}.{}".format(clam_id, archive_type),
+            )
 
 
 class UploadWav(GenericTemplate):
