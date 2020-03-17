@@ -5,6 +5,8 @@ from colorfield.fields import ColorField
 
 
 class UserProfile(models.Model):
+    """Store information about users."""
+
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     favorite_pony = models.CharField(max_length=1024, default="Tree Hugger")
     theme_choices = [
@@ -21,10 +23,12 @@ class UserProfile(models.Model):
     text_color = ColorField(default="#ffeeee")
 
     def __str__(self):
+        """Display profile based on users name."""
         return "{}'s profile".format(self.user)
 
 
 def create_user_profile(sender, instance, created, **kwargs):
+    """Create user profile if user is created."""
     if created:
         profile, created = UserProfile.objects.get_or_create(user=instance)
 
