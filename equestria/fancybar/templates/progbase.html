@@ -20,34 +20,44 @@ Progess bar test
 {% block progress %}
 <br>
 <nav class="navbar navbar-fixed-top navbar-expand-sm navbar-dark">
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav mr-auto chevronbar">
-	    {% block navbaritems %}
-	    {% endblock %}
-            </ul>
-    </div>
-    <br><br><br>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav mr-auto chevronbar">
+      {% block navbaritems %}
+      {% endblock %}
+    </ul>
+  </div>
+  <div class="navbar-collapse collapse w-100 order-3 dual-collapse2">
+    <ul class="navbar-nav ml-auto">
+      <li class="nav-item">
+        <a class="nav-link" href="#">Right</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">Link</a>
+      </li>
+    </ul>
+  </div>
+  <br><br><br>
 </nav>
 <br>
 {% endblock %}
 
 {% block fab %}
 <a href="#" class="fab fab-inactive" id="download-button">
-<i class="fa fa-download fab-glyph"></i>
+  <i class="fa fa-download fab-glyph"></i>
 </a>
 <ul class="fab-list">
-<li class="fab-list-element"><a class="fab-circle fab-text" href="#">
+  <li class="fab-list-element"><a class="fab-circle fab-text" href="#">
       zip
-</a></li>
-<li class="fab-list-element"><a class="fab-circle fab-text" href="#">
-tar.gz
-</a></li>
-<li class="fab-list-element"><a class="fab-circle fab-text" href="#">
-tar.bz2
-</a></li>
+  </a></li>
+  <li class="fab-list-element"><a class="fab-circle fab-text" href="#">
+      tar.gz
+  </a></li>
+  <li class="fab-list-element"><a class="fab-circle fab-text" href="#">
+      tar.bz2
+  </a></li>
 </ul>
 {% endblock %}
 
