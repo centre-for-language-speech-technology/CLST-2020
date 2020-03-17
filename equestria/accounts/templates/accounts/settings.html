@@ -16,7 +16,42 @@ Settings
 {% endblock %}
 
 {% block body %}
+{% if user.is_authenticated %}
+<h1>{{ user.username }}'s Settings Page</h1>
+<br />
+<form method="post">
+  {% csrf_token %}
+  <h4>General settings</h4>
+  <h5>Your favorite pony is: </h5>
+  <input type="text" name="pony" value="{{ profile.favorite_pony }}" />
+  <h5>Your theme is: </h5>
+  <input type="text" list="themes" name="theme" value="{{ profile.theme }}" />
+  <datalist id="themes">
+    <option value="Princess Luna">
+    <option value="King Sombra">
+    <option img="" value="Shining Armor">
+    <option value="Pinkie Pie">
+  </datalist>
+  <hr>
+  <h4>Custom color overwrites</h4>
+  <h5>Background color</h5>
+  <input class="jscolor" name="background_color" value="{{ profile.background_color }}" />
+  <h5>Background lighter</h5>
+  <input class="jscolor" name="background_lighter" value="{{ profile.background_lighter }}" />
+  <h5>Accent color</h5>
+  <input class="jscolor" name="accent_color" value="{{ profile.accent_color }}" />
+  <h5>Accent darker</h5>
+  <input class="jscolor" name="accent_darker" value="{{ profile.accent_darker }}" />
+  <h5>Text color</h5>
+  <input class="jscolor" name="text_color" value="{{ profile.text_color }}" />
+
+  <input type="submit" value="update"/>
+</form>
+
+{% endif %}
+
 {% endblock %}
 
 {% block scripts %}
+<script src="{% static 'fancybar/js/jscolor.js' %}"></script>
 {% endblock %}

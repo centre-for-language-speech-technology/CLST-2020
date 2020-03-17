@@ -3,6 +3,7 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import login, logout
 from fancybar.views import GenericTemplate
 from django.views.generic import TemplateView
+from accounts.models import UserProfile
 
 
 class Signup(GenericTemplate):
@@ -62,10 +63,44 @@ class Settings(GenericTemplate):
 
     template = "accounts/settings.html"
 
+    def __get_profile(self, request):
+        """Retrieve profile based on user in request."""
+        user_profile = (
+            UserProfile.objects.select_related()
+            .filter(user_id=request.user.id)
+            .first()
+        )
+        return user_profile
+
     def get(self, request):
         """Display settings."""
-        return render(request, self.template)
+        arg = {"profile": self.__get_profile(request)}
+        return render(request, self.template, arg)
 
     def post(self, request):
         """Update settings."""
-        return render(request, self.template)
+        user_profile = self.__get_profile(request)
+        # Too lazy to sanitize and themes/colors are really someone elses job
+        user_profile.favorite_pony = request.POST.get(
+            "pony", user_profile.favorite_pony
+        )
+        user_profile.theme = request.POST.get("theme", user_profile.theme)
+        user_profile.background_color = "#" + request.POST.get(
+            "background_color", user_profile.background_color
+        )
+        user_profile.background_lighter = "#" + request.POST.get(
+            "background_lighter", user_profile.background_lighter
+        )
+        user_profile.accent_color = "#" + request.POST.get(
+            "accent_color", user_profile.accent_color
+        )
+        user_profile.accent_darker = "#" + request.POST.get(
+            "accent_darker", user_profile.accent_darker
+        )
+        user_profile.text_color = "#" + request.POST.get(
+            "text_color", user_profile.text_color
+        )
+        user_profile.save()
+
+        arg = {"profile": user_profile}
+        return render(request, self.template, arg)

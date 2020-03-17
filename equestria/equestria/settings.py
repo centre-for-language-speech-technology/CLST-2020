@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     "crispy_forms",
     "script_runner",
     "accounts",
+    "colorfield",
 ]
 
 CRISPY_TEMPLATE_PACK = "bootstrap4"
