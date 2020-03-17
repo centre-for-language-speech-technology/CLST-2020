@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html lang="en" class="full-height">
 
-<head>
+  <head>
     <!-- Required meta tags always come first -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -28,9 +28,9 @@
     <script type="text/javascript" src="{% static 'fancybar/js/main.js' %}"></script>
 
     <title>
-        {% block title %}
-            Title
-        {% endblock %}
+      {% block title %}
+      Title
+      {% endblock %}
     </title>
     
     {% block head %}
@@ -51,37 +51,25 @@
 
     {% block style %}
     {% endblock %}
-</head>
+  </head>
 
-<body id="page-top">
-<nav>
-    <ul>
-        {% if user.is_authenticated %}
-            <li>
-                <form class="logout-link" action="{% url 'accounts:logout' %}" method="post">
-                    {% csrf_token %}
-                    <button type="submit">Logout</button>
-                </form>
-            </li>
-        {% else %}
-            <li><a href="{% url 'accounts:login' %}">Login</a></li>
-            <li><a href="{% url 'accounts:signup' %}">Signup</a></li>
-        {% endif %}
-    </ul>
-</nav>
-{% block prebody %}
-{% endblock %}
+  <body id="page-top">
+    {% block prebody %}
+    {% endblock %}
 
-{% block progress %}
-{% endblock %}
+    {% block sidebar %}
+    {% endblock %}
 
-{% block fab %}
-{% endblock %}
+    {% block progress %}
+    {% endblock %}
 
-{% block body %}
-{% endblock %}
+    {% block fab %}
+    {% endblock %}
 
-{% block scripts %}
-{% endblock %}
-</body>
+    {% block body %}
+    {% endblock %}
+
+    {% block scripts %}
+    {% endblock %}
+  </body>
 </html>

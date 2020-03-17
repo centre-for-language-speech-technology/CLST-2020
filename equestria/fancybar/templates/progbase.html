@@ -9,12 +9,50 @@ Progess bar test
 <link href="{% static 'fancybar/css/chevron.css' %}" rel="stylesheet">
 <link href="{% static 'fancybar/css/fab.css' %}" rel="stylesheet">
 <script src="{% static 'fancybar/js/chevron.js' %}"></script>
+<link href="{% static 'fancybar/css/sidebar.css' %}" rel="stylesheet">
+<script src="{% static 'fancybar/js/sidebar.js' %}"></script>
+<script defer>
+  function resizeIframe(obj) {
+      obj.style.height = obj.contentWindow.document.body.scrollHeight + 'px';
+  }
+</script>
 {% endblock %}
 
 {% block style %}
 {% endblock %}
 
 {% block prebody %}
+{% endblock %}
+
+{% block sidebar %}
+<div id="wrapper">
+  <div id="sidebar-wrapper" style="height: 100%; z-index: 900000001 !important; color: ivory">
+    <ul>
+      {% if user.is_authenticated %}
+      <li>
+        <form class="logout-link" action="{% url 'accounts:logout' %}" method="post">
+          {% csrf_token %}
+          <button type="submit">Logout</button>
+        </form>
+      </li>
+      <iframe name="sidebar" class="container timeline-container" src="{% url 'accounts:settings' %}" frameborder="0" scrolling="no" onload="resizeIframe(this)"></iframe>
+      {% else %}
+      <li><a target="sidebar" href="{% url 'accounts:login' %}">Login</a></li>
+      <li><a target="sidebar" href="{% url 'accounts:signup' %}">Signup</a></li>
+      <iframe name="sidebar" class="container timeline-container" src="{% url 'accounts:login' %}" frameborder="0" scrolling="no" onload="resizeIframe(this)"></iframe>
+      {% endif %}
+    </ul>
+  </div>
+  <div class="" id="overlay"></div>
+
+  <div id="page-content-wrapper">
+    <button type="button" class="hamburger is-closed" data-toggle="offcanvas">
+      <span class="hamb-top"></span>
+      <span class="hamb-middle"></span>
+      <span class="hamb-bottom"></span>
+    </button>
+  </div>
+</div>
 {% endblock %}
 
 {% block progress %}
@@ -32,8 +70,8 @@ Progess bar test
   <div class="navbar-collapse collapse w-100 order-3 dual-collapse2">
     <ul class="navbar-nav ml-auto">
       <li class="nav-item">
-	<a class="nav-link" href="#">
-	  <i class="fa fa-bars"></i>
+	<a class="nav-link" href="#" data-toggle="offcanvas">
+	  <i class="fa fa-bars" ></i>
 	</a>
       </li>
     </ul>
@@ -41,6 +79,7 @@ Progess bar test
   <br><br><br>
 </nav>
 <br>
+
 {% endblock %}
 
 {% block fab %}

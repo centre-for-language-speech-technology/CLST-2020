@@ -55,3 +55,17 @@ class Logout(TemplateView):
         """Logout user, redirect."""
         logout(request)
         return redirect("fancybar:fancybar")
+
+
+class Settings(GenericTemplate):
+    """Page to configure user settings."""
+
+    template = "accounts/settings.html"
+
+    def get(self, request):
+        """Display settings."""
+        return render(request, self.template)
+
+    def post(self, request):
+        """Update settings."""
+        return render(request, self.template)
