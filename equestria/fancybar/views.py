@@ -151,11 +151,12 @@ class ForcedAlignment(TemplateView):
     """Page to run main forced alignment script. Contains two upload forms for txt and wav files."""
 
     template_name = "forced_alignment.html"
+    arg = dict()
 
     def __init__(self, **kwargs):
         """Load all script from the database."""
         super().__init__(**kwargs)
-        self.arg = Script.objects.filter(forced_alignment_script=True)
+        self.arg["scripts"] = Script.objects.select_related().filter(forced_alignment_script=True)
 
     """
     TODO: Why are there two get methods here?
@@ -166,16 +167,36 @@ class ForcedAlignment(TemplateView):
     def get(self, request):
         """Responds to get request and loads upload forms."""
         form = uploadForms.UploadFileForm()
-        return render(request, self.template_name, {"scripts": self.arg})
+        return render(request, self.template_name, self.arg)
 
     def post(self, request):
         """Save uploaded files. TODO: Does not yet run anything."""
-        form = uploadForms.UploadFileForm(request.POST, request.FILES)
-        f = request.FILES["f"]
-        fs = FileSystemStorage()
-        fs.save(f.name, f)
-        # TODO: execute script
-        return render(request, self.template_name)
+        if request.POST.get("form_handler") == "create_project":
+            script_id = request.POST.get("script_id")
+            clamclient = clam.common.client.CLAMClient("http://localhost:8080")
+            # TODO: This should later on be something like [username]_[project_name]
+            project_name = request.POST.get("project_name")
+            clamclient.create(project_name)
+            data = clamclient.get(project_name)
+            process = Process.objects.create(
+                name=project_name,
+                script=Script.objects.get(pk=script_id),
+                clam_id=project_name,
+            )
+            new_profile = Profile.objects.create(process=process)
+            for input_template in data.inputtemplates():
+                InputTemplate.objects.create(
+                    template_id=input_template.id,
+                    format=input_template.formatclass,
+                    label=input_template.label,
+                    extension=input_template.extension,
+                    optional=input_template.optional,
+                    unique=input_template.unique,
+                    accept_archive=input_template.acceptarchive,
+                    corresponding_profile=new_profile,
+                )
+            return render(request, self.template_name, self.arg)
+        return render(request, self.template_name, self.arg)
 
 
 class UpdateDictionary(GenericTemplate):
