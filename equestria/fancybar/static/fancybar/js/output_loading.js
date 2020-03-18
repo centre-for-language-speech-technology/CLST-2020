@@ -1,5 +1,5 @@
 function update_console_output() {
-    var file_to_load = $("#file_to_load").text();
+    var file_to_load = "http://localhost:8080/" + $("#file_to_load").text();
     if (file_to_load === "None") {
 	setTimeout(update_console_output, 500);
 	return;
