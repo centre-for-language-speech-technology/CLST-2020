@@ -10,7 +10,8 @@ from django.http import HttpResponseRedirect
 
 
 class FAView(TemplateView):
-"""Forced allignment view."""
+    """Forced allignment view."""
+
     template_name = "ForcedAlign.html"
 
     def get(self, request):
