@@ -3,10 +3,22 @@
     "model": "script_runner.Script",
     "pk": 1,
     "fields": {
-      "name": "Test scipt on port 8080",
+      "name": "Test FA scipt on port 8080",
       "hostname": "http://localhost:8080",
       "img": "",
-      "description": "Test script for a running CLAM server on port 8080"
+      "description": "Test FA script for a running CLAM server on port 8080",
+      "forced_alignment_script": "True"
+    }
+  },
+  {
+    "model": "script_runner.Script",
+    "pk": 2,
+    "fields": {
+      "name": "Test Normal scipt on port 8080",
+      "hostname": "http://localhost:8080",
+      "img": "",
+      "description": "Test Normal script for a running CLAM server on port 8080",
+      "forced_alignment_script": "False"
     }
   }
 ]
