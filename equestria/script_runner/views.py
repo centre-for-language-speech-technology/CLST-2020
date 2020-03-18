@@ -101,6 +101,13 @@ class CLAMFetch(TemplateView):
     """
 
     def get(self, request, **kwargs):
+        """
+        Nothing yet.
+
+        :param request:
+        :param kwargs:
+        :return:
+        """
         clam_id = kwargs.get("process")
         path = kwargs.get("p")
         process = Process.objects.get(clam_id=clam_id)
