@@ -124,7 +124,7 @@ class CLAMFetch(TemplateView):
     def get(self, request, **kwargs):
         """
         Nothing yet.
-        
+
         :param request:
         :param kwargs:
         :return:
