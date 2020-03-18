@@ -1,22 +1,47 @@
-{% extends 'base.html' %}
+{% extends 'progbase.html' %}
+
+{% block navbaritems %}
+<li class="nav-item">
+  <a class="nav-link waves-effect waves-light" href="upload_wav">Upload wav</a>
+</li>
+<li class="nav-item">
+  <a class="nav-link waves-effect waves-light" href="upload_txt">Upload txt</a>
+</li>
+<li class="nav-item">
+  <a class="nav-link waves-effect waves-light" href="forced_alignment">Forced Alignment</a>
+</li>
+<li class="nav-item">
+  <a class="nav-link waves-effect waves-light" href="update_dictionary">Update Dictionary</a>
+</li>
+<li class="nav-item">
+  <a class="nav-link waves-effect waves-light" href="auto_segmentation">Automatic Segmentation</a>
+</li>
+<li class="nav-item active">
+  <a class="nav-link waves-effect waves-light" href="praat_scripts">Praat Scripts</a>
+</li>
+<li class="nav-item">
+  <a class="nav-link waves-effect waves-light" href="download_results">Download Results</a>
+</li>
+{% endblock %}
 {% block body %}
 <div>
-    <h5>Process {{ process.name }}</h5>
-    <div>
-        {% for profile in process.profiles %}
-            <form method="post" class="accent-darker shadow rounded" id="form_{{ profile.id }}" enctype="multipart/form-data">
-            {% csrf_token %}
-            <h5>Profile {{ forloop.counter }}</h5>
-            {%  for input_template in profile.input_templates %}
-                {{ input_template.label }}
-                <input type="file" accept="{{ input_template.extension }}" name="template_id_{{ input_template.id }}" {% if not input_template.optional %} required {% endif %} />
-                <p>Accepts {{ input_template.extension }}</p>
-            {% endfor %}
-            <input type="hidden" name="form_handler" value="run_profile"/>
-            <input type="hidden" name="profile_id" value="{{ profile.id }}"/>
-            <input type="submit" class="btn btn-md" value="Run" id="button_{{ profile.id }}">
-            </form>
-        {% endfor %}
-    </div>
+  <h5>Process {{ process.name }}</h5>
+  <div>
+    {% for profile in process.profiles %}
+    <form method="post" class="accent-darker shadow rounded padding" id="form_{{ profile.id }}" enctype="multipart/form-data">
+      {% csrf_token %}
+      <h5>Profile {{ forloop.counter }}</h5>
+      {%  for input_template in profile.input_templates %}
+      {{ input_template.label }}
+      <br />
+      <input type="file" accept="{{ input_template.extension }}" name="template_id_{{ input_template.id }}" {% if not input_template.optional %} required {% endif %} />
+      <p>Accepts {{ input_template.extension }}</p>
+      {% endfor %}
+      <input type="hidden" name="form_handler" value="run_profile"/>
+      <input type="hidden" name="profile_id" value="{{ profile.id }}"/>
+      <input type="submit" class="btn btn-md" value="Run" id="button_{{ profile.id }}">
+    </form>
+    {% endfor %}
+  </div>
 </div>
 {% endblock %}
