@@ -23,7 +23,7 @@ jobs:
         python -m pip install --no-cache-dir poetry
         poetry install
     - name: "Run Black"
-      run: "poetry run black --quiet --check equestria"
+      run: "poetry run black --check equestria"
 
     - name: "Run PyDocStyle"
       run: "poetry run pydocstyle --explain --add-ignore=D100,D104 --match-dir='(?!migrations).*' equestria"
