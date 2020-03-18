@@ -97,9 +97,6 @@ class ClamWrapper:
 
         check_error_message(r.status_code, project_id)
 
-    def check_error_message(self, message):
-        raise Exception(message)
-
     def get_output_archive(self, project_id, request_format, file_to_save_to):
         """
         Download the output archive.
