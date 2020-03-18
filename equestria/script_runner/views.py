@@ -11,6 +11,7 @@ from django.views.static import serve
 from os.path import basename, dirname
 from .models import Process, Profile, InputTemplate, Script
 from django.http import JsonResponse
+from script_runner.clamhelper import start_clam_server
 
 
 class ProcessOverview(TemplateView):
@@ -101,17 +102,7 @@ class ProcessOverview(TemplateView):
                 )
             )
 
-        process_to_run = Process.objects.get(pk=profile.process.id)
-        clam_server = Script.objects.get(pk=process_to_run.script.id)
-        clamclient = clam.common.client.CLAMClient(clam_server.hostname)
-        # TODO: If a file is already uploaded, uploading files over it gives an error, therefor we remove the
-        # project and recreate it. There might be a better way of doing this in the future
-        clamclient.delete(process_to_run.clam_id)
-        clamclient.create(process_to_run.clam_id)
-        for (file, template) in argument_files:
-            clamclient.addinputfile(process_to_run.clam_id, template, file)
-
-        clamclient.startsafe(process_to_run.clam_id)
+        start_clam_server(profile, process_to_run, argument_files)
 
 
 class CLAMFetch(TemplateView):
