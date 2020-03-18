@@ -71,11 +71,7 @@ class PraatScripts(TemplateView):
 
     def post(self, request):
         """Process command line arguments and run selected script."""
-<<<<<<< HEAD
-        if request.POST.get("form_handler", ) == "create_project":
-=======
         if request.POST.get("form_handler",) == "create_project":
->>>>>>> 6f7afc8c18d26bd58d9301b5ee0d333edad94638
             # TODO: Change this
             clamclient = clam.common.client.CLAMClient("http://localhost:8080")
             project_name = str(random.getrandbits(64))
@@ -99,13 +95,8 @@ class PraatScripts(TemplateView):
                     corresponding_profile=new_profile,
                 )
             return render(request, self.template_name, self.arg)
-<<<<<<< HEAD
-        elif request.POST.get("form_handler", ) == "run_profile":
-            profile_id = request.POST.get("profile_id", )
-=======
         elif request.POST.get("form_handler",) == "run_profile":
             profile_id = request.POST.get("profile_id",)
->>>>>>> 6f7afc8c18d26bd58d9301b5ee0d333edad94638
             profile = Profile.objects.get(pk=profile_id)
             argument_files = list()
             for input_template in InputTemplate.objects.select_related().filter(
@@ -167,13 +158,9 @@ class ForcedAlignment(TemplateView):
     def __init__(self, **kwargs):
         """Load all script from the database."""
         super().__init__(**kwargs)
-<<<<<<< HEAD
-        self.arg["scripts"] = Script.objects.select_related().filter(forced_alignment_script=True)
-=======
         self.arg["scripts"] = Script.objects.select_related().filter(
             forced_alignment_script=True
         )
->>>>>>> 6f7afc8c18d26bd58d9301b5ee0d333edad94638
 
     """
     TODO: Why are there two get methods here?
@@ -188,19 +175,11 @@ class ForcedAlignment(TemplateView):
 
     def post(self, request):
         """Save uploaded files. TODO: Does not yet run anything."""
-<<<<<<< HEAD
-        if request.POST.get("form_handler", ) == "create_project":
-            script_id = request.POST.get("script_id", )
-            clamclient = clam.common.client.CLAMClient("http://localhost:8080")
-            # TODO: This should later on be something like [username]_[project_name]
-            project_name = request.POST.get("project_name", )
-=======
         if request.POST.get("form_handler",) == "create_project":
             script_id = request.POST.get("script_id",)
             clamclient = clam.common.client.CLAMClient("http://localhost:8080")
             # TODO: This should later on be something like [username]_[project_name]
             project_name = request.POST.get("project_name",)
->>>>>>> 6f7afc8c18d26bd58d9301b5ee0d333edad94638
             clamclient.create(project_name)
             data = clamclient.get(project_name)
             process = Process.objects.create(
@@ -220,15 +199,11 @@ class ForcedAlignment(TemplateView):
                     accept_archive=input_template.acceptarchive,
                     corresponding_profile=new_profile,
                 )
-<<<<<<< HEAD
-            return redirect_with_parameters('script_runner:process', process.id, redirect="fancybar:update_dictionary")
-=======
             return redirect_with_parameters(
                 "script_runner:process",
                 process.id,
                 redirect="fancybar:update_dictionary",
             )
->>>>>>> 6f7afc8c18d26bd58d9301b5ee0d333edad94638
         return render(request, self.template_name, self.arg)
 
 
@@ -251,8 +226,6 @@ class DownloadResults(GenericTemplate):
 
 
 def redirect_with_parameters(url_name, *args, **kwargs):
-<<<<<<< HEAD
-=======
     """
     Redirects to a page with GET parameters specified in kwargs.
 
@@ -261,7 +234,6 @@ def redirect_with_parameters(url_name, *args, **kwargs):
     :param kwargs: the GET parameters
     :return: HttpResponseRedirect with the asked url
     """
->>>>>>> 6f7afc8c18d26bd58d9301b5ee0d333edad94638
     url = reverse(url_name, args=args)
     params = urlencode(kwargs)
     return HttpResponseRedirect(url + "?%s" % params)
