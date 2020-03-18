@@ -1,7 +1,8 @@
+from django.http import HttpResponseRedirect
+from django.urls import reverse
 from django.views.generic import TemplateView
-from django.shortcuts import render
-from script_runner.models import Script, Argument
-from django.core.files.storage import FileSystemStorage
+from django.shortcuts import render, redirect
+from script_runner.models import Script
 from upload import forms as uploadForms
 from script_runner.constants import *
 from script_runner.models import Process
@@ -11,6 +12,7 @@ import clam.common.client
 import clam.common.data
 import clam.common.status
 import random
+from urllib.parse import urlencode
 
 
 # Create your views here.
@@ -218,7 +220,7 @@ class ForcedAlignment(TemplateView):
                     accept_archive=input_template.acceptarchive,
                     corresponding_profile=new_profile,
                 )
-            return render(request, self.template_name, self.arg)
+            return redirect_with_parameters('script_runner:process', process.id, redirect="fancybar:update_dictionary")
         return render(request, self.template_name, self.arg)
 
 
@@ -239,4 +241,8 @@ class DownloadResults(GenericTemplate):
 
     template_name = "download_results.html"
 
-    template_name = "download_results.html"
+
+def redirect_with_parameters(url_name, *args, **kwargs):
+    url = reverse(url_name, args=args)
+    params = urlencode(kwargs)
+    return HttpResponseRedirect(url + "?%s" % params)
