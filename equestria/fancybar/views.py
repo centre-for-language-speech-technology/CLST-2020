@@ -186,7 +186,7 @@ class ForcedAlignment(TemplateView):
     def __init__(self, **kwargs):
         """Load all script from the database."""
         super().__init__(**kwargs)
-        self.arg = Script.objects.filter(forced_alignment_script=True)
+        self.arg["scripts"] = Script.objects.select_related().filter(forced_alignment_script=True)
 
     """
     TODO: Why are there two get methods here?
@@ -201,11 +201,11 @@ class ForcedAlignment(TemplateView):
 
     def post(self, request):
         """Save uploaded files. TODO: Does not yet run anything."""
-        if request.POST.get("form_handler", ) == "create_project":
-            script_id = request.POST.get("script_id", )
+        if request.POST.get("form_handler") == "create_project":
+            script_id = request.POST.get("script_id")
             clamclient = clam.common.client.CLAMClient("http://localhost:8080")
             # TODO: This should later on be something like [username]_[project_name]
-            project_name = request.POST.get("project_name", )
+            project_name = request.POST.get("project_name")
             clamclient.create(project_name)
             data = clamclient.get(project_name)
             process = Process.objects.create(
