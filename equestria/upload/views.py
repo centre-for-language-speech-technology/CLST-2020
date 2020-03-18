@@ -8,13 +8,17 @@ from django.http import HttpResponseRedirect
 
 
 class UploadWAVView(TemplateView):
+    """View for uploading wav files."""
+
     template_name = "upload_wav2.html"
 
     def get(self, request):
+        """Load form and process request."""
         form = UploadWAVForm()
         return render(request, self.template_name, {"WAVform": form})
 
     def post(self, request):
+        """Validate form and save it."""
         form = UploadWAVForm(request.POST, request.FILES)
         if form.is_valid():
             print("valid form")
@@ -35,13 +39,17 @@ class UploadWAVView(TemplateView):
 
 
 class UploadTXTView(TemplateView):
+    """View for uploading txt file."""
+
     template_name = "upload_txt2.html"
 
     def get(self, request):
+        """Load form and process request."""
         form = UploadTXTForm()
         return render(request, self.template_name, {"TXTform": form})
 
     def post(self, request):
+        """Validate form and save it."""
         form = UploadTXTForm(request.POST, request.FILES)
         if form.is_valid():
             print("valid form")

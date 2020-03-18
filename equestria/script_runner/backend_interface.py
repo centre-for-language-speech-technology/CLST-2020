@@ -122,6 +122,7 @@ class ClamWrapper:
                 file.write(chunk)
 
     def check_error_message(self, code, project_id):
+        """Raise exception."""
         errorlist = [401, 403, 404, 500]
         if code in errorlist:
             raise Exception(
