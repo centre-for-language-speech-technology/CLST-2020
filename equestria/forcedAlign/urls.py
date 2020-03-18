@@ -6,7 +6,7 @@ from django.conf import settings
 from .views import FAView
 
 urlpatterns = [
-    path('',  FAView.as_view(), name="FA_form"),
+    path("", FAView.as_view(), name="FA_form"),
 ]
 
 
