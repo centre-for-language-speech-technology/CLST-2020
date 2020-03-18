@@ -1,0 +1,9 @@
+<div class="row">
+    {% for script in scripts %}
+        <form method="post" class="accent-darker shadow rounded">
+            {% csrf_token %}
+            <h5>{{ script.name }}</h5>
+            <input type="submit" class="btn btn-md" value="Create project" id="button_{{ script.id }}">
+        </form>
+    {% endfor %}
+</div>
