@@ -1,3 +1,4 @@
+
 import clam.common.client
 import clam.common.data
 import clam.common.status
@@ -12,6 +13,8 @@ from os.path import exists
 from django.views.static import serve
 from os.path import basename, dirname
 
+class ProcessOverview(TemplateView):
+    template_name = "process_overview.html"
 
 class ProcessOverview(TemplateView):
     """View for the process overview."""
