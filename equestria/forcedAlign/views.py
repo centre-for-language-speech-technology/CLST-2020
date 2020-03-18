@@ -10,9 +10,13 @@ from django.http import HttpResponseRedirect
 
 
 class FAView(TemplateView):
-    template_name = 'ForcedAlign.html'
+    template_name = "ForcedAlign.html"
 
     def get(self, request):
         wavForm = UploadWAVForm()
         txtForm = UploadTXTForm()
-        return render(request, self.template_name, {'WAVform': wavForm, 'TXTform': txtForm})
+        return render(
+            request,
+            self.template_name,
+            {"WAVform": wavForm, "TXTform": txtForm},
+        )

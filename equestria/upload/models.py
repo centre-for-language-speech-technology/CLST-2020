@@ -3,11 +3,13 @@ from equestria.settings import BASE_DIR
 import os
 from django.contrib.auth.models import User
 
-#BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Create your models here.
 class File(models.Model):
-    owner = models.ForeignKey(User, to_field="username", on_delete=models.CASCADE)
+    owner = models.ForeignKey(
+        User, to_field="username", on_delete=models.CASCADE
+    )
     timestamp = models.DateTimeField(auto_now_add=True)
     path = models.FilePathField(path=os.path.join(BASE_DIR, "media/"))
 
@@ -23,5 +25,7 @@ class File(models.Model):
         """
 
         verbose_name_plural = "Files"
-#python manage.py makemigrations
-#python manage.py migrate
+
+
+# python manage.py makemigrations
+# python manage.py migrate

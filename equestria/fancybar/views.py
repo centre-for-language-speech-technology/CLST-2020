@@ -83,14 +83,14 @@ class PraatScripts(TemplateView):
     def get(self, request):
         """Respond to get request."""
         if not request.user.is_authenticated:
-            return redirect('%s?next=%s' % (settings.LOGIN_URL, request.path))
+            return redirect("%s?next=%s" % (settings.LOGIN_URL, request.path))
         else:
             return render(request, self.template_name, self.arg)
 
     def post(self, request):
         """Process command line arguments and run selected script."""
         if not request.user.is_authenticated:
-            return redirect('%s?next=%s' % (settings.LOGIN_URL, request.path))
+            return redirect("%s?next=%s" % (settings.LOGIN_URL, request.path))
         else:
             name = request.POST.get("script_name", "")
             script_id = request.POST.get("script_id", "")
@@ -126,7 +126,7 @@ class ForcedAlignment(TemplateView):
     def get(self, request):
         """Responds to get request and loads upload forms."""
         if not request.user.is_authenticated:
-            return redirect('%s?next=%s' % (settings.LOGIN_URL, request.path))
+            return redirect("%s?next=%s" % (settings.LOGIN_URL, request.path))
         else:
             form = uploadForms.UploadFileForm()
             return render(request, self.template_name, {"form": form})
@@ -134,7 +134,7 @@ class ForcedAlignment(TemplateView):
     def post(self, request):
         """Save uploaded files. TODO: Does not yet run anything."""
         if not request.user.is_authenticated:
-            return redirect('%s?next=%s' % (settings.LOGIN_URL, request.path))
+            return redirect("%s?next=%s" % (settings.LOGIN_URL, request.path))
         else:
             form = uploadForms.UploadFileForm(request.POST, request.FILES)
             f = request.FILES["f"]
