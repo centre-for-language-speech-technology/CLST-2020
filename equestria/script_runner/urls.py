@@ -2,5 +2,5 @@ from django.urls import path
 from script_runner.views import *
 
 urlpatterns = [
-    path("<str:output_file>", Outputs.as_view(), name="outputs"),
+    path("process/<int:process>", ProcessOverview.as_view(), name="process"),
 ]
