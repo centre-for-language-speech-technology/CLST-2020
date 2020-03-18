@@ -87,6 +87,7 @@ class PraatScripts(TemplateView):
                 InputTemplate.objects.create(
                     template_id=input_template.id,
                     format=input_template.formatclass,
+                    mime=input_template.formatclass.mimetype,
                     label=input_template.label,
                     extension=input_template.extension,
                     optional=input_template.optional,

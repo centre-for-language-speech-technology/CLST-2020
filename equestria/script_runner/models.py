@@ -169,6 +169,7 @@ class InputTemplate(Model):
     Attributes:
         template_id             The identifier of this input template in the CLAM server.
         format                  The format of this input template as a CLAM format.
+        mime                    The accepted mime type
         label                   The label of this input template.
         extension               The accepted extension by this input template.
         optional                Whether or not this template is optional before starting the associated script.
@@ -181,6 +182,7 @@ class InputTemplate(Model):
     template_id = CharField(max_length=1024)
     format = CharField(max_length=1024)
     label = CharField(max_length=1024)
+    mime = CharField(max_length=1024, default="text/plain")
     extension = CharField(max_length=32)
     optional = BooleanField()
     unique = BooleanField()
