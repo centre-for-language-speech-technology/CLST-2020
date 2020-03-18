@@ -4,7 +4,6 @@ import clam.common.status
 from django.http import HttpResponseNotFound
 from django.views.generic import TemplateView
 from django.shortcuts import render, redirect
-
 from .models import Process, Profile, InputTemplate
 from urllib.request import urlretrieve
 from os import makedirs
