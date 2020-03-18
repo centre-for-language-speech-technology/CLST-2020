@@ -79,11 +79,20 @@ class PraatScripts(TemplateView):
         self.arg["profile"] = self.__get_profile(request)
         return render(request, self.template_name, self.arg)
 
+    
+
     def post(self, request):
         """Process command line arguments and run selected script."""
         name = request.POST.get("script_name", "")
         arg["profile"] = self.__get_profile(request)
         script_id = request.POST.get("script_id", "")
+        args = self.__filter_arguments(request)
+        self.__run_and_log_script(script_id, args)
+        self.arg["script_run"] = name
+        return render(request, self.template_name, self.arg)
+
+    def __filter_arguments(self, request):
+        """Filter relevant arguments from post request."""
         args = []
         for argument in Argument.objects.select_related().filter(
             associated_script=script_id
@@ -96,22 +105,16 @@ class PraatScripts(TemplateView):
                     ),
                 ),
             ]
-        print('"Running" script ' + name + "...")
-        script = Script.objects.get(pk=script_id)
-        clam_config = ClamConfiguration(
-            script.hostname, "45"
-        )  # TODO change that
-        # script.primary_output_file = clam_config.get_output_files()[0][1]
-        backend_interface.run(script, args)
-        self.arg["script_run"] = name
+        return args
 
+    def __run_and_log_script(self, script_id, args):
+        """Pass script to backend for execution and print debug info."""
+        print('"Running" script ' + name + "...")
+        print(args)
         script = Script.objects.get(pk=script_id)
-        clam_config = ClamConfiguration(
-            script.hostname, "45"
-        )  # TODO change that
-        # script.primary_output_file = clam_config.get_output_files()[0][1]
         backend_interface.run(script, args)
-        return render(request, self.template_name, self.arg)
+
+
 
 
 class UploadWav(GenericTemplate):

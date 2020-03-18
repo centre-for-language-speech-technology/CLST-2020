@@ -37,12 +37,14 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "scripts",
     "fancybar",
     "upload",
     "crispy_forms",
     "script_runner",
     "accounts",
     "colorfield",
+    "forcedAlign",
 ]
 
 CRISPY_TEMPLATE_PACK = "bootstrap4"

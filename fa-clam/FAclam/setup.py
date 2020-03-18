@@ -16,7 +16,9 @@ def getreadme():
     for fname in ("README.rst", "README.md", "README"):
         if os.path.exists(fname):
             return io.open(
-                os.path.join(os.path.dirname(__file__), fname), "r", encoding="utf-8"
+                os.path.join(os.path.dirname(__file__), fname),
+                "r",
+                encoding="utf-8",
             ).read()
     return ""
 
