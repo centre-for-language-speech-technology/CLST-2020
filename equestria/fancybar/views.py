@@ -1,6 +1,7 @@
 from django.views.generic import TemplateView
 from django.shortcuts import render
 from script_runner.models import Script, Argument
+from accounts.models import UserProfile
 from django.core.files.storage import FileSystemStorage
 from upload import forms as uploadForms
 from script_runner.constants import *
@@ -15,6 +16,15 @@ class GenericTemplate(TemplateView):
     """View to render a html page without any additional features."""
 
     template_name = "template.html"
+
+    def __get_profile(self, request):
+        """Retrieve profile based on user in request."""
+        user_profile = (
+            UserProfile.objects.select_related()
+            .filter(user_id=request.user.id)
+            .first()
+        )
+        return user_profile
 
     def get(self, request):
         """Respond to get request."""
@@ -42,7 +52,17 @@ class PraatScripts(TemplateView):
         "USER_SPECIFIED_TEXT": USER_SPECIFIED_TEXT,
         "USER_SPECIFIED_BOOL": USER_SPECIFIED_BOOL,
         "USER_SPECIFIED_INT": USER_SPECIFIED_INT,
+        "profile": None,
     }
+
+    def __get_profile(self, request):
+        """Retrieve profile based on user in request."""
+        user_profile = (
+            UserProfile.objects.select_related()
+            .filter(user_id=request.user.id)
+            .first()
+        )
+        return user_profile
 
     def __init__(self, **kwargs):
         """Load all script from the database."""
@@ -53,6 +73,21 @@ class PraatScripts(TemplateView):
             s.args = Argument.objects.select_related().filter(
                 associated_script=s.id
             )
+
+    def get(self, request):
+        """Respond to get request."""
+        self.arg["profile"] = self.__get_profile(request)
+        return render(request, self.template_name, self.arg)
+
+    def post(self, request):
+        """Process command line arguments and run selected script."""
+        name = request.POST.get("script_name", "")
+        arg["profile"] = self.__get_profile(request)
+        script_id = request.POST.get("script_id", "")
+        args = self.__filter_arguments(request)
+        self.__run_and_log_script(script_id, args)
+        self.arg["script_run"] = name
+        return render(request, self.template_name, self.arg)
 
     def __filter_arguments(self, request):
         """Filter relevant arguments from post request."""
@@ -76,19 +111,6 @@ class PraatScripts(TemplateView):
         print(args)
         script = Script.objects.get(pk=script_id)
         backend_interface.run(script, args)
-
-    def get(self, request):
-        """Respond to get request."""
-        return render(request, self.template_name, self.arg)
-
-    def post(self, request):
-        """Process command line arguments and run selected script."""
-        name = request.POST.get("script_name", "")
-        script_id = request.POST.get("script_id", "")
-        args = self.__filter_arguments(request)
-        self.__run_and_log_script(script_id, args)
-        self.arg["script_run"] = name
-        return render(request, self.template_name, self.arg)
 
 
 class UploadWav(GenericTemplate):

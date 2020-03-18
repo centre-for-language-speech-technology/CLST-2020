@@ -18,3 +18,4 @@ exclude:
 - .*/actions.js
 - .*/urlify.js
 - .*/static/admin/.*
+- .*/jscolor.js
