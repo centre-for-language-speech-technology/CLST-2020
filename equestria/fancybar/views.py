@@ -79,8 +79,6 @@ class PraatScripts(TemplateView):
         self.arg["profile"] = self.__get_profile(request)
         return render(request, self.template_name, self.arg)
 
-    
-
     def post(self, request):
         """Process command line arguments and run selected script."""
         name = request.POST.get("script_name", "")
@@ -113,8 +111,6 @@ class PraatScripts(TemplateView):
         print(args)
         script = Script.objects.get(pk=script_id)
         backend_interface.run(script, args)
-
-
 
 
 class UploadWav(GenericTemplate):
