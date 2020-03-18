@@ -4,12 +4,14 @@ import clam.common.status
 from django.http import HttpResponseNotFound
 from django.views.generic import TemplateView
 from django.shortcuts import render, redirect
-from .models import Process, Profile, InputTemplate
 from urllib.request import urlretrieve
 from os import makedirs
 from os.path import exists
 from django.views.static import serve
 from os.path import basename, dirname
+from .models import Process, Profile, InputTemplate, Script
+from django.http import JsonResponse
+
 
 class ProcessOverview(TemplateView):
     """View for the process overview."""
@@ -153,3 +155,43 @@ class Downloads(TemplateView):
     def post(self, request, path):
         """Respond to post request by serving requested download file."""
         return serve(request, basename(path), dirname(path))
+
+
+class JsonProcess(TemplateView):
+    """View for representing Processes as JSON."""
+
+    def get(self, request, **kwargs):
+        """
+        Get request, actually redirecting everything to the POST method.
+
+        :param request: the request of the user
+        :param kwargs: the keyword arguments
+        :return: the same as self.post returns
+        """
+        return self.post(request, **kwargs)
+
+    def post(self, request, **kwargs):
+        """
+        Post request, used for serving AJAX requests the information they need.
+
+        :param request: the request of the user
+        :param kwargs: the keyword arguments
+        :return: a JsonResponse containing the following information:
+                    - status (of the process)
+                    - status_message
+                    - errors (true or false, if errors occurred)
+                    - error_message (emtpy if no errors occurred, a message otherwise)
+        """
+        key = kwargs.get("process_id")
+        process = Process.objects.get(pk=key)
+        clam_server = Script.objects.get(pk=process.script.id)
+        clamclient = clam.common.client.CLAMClient(clam_server.hostname)
+        clam_info = clamclient.get(process.clam_id)
+        return JsonResponse(
+            {
+                "status": clam_info.status,
+                "status_message": clam_info.statusmessage,
+                "errors": clam_info.errors,
+                "error_message": clam_info.errormsg,
+            }
+        )

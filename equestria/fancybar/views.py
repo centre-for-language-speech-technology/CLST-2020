@@ -119,7 +119,7 @@ class PraatScripts(TemplateView):
                 )
             return render(request, self.template_name, self.arg)
         elif request.POST.get("form_handler") == "run_profile":
-            profile_id = request.POST.get("profile_id",)
+            profile_id = request.POST.get("profile_id")
             profile = Profile.objects.get(pk=profile_id)
             argument_files = list()
             for input_template in InputTemplate.objects.select_related().filter(
