@@ -183,6 +183,11 @@ class ForcedAlignment(TemplateView):
         super().__init__(**kwargs)
         self.arg["scripts"] = Script.objects.select_related().filter(forced_alignment_script=True)
 
+    def __init__(self, **kwargs):
+        """Load all script from the database."""
+        super().__init__(**kwargs)
+        self.arg = Script.objects.filter(forced_alignment_script=True)
+
     """
     TODO: Why are there two get methods here?
     def get(self, request):
