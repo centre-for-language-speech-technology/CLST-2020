@@ -116,7 +116,11 @@ Run Praat Script
                     <h5>Profile {{ forloop.counter }}</h5>
                     {%  for input_template in profile.input_templates %}
                     {{ input_template.label }}
-                    <input type="file" accept="{{ input_template.mime }}" onChange="validate(this, this.value, ['{{ input_template.extension }}'])" name="template_id_{{ input_template.id }}" {% if not input_template.optional %} required {% endif %} />
+                    <input type="file" onChange="validate(this, this.value, ['{{ input_template.extension }}'])"
+			   name="template_id_{{ input_template.id }}" {% if not input_template.optional %} required {% endif %}
+			   />
+		    <!-- accept="{{ input_template.mime }}" -->
+		    
                     <p>Accepts {{ input_template.extension }}</p>
                     {% endfor %}
                     <input type="hidden" name="form_handler" value="run_profile"/>
@@ -186,7 +190,7 @@ Run Praat Script
 
 	  if (arrayExtensions.lastIndexOf(ext) == -1) {
               alert("Wrong extension type.");
-              obj.val("");
+	      $(obj).val("");
 	  }
       }
     </script>
