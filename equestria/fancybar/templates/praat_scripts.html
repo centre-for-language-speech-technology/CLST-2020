@@ -13,27 +13,7 @@ Run Praat Script
 {% endblock %}
 
 {% block navbaritems %}
-<li class="nav-item">
-    <a class="nav-link waves-effect waves-light" href="upload/wav">Upload wav</a>
-</li>
-<li class="nav-item">
-    <a class="nav-link waves-effect waves-light" href="upload/txt">Upload txt</a>
-</li>
-<li class="nav-item">
-    <a class="nav-link waves-effect waves-light" href="forced">Forced Alignment</a>
-</li>
-<li class="nav-item">
-    <a class="nav-link waves-effect waves-light" href="update_dictionary">Update Dictionary</a>
-</li>
-<li class="nav-item">
-    <a class="nav-link waves-effect waves-light" href="auto_segmentation">Automatic Segmentation</a>
-</li>
-<li class="nav-item active">
-    <a class="nav-link waves-effect waves-light" href="praat_scripts">Praat Scripts</a>
-</li>
-<li class="nav-item">
-    <a class="nav-link waves-effect waves-light" href="download_results">Download Results</a>
-</li>
+    {% include "header.html" with active="praat" %}
 {% endblock %}
 
 {% block fab %}
