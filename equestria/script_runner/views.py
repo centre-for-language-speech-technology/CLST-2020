@@ -6,7 +6,7 @@ from django.views.generic import TemplateView
 from django.shortcuts import render, redirect
 from urllib.request import urlretrieve
 from os import makedirs
-from os.path import dirname, exists
+from os.path import exists
 from django.views.static import serve
 from os.path import basename, dirname
 from .models import Process, Profile, InputTemplate, Script

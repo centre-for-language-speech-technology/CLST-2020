@@ -1,0 +1,114 @@
+{% extends 'progbase.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block title %}
+Forced Alignment
+{% endblock %}
+
+{% block style %}
+{% endblock %}
+
+{% block prebody %}
+<script>function uploadWav(event) {
+    event.preventDefault(); // prevent page reload
+
+    var data = new FormData($('WAVform').get(0));
+    
+    $.ajax({
+        url: $(this).attr('action'),
+        type: $(this).attr('method'),
+        data: data,
+        cache: false,
+        processData: false,
+        contentType: false,
+        success: function(data) {
+            alert('success');
+        }
+    }).fail(function(err){
+        alert("not nice")
+    });
+    return false;
+    }
+    
+    $(function() {
+        $('WAVform').submit(uploadWav);
+    });</script>
+
+<script>function uploadTXT(event) {
+    event.preventDefault();
+    var data = new FormData($('TXTform').get(0));
+    $.ajax({
+        url: $(this).attr('action'),
+        type: $(this).attr('method'),
+        data: data,
+        cache: false,
+        processData: false,
+        contentType: false,
+        success: function(data) {
+            alert('success');
+        }
+    });
+    return false;
+    }
+    
+    $(function() {
+        $('TXTform').submit(uploadTXT);
+    });</script>
+{% endblock %}
+
+
+{% block navbaritems %}
+<li class="nav-item">
+    <a class="nav-link waves-effect waves-light" href="/upload/wav">Upload wav</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link waves-effect waves-light" href="/upload/txt">Upload txt</a>
+</li>
+<li class="nav-item active">
+    <a class="nav-link waves-effect waves-light" href="/forced">Forced Alignment</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link waves-effect waves-light" href="/update_dictionary">Update Dictionary</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link waves-effect waves-light" href="/auto_segmentation">Automatic Segmentation</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link waves-effect waves-light" href="/praat_scripts">Praat Scripts</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link waves-effect waves-light" href="/download_results">Download Results</a>
+</li>
+{% endblock %}
+
+{% block body %}
+<div class="rounded shadow lighter padding">
+    <h3>Use CTRL+click to select multiple files:</h3>
+    <form class="md-form" action="/upload/wav" method="post" enctype="multipart/form-data">
+        <div class="input-group mb-3">
+            <div class="custom-file">
+                {% crispy WAVform %}
+                {%csrf_token%}
+                <input type="submit" name="WAVform" value="Submit" class="btn btn-primary" id="upload-wav-btn">
+            </div>
+        </div>
+    </form>
+</div>
+
+<div class="rounded shadow lighter padding">
+    <h3>Use CTRL+click to select multiple files:</h3>
+    <form class="md-form" action="/upload/txt" method="post" enctype="multipart/form-data">
+        <div class="input-group mb-3">
+            <div class="custom-file">
+                {% crispy TXTform %}
+                {%csrf_token%}
+                <input type="submit" name="TXTform" value="Submit" class="btn btn-primary" id="upload-txt-btn">
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% endblock %}

@@ -18,38 +18,38 @@ Run Praat Script
 
 {% block fab %}
 <a href="#" class="fab" id="download-button">
-<i class="fa fa-download fab-glyph"></i>
+  <i class="fa fa-download fab-glyph"></i>
 </a>
 <ul class="fab-list">
-<li class="fab-list-element"><a class="fab-circle fab-text" href="#">
+  <li class="fab-list-element"><a class="fab-circle fab-text" href="#">
       zip
-</a></li>
-<li class="fab-list-element"><a class="fab-circle fab-text" href="#">
-tar.gz
-</a></li>
-<li class="fab-list-element"><a class="fab-circle fab-text" href="#">
-tar.bz2
-</a></li>
+  </a></li>
+  <li class="fab-list-element"><a class="fab-circle fab-text" href="#">
+      tar.gz
+  </a></li>
+  <li class="fab-list-element"><a class="fab-circle fab-text" href="#">
+      tar.bz2
+  </a></li>
 </ul>
 {% endblock %}
 
 {% block body %}
 <!--
-<div class="rounded shadow lighter padding">
-<select class="mdb-select md-form">
-    <option value="" disabled selected>Choose a script</option>
-    {% for script in scripts %}
-    <option value="" data-icon="https://mdbootstrap.com/img/Photos/Avatars/avatar-1.jpg" class="rounded-circle">
-        {{ script.name }}
-    </option>
-    {% endfor %}
-</select>
-<br />
-<span class="btn btn-dark">Run script</span>
-</div>
--->
-<br />
-<h3>Please select a script to run:</h3>
+    <div class="rounded shadow lighter padding">
+      <select class="mdb-select md-form">
+	<option value="" disabled selected>Choose a script</option>
+	{% for script in scripts %}
+	<option value="" data-icon="https://mdbootstrap.com/img/Photos/Avatars/avatar-1.jpg" class="rounded-circle">
+          {{ script.name }}
+	</option>
+	{% endfor %}
+      </select>
+      <br />
+      <span class="btn btn-dark">Run script</span>
+    </div>
+    -->
+    <br />
+    <h3>Please select a script to run:</h3>
 
     <form method="post" class="accent-darker shadow rounded" id="form_create_project">
 	      {% csrf_token %}
@@ -109,26 +109,26 @@ tar.bz2
 	  <p class="clock"></p>
 	  <p>Showing file: <code id="file_to_load">None</code></p>
           <div class="shadow padding" style="height: 90%">
-	      <div id="console_output" ></div>
-	        <!-- {% if not script_run %} -->
-	        <!-- <p> -->
-	        <!--     <\!-- I wanted to print the output of the command here live (for transparency/debugging by the user), but we probably need a websocket or AJAX for that -\-> -->
+	    <div id="console_output" ></div>
+	    <!-- {% if not script_run %} -->
+	    <!-- <p> -->
+	      <!--     <\!-- I wanted to print the output of the command here live (for transparency/debugging by the user), but we probably need a websocket or AJAX for that -\-> -->
 	        <!-- </p> -->
-	        <!-- {% else %} -->
-	        <!-- <p>Running script with name <code>{{ script_run }}</code>...</p> -->
-	        <!-- <p>This is passed via the backend btw, not js</p> -->
-	        <!-- <p>Look at the ./manage.py runserver output in your console</p> -->
-	        <!-- <p>Done. Script ran <span style="color: green">successfully</span>!</p> -->
-	        <!-- {% endif %} -->
-            </div>
+	    <!-- {% else %} -->
+	    <!-- <p>Running script with name <code>{{ script_run }}</code>...</p> -->
+	    <!-- <p>This is passed via the backend btw, not js</p> -->
+	    <!-- <p>Look at the ./manage.py runserver output in your console</p> -->
+	    <!-- <p>Done. Script ran <span style="color: green">successfully</span>!</p> -->
+	    <!-- {% endif %} -->
+          </div>
         </div>
+      </div>
     </div>
-</div>
-{% endblock %}
+    {% endblock %}
 
-{% block scripts %}
-<script src="{% static 'fancybar/js/search.js' %}"></script>
-<script src="{% static 'fancybar/js/dropdown.js' %}"></script>
-<script src="{% static 'fancybar/js/clock.js' %}"></script>
-<script src="{% static 'fancybar/js/output_loading.js' %}"></script>
-{% endblock %}
+    {% block scripts %}
+    <script src="{% static 'fancybar/js/search.js' %}"></script>
+    <script src="{% static 'fancybar/js/dropdown.js' %}"></script>
+    <script src="{% static 'fancybar/js/clock.js' %}"></script>
+    <script src="{% static 'fancybar/js/output_loading.js' %}"></script>
+    {% endblock %}

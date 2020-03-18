@@ -30,5 +30,12 @@ jobs:
         nohup poetry run python3 equestria/manage.py runserver & 
         nohup poetry run python3 CI_testing/test.py
 
+    - name: Check server
+      run: |
+        poetry run python3 equestria/manage.py check
+
+    - name: Perform tests
+      run: |
+        poetry run python3 equestria/manage.py test
 
 
