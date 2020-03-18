@@ -71,7 +71,7 @@ class PraatScripts(TemplateView):
 
     def post(self, request):
         """Process command line arguments and run selected script."""
-        if request.POST.get("form_handler",) == "create_project":
+        if request.POST.get("form_handler") == "create_project":
             # TODO: Change this
             clamclient = clam.common.client.CLAMClient("http://localhost:8080")
             project_name = str(random.getrandbits(64))
@@ -95,8 +95,8 @@ class PraatScripts(TemplateView):
                     corresponding_profile=new_profile,
                 )
             return render(request, self.template_name, self.arg)
-        elif request.POST.get("form_handler",) == "run_profile":
-            profile_id = request.POST.get("profile_id",)
+        elif request.POST.get("form_handler") == "run_profile":
+            profile_id = request.POST.get("profile_id")
             profile = Profile.objects.get(pk=profile_id)
             argument_files = list()
             for input_template in InputTemplate.objects.select_related().filter(
@@ -175,11 +175,11 @@ class ForcedAlignment(TemplateView):
 
     def post(self, request):
         """Save uploaded files. TODO: Does not yet run anything."""
-        if request.POST.get("form_handler",) == "create_project":
-            script_id = request.POST.get("script_id",)
+        if request.POST.get("form_handler") == "create_project":
+            script_id = request.POST.get("script_id")
             clamclient = clam.common.client.CLAMClient("http://localhost:8080")
             # TODO: This should later on be something like [username]_[project_name]
-            project_name = request.POST.get("project_name",)
+            project_name = request.POST.get("project_name")
             clamclient.create(project_name)
             data = clamclient.get(project_name)
             process = Process.objects.create(
