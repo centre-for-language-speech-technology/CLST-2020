@@ -4,6 +4,12 @@ import clam.common.status
 from django.http import HttpResponseNotFound
 from django.views.generic import TemplateView
 from django.shortcuts import render, redirect
+from .models import Process, Profile, InputTemplate
+from urllib.request import urlretrieve
+from os import makedirs
+from os.path import dirname, exists
+from django.views.static import serve
+from os.path import basename, dirname
 from .models import Process, Profile, InputTemplate, Script
 
 
@@ -14,10 +20,11 @@ class ProcessOverview(TemplateView):
 
     def get(self, request, **kwargs):
         """
-        
-        :param request:
-        :param kwargs:
-        :return:
+        Render for get request for Process overview.
+
+        :param request: the request from the user
+        :param kwargs: keyword arguments
+        :return: a render or HttpNotFound if the process_id does not exist
         """
         key = kwargs.get("process_id")
         try:
@@ -29,6 +36,13 @@ class ProcessOverview(TemplateView):
             return HttpResponseNotFound("<h1>Page not found</h1>")
 
     def post(self, request, **kwargs):
+        """
+        Render for post request for Process overview.
+
+        :param request: the request from the user
+        :param kwargs: keyword arguments
+        :return: a render or HttpNotFound if the process_id does not exist
+        """
         if request.POST.get("form_handler") == "run_profile":
             profile_id = request.POST.get("profile_id")
             self.run_profile(profile_id, request.FILES)
@@ -44,6 +58,12 @@ class ProcessOverview(TemplateView):
             return HttpResponseNotFound("<h1>Page not found</h1>")
 
     def create_argument(self, process):
+        """
+        Create argument set for rendering this page.
+
+        :param process: the process object to render this page
+        :return: an argument list containing the process, all its profiles and all the profiles' input templates
+        """
         arg = {"process": process}
         arg["process"].profiles = Profile.objects.select_related().filter(
             process=arg["process"].id
@@ -55,6 +75,13 @@ class ProcessOverview(TemplateView):
         return arg
 
     def run_profile(self, profile_id, files):
+        """
+        Run a specified process with the given profile.
+
+        :param profile_id: the profile id to run
+        :param files: the files to be uploaded to the CLAM server
+        :return: None
+        """
         profile = Profile.objects.get(pk=profile_id)
         argument_files = list()
         for input_template in InputTemplate.objects.select_related().filter(
@@ -85,3 +112,46 @@ class ProcessOverview(TemplateView):
             clamclient.addinputfile(process_to_run.clam_id, template, file)
 
         clamclient.startsafe(process_to_run.clam_id)
+
+
+class CLAMFetch(TemplateView):
+    """
+    Download and serve files from CLAM.
+
+    I initially did this by parsing XML, but this happens to be faster.
+    """
+
+    def get(self, request, **kwargs):
+        """
+        Nothing yet.
+        
+        :param request:
+        :param kwargs:
+        :return:
+        """
+        clam_id = kwargs.get("process")
+        path = kwargs.get("p")
+        process = Process.objects.get(clam_id=clam_id)
+
+        save_file = "scripts/{}{}".format(clam_id, path)
+        if not exists(dirname(save_file)):
+            makedirs(dirname(save_file))
+        urlretrieve(
+            "{}/{}/output{}".format(process.script.hostname, clam_id, path),
+            save_file,
+        )
+        return redirect(
+            "script_runner:clam", path="scripts/{}/{}".format(clam_id, path),
+        )
+
+
+class Downloads(TemplateView):
+    """View to serve downloadable files."""
+
+    def get(self, request, path):
+        """Respond to get request by serving requested download file."""
+        return serve(request, basename(path), dirname(path))
+
+    def post(self, request, path):
+        """Respond to post request by serving requested download file."""
+        return serve(request, basename(path), dirname(path))
