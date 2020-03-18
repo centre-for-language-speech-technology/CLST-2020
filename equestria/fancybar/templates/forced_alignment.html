@@ -37,15 +37,7 @@ Forced Alignment
 {% endblock %}
 
 {% block body %}
-<form action="forced_alignment" method="post">
-    {% csrf_token %}
-    <input type="submit" value="_forced_alignment">
-</form>
-
-<div class="rounded shadow lighter padding">
-    <!-- TODO: can we show some sort of progress bar?/show whats happening? -->
-    <span class="btn btn-dark">Do forced alignment</span>
-</div>
+{% include "script_list.html" with processes=processes %}
 {% endblock %}
 
 {% block scripts %}

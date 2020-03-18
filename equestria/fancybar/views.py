@@ -152,6 +152,11 @@ class ForcedAlignment(TemplateView):
 
     template_name = "forced_alignment.html"
 
+    def __init__(self, **kwargs):
+        """Load all script from the database."""
+        super().__init__(**kwargs)
+        self.arg = Script.objects.filter(forced_alignment_script=True)
+
     """
     TODO: Why are there two get methods here?
     def get(self, request):
@@ -161,7 +166,7 @@ class ForcedAlignment(TemplateView):
     def get(self, request):
         """Responds to get request and loads upload forms."""
         form = uploadForms.UploadFileForm()
-        return render(request, self.template_name, {"form": form})
+        return render(request, self.template_name, {"scripts": self.arg})
 
     def post(self, request):
         """Save uploaded files. TODO: Does not yet run anything."""
