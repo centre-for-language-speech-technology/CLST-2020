@@ -70,20 +70,7 @@ class ClamWrapper:
             files=multipart_form_data,
         )
 
-        if r.status_code == 401 or r.status_code == 403:
-            check_error_message(
-                "You do not have permission to access this project, failed on uploading {} to {} with \
-                            project_id {} and input_template {}".format(
-                    file, self.hostname, project_id, input_template
-                )
-            )
-        elif r.status_code == 404:
-            check_error_message(
-                "This project ID does not exist, failed on uploading {} to {} with project_id {} and \
-                            input_template {}".format(
-                    file, self.hostname, project_id, input_template
-                )
-            )
+        check_error_message(r.status_code, project_id)
 
     def upload_input_files(self, files, project_id):
         """
@@ -108,30 +95,7 @@ class ClamWrapper:
         """
         r = requests.post(parse.urljoin(self.hostname, project_id + "/"))
 
-        if r.status_code == 401:
-            check_error_message(
-                "Running {} failed! You do not have permission to access this project!".format(
-                    project_id
-                )
-            )
-        elif r.status_code == 403:
-            check_error_message(
-                "Running {} failed! Either the input files are not defined or the parameters {} are not matching any group!".format(
-                    project_id
-                )
-            )
-        elif r.status_code == 404:
-            check_error_message(
-                "Running {} failed! This project does not exist!".format(
-                    project_id
-                )
-            )
-        elif r.status_code == 500:
-            check_error_message(
-                "Running {} failed! The CLAM server is not properly configured!".format(
-                    project_id
-                )
-            )
+        check_error_message(r.status_code, project_id)
 
     def check_error_message(self, message):
         raise Exception(message)
@@ -154,22 +118,18 @@ class ClamWrapper:
             stream=True,
         )
 
-        if r.status_code == 401:
-            check_error_message(
-                "Can't access output files of project {}, unauthorized user".format(
-                    project_id
-                )
-            )
-        elif r.status_code == 404:
-            check_error_message(
-                "Can't access output files of project {}, project not found".format(
-                    project_id
-                )
-            )
+        check_error_message(r.status_code, project_id)
 
         with open(file_to_save_to, "wb") as file:
             for chunk in r.iter_content(chunk_size=128):
                 file.write(chunk)
+
+    def check_error_message(self, code, project_id):
+        errorlist = [401, 403, 404, 500]
+        if code in errorlist:
+            raise Exception(
+                "Running {} failed! error code: {}".format(project_id, code)
+            )
 
 
 class ClamConfiguration:
