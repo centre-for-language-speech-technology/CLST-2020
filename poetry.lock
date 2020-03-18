@@ -112,6 +112,14 @@ bcrypt = ["bcrypt"]
 
 [[package]]
 category = "main"
+description = "simple color field for your models with a nice color-picker in the admin-interface."
+name = "django-colorfield"
+optional = false
+python-versions = "*"
+version = "0.2.1"
+
+[[package]]
+category = "main"
 description = "Best way to have Django DRY forms"
 name = "django-crispy-forms"
 optional = false
@@ -363,7 +371,7 @@ dev = ["pytest", "coverage", "tox", "sphinx", "pallets-sphinx-themes", "sphinx-i
 watchdog = ["watchdog"]
 
 [metadata]
-content-hash = "fd25b06fdfb747ed4e9b05893e905946f82039a8974a1ef36b39bcd83554aff9"
+content-hash = "12693e70863a10ce5badeca0d98d505fcc1b44b94b96a2520076b521254ba097"
 python-versions = "^3.7"
 
 [metadata.files]
@@ -401,6 +409,10 @@ click = [
 django = [
     {file = "Django-3.0.4-py3-none-any.whl", hash = "sha256:89e451bfbb815280b137e33e454ddd56481fdaa6334054e6e031041ee1eda360"},
     {file = "Django-3.0.4.tar.gz", hash = "sha256:50b781f6cbeb98f673aa76ed8e572a019a45e52bdd4ad09001072dfd91ab07c8"},
+]
+django-colorfield = [
+    {file = "django-colorfield-0.2.1.tar.gz", hash = "sha256:2a20722384a1703ff9b91a395de6e2649a8786161f8baff4d21998ba839f9017"},
+    {file = "django_colorfield-0.2.1-py2-none-any.whl", hash = "sha256:c22c9cdae8608432adcde09d6e9e05dd4c498207e1cda0ab8fba0ab3ceb85dcd"},
 ]
 django-crispy-forms = [
     {file = "django-crispy-forms-1.9.0.tar.gz", hash = "sha256:67e73ac863d3159500029fbbcdcb788f287a3fd357becebc1a0b51f73896dce3"},

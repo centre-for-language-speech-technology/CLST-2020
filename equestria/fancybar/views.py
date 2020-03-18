@@ -23,6 +23,15 @@ class GenericTemplate(TemplateView):
 
     template_name = "template.html"
 
+    def __get_profile(self, request):
+        """Retrieve profile based on user in request."""
+        user_profile = (
+            UserProfile.objects.select_related()
+            .filter(user_id=request.user.id)
+            .first()
+        )
+        return user_profile
+
     def get(self, request):
         """Respond to get request."""
         return render(request, self.template_name)
@@ -49,7 +58,17 @@ class PraatScripts(TemplateView):
         "USER_SPECIFIED_TEXT": USER_SPECIFIED_TEXT,
         "USER_SPECIFIED_BOOL": USER_SPECIFIED_BOOL,
         "USER_SPECIFIED_INT": USER_SPECIFIED_INT,
+        "profile": None,
     }
+
+    def __get_profile(self, request):
+        """Retrieve profile based on user in request."""
+        user_profile = (
+            UserProfile.objects.select_related()
+            .filter(user_id=request.user.id)
+            .first()
+        )
+        return user_profile
 
     def __init__(self, **kwargs):
         """Load all script from the database."""
