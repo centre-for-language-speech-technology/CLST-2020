@@ -116,12 +116,12 @@ Run Praat Script
                     <h5>Profile {{ forloop.counter }}</h5>
                     {%  for input_template in profile.input_templates %}
                     {{ input_template.label }}
-                    <input type="file" onChange="validate(this, this.value, ['{{ input_template.extension }}'])"
+                    <input type="file" onChange="validate(this, this.value, {{ forloop.counter }},['{{ input_template.extension }}'])"
 			   name="template_id_{{ input_template.id }}" {% if not input_template.optional %} required {% endif %}
-			   />
+			   ></input>
 		    <!-- accept="{{ input_template.mime }}" -->
 		    
-                    <p>Accepts {{ input_template.extension }}</p>
+                    <p id="p{{ forloop.counter }}">Accepts {{ input_template.extension }}</p>
                     {% endfor %}
                     <input type="hidden" name="form_handler" value="run_profile"/>
                     <input type="hidden" name="profile_id" value="{{ profile.id }}"/>
@@ -184,13 +184,14 @@ Run Praat Script
     <script src="{% static 'fancybar/js/clock.js' %}"></script>
     <script src="{% static 'fancybar/js/output_loading.js' %}"></script>
     <script defer>
-      function validate(obj, file, arrayExtensions) {
+      function validate(obj, file, counter, arrayExtensions) {
 	  var ext = file.split(".");
 	  ext = ext[ext.length-1].toLowerCase();      
 
 	  if (arrayExtensions.lastIndexOf(ext) == -1) {
-              alert("Wrong extension type.");
 	      $(obj).val("");
+	      $(obj).fadeOut(100).fadeIn(100).fadeOut(100).fadeIn(100);
+	      $("#p" + counter).fadeOut(100).fadeIn(100).fadeOut(100).fadeIn(100);
 	  }
       }
     </script>
