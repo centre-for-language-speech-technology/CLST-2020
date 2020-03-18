@@ -16,3 +16,6 @@ exclude:
 - /equestria/equestria/settings.py
 - /Documentation/.*
 - .*/urls\.py
+- .*/actions.js
+- .*/urlify.js
+- .*/static/admin/.*
