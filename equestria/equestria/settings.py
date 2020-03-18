@@ -31,17 +31,19 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    "django.contrib.admin",
-    "django.contrib.auth",
-    "django.contrib.contenttypes",
-    "django.contrib.sessions",
-    "django.contrib.messages",
-    "django.contrib.staticfiles",
-    "fancybar",
-    "upload",
-    "crispy_forms",
-    "script_runner",
-    "accounts",
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'scripts',
+    'fancybar',
+    'upload',
+    'crispy_forms',
+    'script_runner',
+    'accounts',
+    'forcedAlign',
 ]
 
 CRISPY_TEMPLATE_PACK = "bootstrap4"

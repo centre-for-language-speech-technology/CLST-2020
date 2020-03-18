@@ -5,6 +5,9 @@ from django import forms
 
 class ExtFileField(forms.FileField):
     """
+    
+    https://djangosnippets.org/snippets/977/
+
     Same as forms.FileField, but you can specify a file extension whitelist.
     
     >>> from django.core.files.uploadedfile import SimpleUploadedFile

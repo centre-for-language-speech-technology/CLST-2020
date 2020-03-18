@@ -10,6 +10,30 @@ Upload wav
 {% endblock %}
 
 {% block prebody %}
+<script>function upload(event) {
+    event.preventDefault(); // prevent page reload
+
+    var data = new FormData($('WAVform').get(0));
+    
+    $.ajax({
+        url: $(this).attr('action'),
+        type: $(this).attr('method'),
+        data: data,
+        cache: false,
+        processData: false,
+        contentType: false,
+        success: function(data) {
+            alert('success');
+        }
+    }).fail(function(err){
+        alert("not nice")
+    });
+    return false;
+    }
+    
+    $(function() {
+        $('WAVform').submit(upload);
+    });</script>
 {% endblock %}
 
 {% block navbaritems %}
@@ -17,35 +41,34 @@ Upload wav
     <a class="nav-link waves-effect waves-light" href="wav">Upload wav</a>
 </li>
 <li class="nav-item">
-    <a class="nav-link waves-effect waves-light" href="txt"><i class="fas fa-upload"></i>Upload txt</a>
+    <a class="nav-link waves-effect waves-light" href="txt">Upload txt</a>
 </li>
 <li class="nav-item">
-    <a class="nav-link waves-effect waves-light" href="forced_alignment">Forced Alignment</a>
+    <a class="nav-link waves-effect waves-light" href="../forced">Forced Alignment</a>
 </li>
 <li class="nav-item">
-    <a class="nav-link waves-effect waves-light" href="update_dictionary">Update Dictionary</a>
+    <a class="nav-link waves-effect waves-light" href="../update_dictionary">Update Dictionary</a>
 </li>
 <li class="nav-item">
-    <a class="nav-link waves-effect waves-light" href="auto_segmentation">Automatic Segmentation</a>
+    <a class="nav-link waves-effect waves-light" href="../auto_segmentation">Automatic Segmentation</a>
 </li>
 <li class="nav-item">
-    <a class="nav-link waves-effect waves-light" href="praat_scripts">Praat Scripts</a>
+    <a class="nav-link waves-effect waves-light" href="../praat_scripts">Praat Scripts</a>
 </li>
 <li class="nav-item">
-    <a class="nav-link waves-effect waves-light" href="download_results">Download Results</a>
+    <a class="nav-link waves-effect waves-light" href="../download_results">Download Results</a>
 </li>
 {% endblock %}
 
 {% block body %}
 <div class="rounded shadow lighter padding">
     <h3>Use CTRL+click to select multiple files:</h3>
-    <h2>Is this the right from?</h2>
-    <form class="md-form" action="#" method="post" enctype="multipart/form-data">
+    <form class="md-form" action="/upload/wav" method="post" enctype="multipart/form-data">
         <div class="input-group mb-3">
             <div class="custom-file">
-                {% crispy form %}
+                {% crispy WAVform %}
                 {%csrf_token%}
-                <input type="submit" value="Submit" class="btn btn-primary">
+                <input type="submit" value="Submit" class="btn btn-primary" id="upload-btn">
             </div>
         </div>
     </form>

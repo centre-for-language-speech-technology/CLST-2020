@@ -23,7 +23,6 @@ class UploadWAVForm(forms.Form):
     # need duplicate in whitelist otherwise string will be treated as list and only valid filetypes are ".","w","a","v"
     # which does not make sense
 
-
 class UploadFileForm(forms.Form):
     """Form to upload generic file."""
 
