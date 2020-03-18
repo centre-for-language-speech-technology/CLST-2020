@@ -8,32 +8,40 @@ from .models import Process, Profile, InputTemplate, Script
 
 
 class ProcessOverview(TemplateView):
+    """View for the process overview."""
+
     template_name = "process_overview.html"
 
     def get(self, request, **kwargs):
-        key = kwargs.get('process_id')
+        """
+        
+        :param request:
+        :param kwargs:
+        :return:
+        """
+        key = kwargs.get("process_id")
         try:
             process = Process.objects.get(pk=key)
             arg = self.create_argument(process)
             return render(request, self.template_name, arg)
         except Process.DoesNotExist:
             # TODO: Make a nice 404 page
-            return HttpResponseNotFound('<h1>Page not found</h1>')
+            return HttpResponseNotFound("<h1>Page not found</h1>")
 
     def post(self, request, **kwargs):
-        if request.POST.get('form_handler') == 'run_profile':
-            profile_id = request.POST.get('profile_id')
+        if request.POST.get("form_handler") == "run_profile":
+            profile_id = request.POST.get("profile_id")
             self.run_profile(profile_id, request.FILES)
-            return redirect(request.GET.get('redirect'))
+            return redirect(request.GET.get("redirect"))
 
-        key = kwargs.get('process_id')
+        key = kwargs.get("process_id")
         try:
             process = Process.objects.get(pk=key)
             arg = self.create_argument(process)
             return render(request, self.template_name, arg)
         except Process.DoesNotExist:
             # TODO: Make a nice 404 page
-            return HttpResponseNotFound('<h1>Page not found</h1>')
+            return HttpResponseNotFound("<h1>Page not found</h1>")
 
     def create_argument(self, process):
         arg = {"process": process}
@@ -49,24 +57,19 @@ class ProcessOverview(TemplateView):
     def run_profile(self, profile_id, files):
         profile = Profile.objects.get(pk=profile_id)
         argument_files = list()
-        for input_template in InputTemplate.objects.select_related().filter(corresponding_profile=profile):
+        for input_template in InputTemplate.objects.select_related().filter(
+            corresponding_profile=profile
+        ):
             # TODO: This is now writing to the main directory, replace this with files from the uploaded files
             with open(
-                    files[
-                        "template_id_{}".format(input_template.id)
-                    ].name,
-                    "wb",
+                files["template_id_{}".format(input_template.id)].name, "wb",
             ) as file:
-                for chunk in files[
-                    "template_id_{}".format(input_template.id)
-                ]:
+                for chunk in files["template_id_{}".format(input_template.id)]:
                     file.write(chunk)
 
             argument_files.append(
                 (
-                    files[
-                        "template_id_{}".format(input_template.id)
-                    ].name,
+                    files["template_id_{}".format(input_template.id)].name,
                     input_template.template_id,
                 )
             )
