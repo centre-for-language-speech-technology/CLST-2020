@@ -18,10 +18,11 @@ class ProcessOverview(TemplateView):
 
     def get(self, request, **kwargs):
         """
-        
-        :param request:
-        :param kwargs:
-        :return:
+        Render for get request for Process overview.
+
+        :param request: the request from the user
+        :param kwargs: keyword arguments
+        :return: a render or HttpNotFound if the process_id does not exist
         """
         key = kwargs.get("process_id")
         try:
@@ -33,6 +34,13 @@ class ProcessOverview(TemplateView):
             return HttpResponseNotFound("<h1>Page not found</h1>")
 
     def post(self, request, **kwargs):
+        """
+        Render for post request for Process overview.
+
+        :param request: the request from the user
+        :param kwargs: keyword arguments
+        :return: a render or HttpNotFound if the process_id does not exist
+        """
         if request.POST.get("form_handler") == "run_profile":
             profile_id = request.POST.get("profile_id")
             self.run_profile(profile_id, request.FILES)
@@ -48,6 +56,12 @@ class ProcessOverview(TemplateView):
             return HttpResponseNotFound("<h1>Page not found</h1>")
 
     def create_argument(self, process):
+        """
+        Create argument set for rendering this page.
+
+        :param process: the process object to render this page
+        :return: an argument list containing the process, all its profiles and all the profiles' input templates
+        """
         arg = {"process": process}
         arg["process"].profiles = Profile.objects.select_related().filter(
             process=arg["process"].id
@@ -59,6 +73,13 @@ class ProcessOverview(TemplateView):
         return arg
 
     def run_profile(self, profile_id, files):
+        """
+        Run a specified process with the given profile.
+
+        :param profile_id: the profile id to run
+        :param files: the files to be uploaded to the CLAM server
+        :return: None
+        """
         profile = Profile.objects.get(pk=profile_id)
         argument_files = list()
         for input_template in InputTemplate.objects.select_related().filter(
@@ -93,19 +114,24 @@ class ProcessOverview(TemplateView):
 
 class CLAMFetch(TemplateView):
     """
-    Download and serve files from CLAM
+    Download and serve files from CLAM.
 
-    I initially did this by parsing XML, but this happens to be faster
+    I initially did this by parsing XML, but this happens to be faster.
     """
 
     def get(self, request, **kwargs):
+        """
+        Nothing yet.
+
+        :param request:
+        :param kwargs:
+        :return:
+        """
         clam_id = kwargs.get("process")
         path = kwargs.get("p")
         process = Process.objects.get(clam_id=clam_id)
 
-        save_file = "outputs/{}{}".format(clam_id, path)
-        print(save_file)
-        print("{}/{}/output{}".format(process.script.hostname, clam_id, path))
+        save_file = "scripts/{}{}".format(clam_id, path)
         if not exists(dirname(save_file)):
             makedirs(dirname(save_file))
         urlretrieve(
