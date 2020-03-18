@@ -33,6 +33,8 @@ class Script(Model):
 
     description = TextField(max_length=32768, blank=True)
 
+    forced_alignment_script = BooleanField(default=True)
+
     def __str__(self):
         """Use name of script in admin display."""
         return self.name
