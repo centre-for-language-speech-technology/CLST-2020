@@ -1,0 +1,7 @@
+#!/usr/bin/env sh
+
+rm db.sqlite3
+../fa-clam/FAclam/startserver_development.sh &
+./manage.py migrate
+./manage.py loaddata clam
+./manage.py runserver
