@@ -14,25 +14,25 @@ Run Praat Script
 
 {% block navbaritems %}
 <li class="nav-item">
-    <a class="nav-link waves-effect waves-light" href="upload_wav">Upload wav</a>
+  <a class="nav-link waves-effect waves-light" href="upload_wav">Upload wav</a>
 </li>
 <li class="nav-item">
-    <a class="nav-link waves-effect waves-light" href="upload_txt">Upload txt</a>
+  <a class="nav-link waves-effect waves-light" href="upload_txt">Upload txt</a>
 </li>
 <li class="nav-item">
-    <a class="nav-link waves-effect waves-light" href="forced_alignment">Forced Alignment</a>
+  <a class="nav-link waves-effect waves-light" href="forced_alignment">Forced Alignment</a>
 </li>
 <li class="nav-item">
-    <a class="nav-link waves-effect waves-light" href="update_dictionary">Update Dictionary</a>
+  <a class="nav-link waves-effect waves-light" href="update_dictionary">Update Dictionary</a>
 </li>
 <li class="nav-item">
-    <a class="nav-link waves-effect waves-light" href="auto_segmentation">Automatic Segmentation</a>
+  <a class="nav-link waves-effect waves-light" href="auto_segmentation">Automatic Segmentation</a>
 </li>
 <li class="nav-item active">
-    <a class="nav-link waves-effect waves-light" href="praat_scripts">Praat Scripts</a>
+  <a class="nav-link waves-effect waves-light" href="praat_scripts">Praat Scripts</a>
 </li>
 <li class="nav-item">
-    <a class="nav-link waves-effect waves-light" href="download_results">Download Results</a>
+  <a class="nav-link waves-effect waves-light" href="download_results">Download Results</a>
 </li>
 {% endblock %}
 
@@ -41,50 +41,50 @@ Run Praat Script
 
 {% block body %}
 <!--
-<div class="rounded shadow lighter padding">
-<select class="mdb-select md-form">
-    <option value="" disabled selected>Choose a script</option>
-    {% for script in scripts %}
-    <option value="" data-icon="https://mdbootstrap.com/img/Photos/Avatars/avatar-1.jpg" class="rounded-circle">
-        {{ script.name }}
-    </option>
-    {% endfor %}
-</select>
-<br />
-<span class="btn btn-dark">Run script</span>
-</div>
--->
+    <div class="rounded shadow lighter padding">
+      <select class="mdb-select md-form">
+	<option value="" disabled selected>Choose a script</option>
+	{% for script in scripts %}
+	<option value="" data-icon="https://mdbootstrap.com/img/Photos/Avatars/avatar-1.jpg" class="rounded-circle">
+          {{ script.name }}
+	</option>
+	{% endfor %}
+      </select>
+      <br />
+      <span class="btn btn-dark">Run script</span>
+    </div>
+    -->
 
-{% if download_in_progress %}
-<div id="notification-bar" class="regular closable shadow accent rounded container-fluid clickable" onclick="$('#notification-bar').fadeOut()">
-  <div class="row">
-    <div class="nb-content-wrapper col-md-11">
-        <div class="nb-text-wrapper">
-          <div class="nb-headline-text">
-	    <h4>Your download is being prepared and will start soon...</h4>
+    {% if download_in_progress %}
+    <div id="notification-bar" class="regular closable shadow accent rounded container-fluid clickable" onclick="$('#notification-bar').fadeOut()">
+      <div class="row">
+	<div class="nb-content-wrapper col-md-11">
+          <div class="nb-text-wrapper">
+            <div class="nb-headline-text">
+	      <h4>Your download is being prepared and will start soon...</h4>
             </div>
-        </div>
+          </div>
+	</div>
+	<div class="nb-close-wrapper col-md-1">
+	  <h2 class="icon-close">&#10006;</h2>
+	</div>
+      </div>
     </div>
-    <div class="nb-close-wrapper col-md-1">
-      <h2 class="icon-close">&#10006;</h2>
-    </div>
-  </div>
-</div>
-{% endif %}
+    {% endif %}
 
-<br />
-<h3>Please select a script to run:</h3>
+    <br />
+    <h3>Please select a script to run:</h3>
 
     <form method="post" class="accent-darker shadow rounded" id="form_create_project">
-	      {% csrf_token %}
-        <input type="hidden" name="form_handler" value="create_project"/>
-        <input type="submit" class="btn btn-md" value="Create" id="button_create_project">
+      {% csrf_token %}
+      <input type="hidden" name="form_handler" value="create_project"/>
+      <input type="submit" class="btn btn-md" value="Create" id="button_create_project">
     </form>
 
-<br />
-<br /><br /><br /><br /><br />
-<div class="container-fluid">
-    <div class="row">
+    <br />
+    <br /><br /><br /><br /><br />
+    <div class="container-fluid">
+      <div class="row">
         <div class="col-md-7" id="entry-list">
           <div class="row shadow rounded">
             <div class="search col-md-12 lighter padding shadow rounded">
@@ -92,63 +92,63 @@ Run Praat Script
 	      <input type="text" id="searchbar" onkeyup="search()" class="rounded shadow" style="width:90%; float:right" name="search" placeholder="Search..">
             </div>
           </div>
-            <br />
-            {% for process in processes %}
-            <div class="row shadow rounded entry">
-              <div class="col-md-3 lighter padding" type="button" data-toggle="collapse" data-target="#collapse{{ forloop.counter }}">
-		{% if script.img %}
-                <img class="rounded-circle shadow bg-border" width="100px" height="100px" src="{{ script.img.url }}" alt="{{ script.icon }}" />
-		{% else %}
-		<img class="rounded-circle shadow bg-border" width="100px" height="100px" src="https://static.tvtropes.org/pmwiki/pub/images/830px-Mysterious_Mare_Do_Well-1_9628.png" alt="{{ script.icon }}" />
-		  {% endif %}
-                </div>
-                <div class="col-md-9 lighter padding" type="button" data-toggle="collapse" data-target="#collapse{{ forloop.counter }}">
-                    <h5>{{ process.name }}</h5>
-                    <p>{{ process.description }}</p>
-                </div>
+          <br />
+          {% for process in processes %}
+          <div class="row shadow rounded entry">
+            <div class="col-md-3 lighter padding" type="button" data-toggle="collapse" data-target="#collapse{{ forloop.counter }}">
+	      {% if script.img %}
+              <img class="rounded-circle shadow bg-border" width="100px" height="100px" src="{{ script.img.url }}" alt="{{ script.icon }}" />
+	      {% else %}
+	      <img class="rounded-circle shadow bg-border" width="100px" height="100px" src="https://static.tvtropes.org/pmwiki/pub/images/830px-Mysterious_Mare_Do_Well-1_9628.png" alt="{{ script.icon }}" />
+	      {% endif %}
+            </div>
+            <div class="col-md-9 lighter padding" type="button" data-toggle="collapse" data-target="#collapse{{ forloop.counter }}">
+              <h5>{{ process.name }}</h5>
+              <p>{{ process.description }}</p>
+            </div>
 
-		<div class="container-fluid collapse padding-xl" id="collapse{{ forloop.counter }}">
-		  <div class="row accent-darker padding shadow rounded">
+	    <div class="container-fluid collapse padding-xl" id="collapse{{ forloop.counter }}">
+	      <div class="row accent-darker padding shadow rounded">
 		<div class="col-md-10">
-                    {% for profile in process.profiles %}
-                        <form method="post" class="" id="form_{{ profile.id }}" enctype="multipart/form-data">
-                        {% csrf_token %}
-                        <h5>Profile {{ forloop.counter }}</h5>
-                        {%  for input_template in profile.input_templates %}
-                            {{ input_template.label }}
-                            <input type="file" accept="{{ input_template.extension }}" name="template_id_{{ input_template.id }}" {% if not input_template.optional %} required {% endif %} />
-                            <p>Accepts {{ input_template.extension }}</p>
-                        {% endfor %}
-                        <input type="hidden" name="form_handler" value="run_profile"/>
-                        <input type="hidden" name="profile_id" value="{{ profile.id }}"/>
-                        <input type="submit" class="btn btn-md" value="Run" id="button_{{ profile.id }}">
-                        </form>
-			{% endfor %}
-                    <br />
+                  {% for profile in process.profiles %}
+                  <form method="post" class="" id="form_{{ profile.id }}" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <h5>Profile {{ forloop.counter }}</h5>
+                    {%  for input_template in profile.input_templates %}
+                    {{ input_template.label }}
+                    <input type="file" onChange="validate(this, this.value, ['{{ input_template.extension }}'])" name="template_id_{{ input_template.id }}" {% if not input_template.optional %} required {% endif %} />
+                    <p>Accepts {{ input_template.extension }}</p>
+                    {% endfor %}
+                    <input type="hidden" name="form_handler" value="run_profile"/>
+                    <input type="hidden" name="profile_id" value="{{ profile.id }}"/>
+                    <input type="submit" class="btn btn-md" value="Run" id="button_{{ profile.id }}">
+                  </form>
+		  {% endfor %}
+                  <br />
                 </div>
 		<div class="col-md-2">
 		  <p style="text-align: right">
 		    <i class="fa fa-download fab-glyph clickable" data-toggle="collapse" data-target="#downloadcollapse{{ forloop.counter }}"></i>
 		  </p>
-		    <div class="collapse" id="downloadcollapse{{ forloop.counter }}">
+		  <div class="collapse" id="downloadcollapse{{ forloop.counter }}">
 
-		      <form method="post" class="" id="form_download_{{ process.id }}" enctype="multipart/form-data">
-			{% csrf_token %}
-			<input type="hidden" name="form_handler" value="download_process"/>
-			<input type="hidden" name="process_id" value="{{ process.id }}"/>
-			<input type="submit" style="width: 10em;" class="btn btn-md" name="archive_type" value="zip"     id="button_download_zip_{{ process.id }}">
-			<input type="submit" style="width: 10em;" class="btn btn-md" name="archive_type" value="tar.gz"  id="button_download_gz_{{ process.id }}">
-			<input type="submit" style="width: 10em;" class="btn btn-md" name="archive_type" value="tar.bz2" id="button_download_bz_{{ process.id }}">
-		      </form>
-		    </div>
-		  </div>
+		    <form method="post" class="" id="form_download_{{ process.id }}" enctype="multipart/form-data">
+		      {% csrf_token %}
+		      <input type="hidden" name="form_handler" value="download_process"/>
+		      <input type="hidden" name="process_id" value="{{ process.id }}"/>
+		      <input type="submit" style="width: 10em;" class="btn btn-md" name="archive_type" value="zip"     id="button_download_zip_{{ process.id }}">
+		      <input type="submit" style="width: 10em;" class="btn btn-md" name="archive_type" value="tar.gz"  id="button_download_gz_{{ process.id }}">
+		      <input type="submit" style="width: 10em;" class="btn btn-md" name="archive_type" value="tar.bz2" id="button_download_bz_{{ process.id }}">
+		    </form>
 		  </div>
 		</div>
+	      </div>
 	    </div>
-                {% if not forloop.last %}
-                <br />
-                {% endif %}
-            {% endfor %}
+	  </div>
+          {% if not forloop.last %}
+          <br />
+          {% endif %}
+          {% endfor %}
         </div>
         <div class="col-md-1">
         </div>
@@ -157,26 +157,37 @@ Run Praat Script
 	  <p class="clock"></p>
 	  <p>Showing file: <code id="file_to_load">None</code></p>
           <div class="shadow padding" style="height: 90%">
-	      <div id="console_output" ></div>
-	        <!-- {% if not script_run %} -->
-	        <!-- <p> -->
-	        <!--     <\!-- I wanted to print the output of the command here live (for transparency/debugging by the user), but we probably need a websocket or AJAX for that -\-> -->
+	    <div id="console_output" ></div>
+	    <!-- {% if not script_run %} -->
+	    <!-- <p> -->
+	      <!--     <\!-- I wanted to print the output of the command here live (for transparency/debugging by the user), but we probably need a websocket or AJAX for that -\-> -->
 	        <!-- </p> -->
-	        <!-- {% else %} -->
-	        <!-- <p>Running script with name <code>{{ script_run }}</code>...</p> -->
-	        <!-- <p>This is passed via the backend btw, not js</p> -->
-	        <!-- <p>Look at the ./manage.py runserver output in your console</p> -->
-	        <!-- <p>Done. Script ran <span style="color: green">successfully</span>!</p> -->
-	        <!-- {% endif %} -->
-            </div>
+	    <!-- {% else %} -->
+	    <!-- <p>Running script with name <code>{{ script_run }}</code>...</p> -->
+	    <!-- <p>This is passed via the backend btw, not js</p> -->
+	    <!-- <p>Look at the ./manage.py runserver output in your console</p> -->
+	    <!-- <p>Done. Script ran <span style="color: green">successfully</span>!</p> -->
+	    <!-- {% endif %} -->
+          </div>
         </div>
+      </div>
     </div>
-</div>
-{% endblock %}
+    {% endblock %}
 
-{% block scripts %}
-<script src="{% static 'fancybar/js/search.js' %}"></script>
-<script src="{% static 'fancybar/js/dropdown.js' %}"></script>
-<script src="{% static 'fancybar/js/clock.js' %}"></script>
-<script src="{% static 'fancybar/js/output_loading.js' %}"></script>
-{% endblock %}
+    {% block scripts %}
+    <script src="{% static 'fancybar/js/search.js' %}"></script>
+    <script src="{% static 'fancybar/js/dropdown.js' %}"></script>
+    <script src="{% static 'fancybar/js/clock.js' %}"></script>
+    <script src="{% static 'fancybar/js/output_loading.js' %}"></script>
+    <script defer>
+      function validate(obj, file, arrayExtensions) {
+	  var ext = file.split(".");
+	  ext = ext[ext.length-1].toLowerCase();      
+
+	  if (arrayExtensions.lastIndexOf(ext) == -1) {
+              alert("Wrong extension type.");
+              obj.val("");
+	  }
+      }
+    </script>
+    {% endblock %}
