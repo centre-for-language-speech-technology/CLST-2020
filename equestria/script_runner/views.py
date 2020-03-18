@@ -141,7 +141,7 @@ class CLAMFetch(TemplateView):
             save_file,
         )
         return redirect(
-            "script_runner:clam", path="outputs/{}/{}".format(clam_id, path),
+            "script_runner:clam", path="scripts/{}/{}".format(clam_id, path),
         )
 
 

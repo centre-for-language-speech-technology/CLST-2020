@@ -9,10 +9,6 @@ urlpatterns = [
     path("", include(("fancybar.urls", "fancybar"), namespace="fancybar")),
     path("upload/", include(("upload.urls", "upload"), namespace="upload")),
     path(
-        "forced/",
-        include(("forcedAlign.urls", "forced"), namespace="forcedAlign"),
-    ),
-    path(
         "scripts/",
         include(
             ("script_runner.urls", "script_runner"), namespace="script_runner"
