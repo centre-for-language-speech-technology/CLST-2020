@@ -6,6 +6,9 @@ from upload import forms as uploadForms
 from script_runner.constants import *
 from script_runner import backend_interface
 from script_runner.backend_interface import ClamConfiguration
+from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import redirect
 
 
 # Create your views here.
@@ -79,16 +82,22 @@ class PraatScripts(TemplateView):
 
     def get(self, request):
         """Respond to get request."""
-        return render(request, self.template_name, self.arg)
+        if not request.user.is_authenticated:
+            return redirect('%s?next=%s' % (settings.LOGIN_URL, request.path))
+        else:
+            return render(request, self.template_name, self.arg)
 
     def post(self, request):
         """Process command line arguments and run selected script."""
-        name = request.POST.get("script_name", "")
-        script_id = request.POST.get("script_id", "")
-        args = self.__filter_arguments(request)
-        self.__run_and_log_script(script_id, args)
-        self.arg["script_run"] = name
-        return render(request, self.template_name, self.arg)
+        if not request.user.is_authenticated:
+            return redirect('%s?next=%s' % (settings.LOGIN_URL, request.path))
+        else:
+            name = request.POST.get("script_name", "")
+            script_id = request.POST.get("script_id", "")
+            args = self.__filter_arguments(request)
+            self.__run_and_log_script(script_id, args)
+            self.arg["script_run"] = name
+            return render(request, self.template_name, self.arg)
 
 
 class UploadWav(GenericTemplate):
@@ -116,17 +125,23 @@ class ForcedAlignment(TemplateView):
 
     def get(self, request):
         """Responds to get request and loads upload forms."""
-        form = uploadForms.UploadFileForm()
-        return render(request, self.template_name, {"form": form})
+        if not request.user.is_authenticated:
+            return redirect('%s?next=%s' % (settings.LOGIN_URL, request.path))
+        else:
+            form = uploadForms.UploadFileForm()
+            return render(request, self.template_name, {"form": form})
 
     def post(self, request):
         """Save uploaded files. TODO: Does not yet run anything."""
-        form = uploadForms.UploadFileForm(request.POST, request.FILES)
-        f = request.FILES["f"]
-        fs = FileSystemStorage()
-        fs.save(f.name, f)
-        # TODO: execute script
-        return render(request, self.template_name)
+        if not request.user.is_authenticated:
+            return redirect('%s?next=%s' % (settings.LOGIN_URL, request.path))
+        else:
+            form = uploadForms.UploadFileForm(request.POST, request.FILES)
+            f = request.FILES["f"]
+            fs = FileSystemStorage()
+            fs.save(f.name, f)
+            # TODO: execute script
+            return render(request, self.template_name)
 
 
 class UpdateDictionary(GenericTemplate):
