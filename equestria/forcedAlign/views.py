@@ -22,7 +22,6 @@ class FAView(TemplateView):
     def get(self, request):
 
         """Handle requests to the /forced page.
-        
         Get requests are handled wihtin this class while the upload
         post requests are handled in the upload app
         with callback URLs upload/wav and upload/txt.
