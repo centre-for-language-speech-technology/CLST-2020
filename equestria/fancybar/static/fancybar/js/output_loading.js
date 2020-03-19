@@ -5,6 +5,9 @@ function update_console_output() {
 	setTimeout(update_console_output, timeout);
 	return;
     }
+    if (!file_to_load.startsWith("/scripts/process/")) {
+	file_to_load = "/scripts/process/1/" + file_to_load
+    }
     $.get(file_to_load, function( content ) {
 	//	alert(content);
 	$('#console_output').html(content.replace(/\n/g, '<br />'));
