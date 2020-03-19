@@ -1,0 +1,41 @@
+name: "Server testing"
+on:
+  push:
+    branches: [CI/*]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.7]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python-version }}
+  
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install poetry
+        poetry install
+        
+    - name: Test server GET index
+      run: |
+        nohup poetry run python3 equestria/manage.py runserver & 
+        nohup poetry run python3 CI_testing/test.py
+
+    - name: Check server
+      run: |
+        poetry run python3 equestria/manage.py check
+
+    - name: Perform tests
+      run: |
+        poetry run python3 equestria/manage.py test
+
+

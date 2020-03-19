@@ -9,6 +9,13 @@ Progess bar test
 <link href="{% static 'fancybar/css/chevron.css' %}" rel="stylesheet">
 <link href="{% static 'fancybar/css/fab.css' %}" rel="stylesheet">
 <script src="{% static 'fancybar/js/chevron.js' %}"></script>
+<link href="{% static 'fancybar/css/sidebar.css' %}" rel="stylesheet">
+<script src="{% static 'fancybar/js/sidebar.js' %}"></script>
+<script defer>
+  function resizeIframe(obj) {
+      obj.style.height = obj.contentWindow.document.body.scrollHeight + 'px';
+  }
+</script>
 {% endblock %}
 
 {% block style %}
@@ -17,38 +24,65 @@ Progess bar test
 {% block prebody %}
 {% endblock %}
 
+{% block sidebar %}
+<div id="wrapper">
+  <div id="sidebar-wrapper" style="height: 100%; z-index: 900000001 !important; color: ivory">
+    <ul>
+      {% if user.is_authenticated %}
+      <li>
+        <form class="logout-link" action="{% url 'accounts:logout' %}" method="post">
+          {% csrf_token %}
+          <button type="submit">Logout</button>
+        </form>
+      </li>
+      <iframe name="sidebar" class="container timeline-container" src="{% url 'accounts:settings' %}" frameborder="0" scrolling="no" onload="resizeIframe(this)"></iframe>
+      {% else %}
+      <li><a target="sidebar" href="{% url 'accounts:login' %}">Login</a></li>
+      <li><a target="sidebar" href="{% url 'accounts:signup' %}">Signup</a></li>
+      <iframe name="sidebar" class="container timeline-container" src="{% url 'accounts:login' %}" frameborder="0" scrolling="no" onload="resizeIframe(this)"></iframe>
+      {% endif %}
+    </ul>
+  </div>
+  <div class="" id="overlay"></div>
+
+  <div id="page-content-wrapper">
+    <button type="button" class="hamburger is-closed" data-toggle="offcanvas">
+      <span class="hamb-top"></span>
+      <span class="hamb-middle"></span>
+      <span class="hamb-bottom"></span>
+    </button>
+  </div>
+</div>
+{% endblock %}
+
 {% block progress %}
 <br>
-<nav class="navbar navbar-fixed-top navbar-expand-sm navbar-dark">
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav mr-auto chevronbar">
-	    {% block navbaritems %}
-	    {% endblock %}
-            </ul>
-    </div>
-    <br><br><br>
+<nav class="navbar navbar-fixed-top navbar-expand-sm navbar">
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav mr-auto chevronbar">
+      {% block navbaritems %}
+      {% endblock %}
+    </ul>
+  </div>
+  <div class="navbar-collapse collapse w-100 order-3 dual-collapse2">
+    <ul class="navbar-nav ml-auto">
+      <li class="nav-item">
+	<a class="nav-link" href="#" data-toggle="offcanvas">
+	  <i class="fa fa-bars" ></i>
+	</a>
+      </li>
+    </ul>
+  </div>
+  <br><br><br>
 </nav>
 <br>
+
 {% endblock %}
 
 {% block fab %}
-<a href="#" class="fab fab-inactive" id="download-button">
-<i class="fa fa-download fab-glyph"></i>
-</a>
-<ul class="fab-list">
-<li class="fab-list-element"><a class="fab-circle fab-text" href="#">
-      zip
-</a></li>
-<li class="fab-list-element"><a class="fab-circle fab-text" href="#">
-tar.gz
-</a></li>
-<li class="fab-list-element"><a class="fab-circle fab-text" href="#">
-tar.bz2
-</a></li>
-</ul>
 {% endblock %}
 
 {% block body %}

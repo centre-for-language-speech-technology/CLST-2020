@@ -1,3 +1,5 @@
+from django.http import HttpResponseRedirect
+from django.urls import reverse
 from django.views.generic import TemplateView
 from django.shortcuts import render, redirect
 from script_runner.models import Script, Argument
@@ -14,6 +16,11 @@ import random
 from urllib.request import urlretrieve
 from os.path import join, exists
 from os import makedirs
+from urllib.parse import urlencode
+from script_runner.clamhelper import (
+    create_templates_from_data,
+    start_clam_server,
+)
 
 
 # Create your views here.
@@ -23,6 +30,15 @@ class GenericTemplate(TemplateView):
     """View to render a html page without any additional features."""
 
     template_name = "template.html"
+
+    def __get_profile(self, request):
+        """Retrieve profile based on user in request."""
+        user_profile = (
+            UserProfile.objects.select_related()
+            .filter(user_id=request.user.id)
+            .first()
+        )
+        return user_profile
 
     def get(self, request):
         """Respond to get request."""
@@ -50,7 +66,17 @@ class PraatScripts(TemplateView):
         "USER_SPECIFIED_TEXT": USER_SPECIFIED_TEXT,
         "USER_SPECIFIED_BOOL": USER_SPECIFIED_BOOL,
         "USER_SPECIFIED_INT": USER_SPECIFIED_INT,
+        "profile": None,
     }
+
+    def __get_profile(self, request):
+        """Retrieve profile based on user in request."""
+        user_profile = (
+            UserProfile.objects.select_related()
+            .filter(user_id=request.user.id)
+            .first()
+        )
+        return user_profile
 
     def __init__(self, **kwargs):
         """Load all script from the database."""
@@ -66,13 +92,36 @@ class PraatScripts(TemplateView):
                     corresponding_profile=profile.id
                 )
 
+    def __filter_arguments(self, request):
+        """Filter relevant arguments from post request."""
+        args = []
+        for argument in Argument.objects.select_related().filter(
+            associated_script=script_id
+        ):
+            args += [
+                (
+                    argument,
+                    request.POST.get(
+                        "script_{}_argument_{}".format(script_id, argument.id)
+                    ),
+                ),
+            ]
+        return args
+
+    def __run_and_log_script(self, script_id, args):
+        """Pass script to backend for execution and print debug info."""
+        print('"Running" script ' + name + "...")
+        print(args)
+        script = Script.objects.get(pk=script_id)
+        backend_interface.run(script, args)
+
     def get(self, request):
         """Respond to get request."""
         return render(request, self.template_name, self.arg)
 
     def post(self, request):
         """Process command line arguments and run selected script."""
-        if request.POST.get("form_handler",) == "create_project":
+        if request.POST.get("form_handler") == "create_project":
             # TODO: Change this
             clamclient = clam.common.client.CLAMClient("http://localhost:8080")
             project_name = str(random.getrandbits(64))
@@ -84,21 +133,10 @@ class PraatScripts(TemplateView):
                 clam_id=project_name,
             )
             new_profile = Profile.objects.create(process=process)
-            for input_template in data.inputtemplates():
-                InputTemplate.objects.create(
-                    template_id=input_template.id,
-                    format=input_template.formatclass,
-                    mime=input_template.formatclass.mimetype,
-                    label=input_template.label,
-                    extension=input_template.extension,
-                    optional=input_template.optional,
-                    unique=input_template.unique,
-                    accept_archive=input_template.acceptarchive,
-                    corresponding_profile=new_profile,
-                )
+            create_templates_from_data(data.inputtemplates())
             return render(request, self.template_name, self.arg)
-        elif request.POST.get("form_handler",) == "run_profile":
-            profile_id = request.POST.get("profile_id",)
+        elif request.POST.get("form_handler") == "run_profile":
+            profile_id = request.POST.get("profile_id")
             profile = Profile.objects.get(pk=profile_id)
             argument_files = list()
             for input_template in InputTemplate.objects.select_related().filter(
@@ -124,17 +162,7 @@ class PraatScripts(TemplateView):
                     )
                 )
 
-            process_to_run = Process.objects.get(pk=profile.process.id)
-            clam_server = Script.objects.get(pk=process_to_run.script.id)
-            clamclient = clam.common.client.CLAMClient(clam_server.hostname)
-            # TODO: If a file is already uploaded, uploading files over it gives an error, therefor we remove the
-            # project and recreate it. There might be a better way of doing this in the future
-            clamclient.delete(process_to_run.clam_id)
-            clamclient.create(process_to_run.clam_id)
-            for (file, template) in argument_files:
-                clamclient.addinputfile(process_to_run.clam_id, template, file)
-
-            clamclient.startsafe(process_to_run.clam_id)
+            start_clam_server(profile, process_to_run, argument_files)
 
             return render(request, self.template_name, self.arg)
         elif request.POST.get("form_handler") == "download_process":
@@ -194,11 +222,11 @@ class ForcedAlignment(TemplateView):
 
     def post(self, request):
         """Save uploaded files. TODO: Does not yet run anything."""
-        if request.POST.get("form_handler",) == "create_project":
-            script_id = request.POST.get("script_id",)
+        if request.POST.get("form_handler") == "create_project":
+            script_id = request.POST.get("script_id")
             clamclient = clam.common.client.CLAMClient("http://localhost:8080")
             # TODO: This should later on be something like [username]_[project_name]
-            project_name = request.POST.get("project_name",)
+            project_name = request.POST.get("project_name")
             clamclient.create(project_name)
             data = clamclient.get(project_name)
             process = Process.objects.create(
@@ -207,18 +235,12 @@ class ForcedAlignment(TemplateView):
                 clam_id=project_name,
             )
             new_profile = Profile.objects.create(process=process)
-            for input_template in data.inputtemplates():
-                InputTemplate.objects.create(
-                    template_id=input_template.id,
-                    format=input_template.formatclass,
-                    label=input_template.label,
-                    extension=input_template.extension,
-                    optional=input_template.optional,
-                    unique=input_template.unique,
-                    accept_archive=input_template.acceptarchive,
-                    corresponding_profile=new_profile,
-                )
-            return render(request, self.template_name, self.arg)
+            create_templates_from_data(data.inputtemplates())
+            return redirect_with_parameters(
+                "script_runner:process",
+                process.id,
+                redirect="fancybar:update_dictionary",
+            )
         return render(request, self.template_name, self.arg)
 
 
@@ -239,4 +261,16 @@ class DownloadResults(GenericTemplate):
 
     template_name = "download_results.html"
 
-    template_name = "download_results.html"
+
+def redirect_with_parameters(url_name, *args, **kwargs):
+    """
+    Redirects to a page with GET parameters specified in kwargs.
+
+    :param url_name: the url to redirect to (reverse will get called on this string)
+    :param args: the arguments for reverse in the url
+    :param kwargs: the GET parameters
+    :return: HttpResponseRedirect with the asked url
+    """
+    url = reverse(url_name, args=args)
+    params = urlencode(kwargs)
+    return HttpResponseRedirect(url + "?%s" % params)

@@ -1,0 +1,21 @@
+component_depth: 2
+languages:
+- javascript
+- css
+- python
+- script
+exclude:
+- .*/admin/.*
+- .*/static/css/.*
+- /equestria/static/.*
+- .*/font-awesome\.css
+- .*/sparkles\.css
+- .*/sparkles\.js
+- /fa-clam/.*
+- /equestria/equestria/settings.py
+- /Documentation/.*
+- .*/urls\.py
+- .*/actions.js
+- .*/urlify.js
+- .*/static/admin/.*
+- .*/jscolor.js

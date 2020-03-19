@@ -1,13 +1,6 @@
 $(document).ready(function(){
     $(".dropdown").hover(            
-        function() {
-            $('.dropdown-menu', this).not('.in .dropdown-menu').stop(true,true).slideDown("400");
-            $(this).toggleClass('open');        
-        },
-        function() {
-            $('.dropdown-menu', this).not('.in .dropdown-menu').stop(true,true).slideUp("400");
-            $(this).toggleClass('open');       
-        }
+	dropdown, dropup
     );
     $(".dropdown-toggle").click(function (e) {
 	e.preventDefault();
@@ -18,3 +11,13 @@ $(document).ready(function(){
 
 			       );
 });
+
+function dropdown() {
+    $('.dropdown-menu', this).not('.in .dropdown-menu').stop(true,true).slideDown("400");
+    $(this).toggleClass('open');        
+}
+
+function dropup() {
+    $('.dropdown-menu', this).not('.in .dropdown-menu').stop(true,true).slideUp("400");
+    $(this).toggleClass('open');       
+}
