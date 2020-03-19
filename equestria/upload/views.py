@@ -21,10 +21,10 @@ def safeFile(request,form,filetype):
     """Function to safe uploaded file"""
     username = request.user.username
     uploadedfile = request.FILES[filetype]
-    path = "media" + "/" + username + "/" + filetype
+    path = os.path.join("media", username, filetype)
     absolutePath = os.path.join(
-        settings.MEDIA_ROOT + "\\" + username+ "\\"
-        + filetype, uploadedfile.name)
+        settings.MEDIA_ROOT, username,
+        filetype, uploadedfile.name)
     fs = FileSystemStorage(location=path)
 
     if fs.exists(uploadedfile.name):
