@@ -9,13 +9,21 @@ from django.http import HttpResponseRedirect
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
+import mimetypes
 
+
+def getFileType(path):
+    """Get the file type of the uploaded file and categorize."""
+    mime = mimetypes.guess_type(path)
+    print(mime)
+    return mime[0]
 
 def makeDBEntry(request, path):
     """Create an entry in the Database for the uploaded file."""
     file = File()
     file.owner = request.user.username
     file.path = path
+    file.filetype = getFileType(path)
     file.save()
 
 
