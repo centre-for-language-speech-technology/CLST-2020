@@ -27,8 +27,10 @@ class Signup(GenericTemplate):
             return redirect("fancybar:fancybar")
         else:
             # implement error handling here
-            messages.info(request,
-                          "Invalid password or already taken user name. Please check the requirements for passwords")
+            messages.info(
+                request,
+                "Invalid password or already taken user name. Please check the requirements for passwords",
+            )
             return redirect("accounts:signup")
 
 
@@ -55,8 +57,7 @@ class Login(GenericTemplate):
                 return redirect("fancybar:fancybar")
         else:
             # implement error handling here
-            messages.info(request,
-                          "Invalid username or password")
+            messages.info(request, "Invalid username or password")
             return redirect("accounts:login")
 
 
