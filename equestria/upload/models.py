@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 
 # Create your models here.
 class File(models.Model):
-    """Model representing user uploaded files in the database"""
+    """Model representing user uploaded files in the database."""
 
     # owner = models.ForeignKey(
     #    User, to_field="username", on_delete=models.CASCADE
