@@ -19,3 +19,4 @@ exclude:
 - .*/urlify.js
 - .*/static/admin/.*
 - .*/jscolor.js
+- .*/migrations/.*
