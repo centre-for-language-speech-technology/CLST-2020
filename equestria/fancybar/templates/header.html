@@ -1,0 +1,21 @@
+<li class="nav-item {% if active == "wav" %} active {% endif %}">
+    <a class="nav-link waves-effect waves-light" href="{% url 'fancybar:upload_wav' %}">Upload wav</a>
+</li>
+<li class="nav-item {% if active == "txt" %} active {% endif %}">
+    <a class="nav-link waves-effect waves-light" href="{% url 'fancybar:upload_txt' %}">Upload txt</a>
+</li>
+<li class="nav-item {% if active == "forced" %} active {% endif %}">
+    <a class="nav-link waves-effect waves-light" href="{% url 'fancybar:forced_alignment' %}">Forced Alignment</a>
+</li>
+<li class="nav-item {% if active == "dictionary" %} active {% endif %}">
+    <a class="nav-link waves-effect waves-light" href="{% url 'fancybar:update_dictionary' %}">Update Dictionary</a>
+</li>
+<li class="nav-item {% if active == "segmentation" %} active {% endif %}">
+    <a class="nav-link waves-effect waves-light" href="{% url 'fancybar:auto_segmentation' %}">Automatic Segmentation</a>
+</li>
+<li class="nav-item {% if active == "praat" %} active {% endif %}">
+    <a class="nav-link waves-effect waves-light" href="{% url 'fancybar:praat_scripts' %}">Praat Scripts</a>
+</li>
+<li class="nav-item {% if active == "download" %} active {% endif %}">
+    <a class="nav-link waves-effect waves-light" href="{% url 'fancybar:download_results' %}">Download Results</a>
+</li>

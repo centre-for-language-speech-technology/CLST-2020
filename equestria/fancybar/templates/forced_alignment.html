@@ -3,7 +3,7 @@
 {% load static %}
 
 {% block title %}
-Download Results
+Forced Alignment
 {% endblock %}
 
 {% block style %}
@@ -13,13 +13,11 @@ Download Results
 {% endblock %}
 
 {% block navbaritems %}
-    {% include "header.html" with active="download" %}
+    {% include "header.html" with active="forced" %}
 {% endblock %}
 
 {% block body %}
-<div class="rounded shadow lighter padding">
-    <span class="btn btn-dark">Download results</span>
-</div>
+{% include "script_list.html" with processes=processes %}
 {% endblock %}
 
 {% block scripts %}

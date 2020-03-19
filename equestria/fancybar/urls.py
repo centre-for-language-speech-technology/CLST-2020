@@ -7,7 +7,7 @@ urlpatterns = [
     url(r"upload_wav", UploadWav.as_view(), name="upload_wav"),
     url(r"upload_txt", UploadTxt.as_view(), name="upload_txt"),
     url(
-        r"forced_alignment", ForcedAlignment.as_view(), name="forcedd_alignment"
+        r"forced_alignment", ForcedAlignment.as_view(), name="forced_alignment"
     ),
     url(
         r"update_dictionary",
