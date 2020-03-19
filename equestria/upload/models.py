@@ -7,15 +7,17 @@ from django.contrib.auth.models import User
 
 # Create your models here.
 class File(models.Model):
-    owner = models.ForeignKey(
-        User, to_field="username", on_delete=models.CASCADE
-    )
+    """Model representing user uploaded files in the database"""
+    #owner = models.ForeignKey(
+    #    User, to_field="username", on_delete=models.CASCADE
+    #)
+    owner = models.CharField(max_length=30)
     timestamp = models.DateTimeField(auto_now_add=True)
     path = models.FilePathField(path=os.path.join(BASE_DIR, "media/"))
 
     def __str__(self):
         """Use name of script in admin display."""
-        return self.name
+        return self.owner + ", " + self.path
 
     class Meta:
         """
@@ -25,7 +27,3 @@ class File(models.Model):
         """
 
         verbose_name_plural = "Files"
-
-
-# python manage.py makemigrations
-# python manage.py migrate

@@ -2,6 +2,7 @@ import os
 from django.conf import settings
 from django.shortcuts import render
 from django.views.generic import TemplateView
+from .models import File
 from .forms import UploadTXTForm, UploadWAVForm
 from django.core.files.storage import FileSystemStorage
 from django.http import HttpResponseRedirect
@@ -10,23 +11,32 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
 
 
+def makeDBEntry(request,path):
+    file = File()
+    file.owner = request.user.username
+    file.path = path
+    file.save()
+
 def safeFile(request,form,filetype):
     """Function to safe uploaded file"""
-    print("valid form")
-    print(request.user.username)
+    username = request.user.username
     uploadedfile = request.FILES[filetype]
-    loc = "media/sname/" + filetype
-    fs = FileSystemStorage(location=loc)
+    path = "media" + "/" + username + "/" + filetype
+    absolutePath = os.path.join(
+        settings.MEDIA_ROOT + "\\" + username+ "\\"
+        + filetype, uploadedfile.name)
+    fs = FileSystemStorage(location=path)
+
     if fs.exists(uploadedfile.name):
-        os.remove(
-            os.path.join(
-                settings.MEDIA_ROOT + "/sname/" + filetype, uploadedfile.name
-            )
-        )
+        """Delete previously uploaded file with same name"""
+        os.remove(absolutePath)
+
+    makeDBEntry(request,absolutePath)
     fs.save(uploadedfile.name, uploadedfile)
 
 class UploadWAVView(TemplateView):
-    """ Class to handle the upload/wav page. Also acts as callback URL for the uploads in forced alignment page"""
+    """ Class to handle the upload/wav page.
+    Also acts as callback URL for the uploads in forced alignment page"""
     template_name = "upload_wav2.html"
 
 
@@ -39,7 +49,8 @@ class UploadWAVView(TemplateView):
             return render(request, self.template_name, {"WAVform": form})
 
     def post(self, request):
-        """function to handle post requests to upload/wav. Also acts as callback function from forced alignment page"""
+        """function to handle post requests to upload/wav.
+        Also acts as callback function from forced alignment page"""
         if not request.user.is_authenticated:
             return redirect("%s?next=%s" % (settings.LOGIN_URL, request.path))
         else:
@@ -54,7 +65,8 @@ class UploadWAVView(TemplateView):
 
 
 class UploadTXTView(TemplateView):
-    """ Class to handle the upload/txt page. Also acts as callback URL for the uploads in forced alignment page"""
+    """ Class to handle the upload/txt page.
+    Also acts as callback URL for the uploads in forced alignment page"""
     template_name = "upload_txt2.html"
 
 #    def safeFile(self,request,form):
@@ -79,7 +91,8 @@ class UploadTXTView(TemplateView):
             return render(request, self.template_name, {"TXTform": form})
 
     def post(self, request):
-        """function to handle post requests to upload/txt. Also acts as callback function from forced alignment page"""
+        """function to handle post requests to upload/txt.
+        Also acts as callback function from forced alignment page"""
         if not request.user.is_authenticated:
             #redirect user to login page if not logged in
             return redirect("%s?next=%s" % (settings.LOGIN_URL, request.path))
