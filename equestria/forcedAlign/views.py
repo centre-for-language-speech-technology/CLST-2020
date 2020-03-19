@@ -11,6 +11,7 @@ from django.http import HttpResponseRedirect
 
 class FAView(TemplateView):
     """Class to handle get requests to the forced alignment page"""
+
     template_name = "ForcedAlign.html"
 
     def get(self, request):

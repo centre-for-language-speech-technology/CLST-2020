@@ -8,9 +8,10 @@ from django.contrib.auth.models import User
 # Create your models here.
 class File(models.Model):
     """Model representing user uploaded files in the database"""
-    #owner = models.ForeignKey(
+
+    # owner = models.ForeignKey(
     #    User, to_field="username", on_delete=models.CASCADE
-    #)
+    # )
     owner = models.CharField(max_length=30)
     timestamp = models.DateTimeField(auto_now_add=True)
     path = models.FilePathField(path=os.path.join(BASE_DIR, "media/"))

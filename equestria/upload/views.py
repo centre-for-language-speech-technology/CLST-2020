@@ -11,34 +11,36 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
 
 
-def makeDBEntry(request,path):
+def makeDBEntry(request, path):
     file = File()
     file.owner = request.user.username
     file.path = path
     file.save()
 
-def safeFile(request,form,filetype):
+
+def safeFile(request, form, filetype):
     """Function to safe uploaded file"""
     username = request.user.username
     uploadedfile = request.FILES[filetype]
     path = os.path.join("media", username, filetype)
     absolutePath = os.path.join(
-        settings.MEDIA_ROOT, username,
-        filetype, uploadedfile.name)
+        settings.MEDIA_ROOT, username, filetype, uploadedfile.name
+    )
     fs = FileSystemStorage(location=path)
 
     if fs.exists(uploadedfile.name):
         """Delete previously uploaded file with same name"""
         os.remove(absolutePath)
 
-    makeDBEntry(request,absolutePath)
+    makeDBEntry(request, absolutePath)
     fs.save(uploadedfile.name, uploadedfile)
+
 
 class UploadWAVView(TemplateView):
     """ Class to handle the upload/wav page.
     Also acts as callback URL for the uploads in forced alignment page"""
-    template_name = "upload_wav2.html"
 
+    template_name = "upload_wav2.html"
 
     def get(self, request):
         """function to handle get requests to upload/wav"""
@@ -56,7 +58,7 @@ class UploadWAVView(TemplateView):
         else:
             form = UploadWAVForm(request.POST, request.FILES)
             if form.is_valid():
-                safeFile(request,form,"wavFile")
+                safeFile(request, form, "wavFile")
             else:
                 print("invalid form")
                 print(form.errors)
@@ -67,20 +69,21 @@ class UploadWAVView(TemplateView):
 class UploadTXTView(TemplateView):
     """ Class to handle the upload/txt page.
     Also acts as callback URL for the uploads in forced alignment page"""
+
     template_name = "upload_txt2.html"
 
-#    def safeFile(self,request,form):
-#        """Function to safe uploaded txt file"""
-#        print("valid form")
-#        txtfile = request.FILES["txtFile"]
-#        fs = FileSystemStorage(location="media/sname/txt")
-#        if fs.exists(txtfile.name):
-#            os.remove(
-#                os.path.join(
-#                    settings.MEDIA_ROOT + "/sname/txt", txtfile.name
-#                )
-#            )
-#        fs.save(txtfile.name, txtfile)
+    #    def safeFile(self,request,form):
+    #        """Function to safe uploaded txt file"""
+    #        print("valid form")
+    #        txtfile = request.FILES["txtFile"]
+    #        fs = FileSystemStorage(location="media/sname/txt")
+    #        if fs.exists(txtfile.name):
+    #            os.remove(
+    #                os.path.join(
+    #                    settings.MEDIA_ROOT + "/sname/txt", txtfile.name
+    #                )
+    #            )
+    #        fs.save(txtfile.name, txtfile)
 
     def get(self, request):
         """function to handle get requests to upload/txt"""
@@ -94,13 +97,13 @@ class UploadTXTView(TemplateView):
         """function to handle post requests to upload/txt.
         Also acts as callback function from forced alignment page"""
         if not request.user.is_authenticated:
-            #redirect user to login page if not logged in
+            # redirect user to login page if not logged in
             return redirect("%s?next=%s" % (settings.LOGIN_URL, request.path))
         else:
             form = UploadTXTForm(request.POST, request.FILES)
             if form.is_valid():
-                #safe file if form is valid
-                safeFile(request,form,"txtFile")
+                # safe file if form is valid
+                safeFile(request, form, "txtFile")
             else:
                 print("invalid form")
                 print(form.errors)

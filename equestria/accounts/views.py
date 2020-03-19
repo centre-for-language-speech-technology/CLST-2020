@@ -25,7 +25,7 @@ class Signup(GenericTemplate):
             login(request, user)
             return redirect("fancybar:fancybar")
         else:
-            #implement error handling here
+            # implement error handling here
             return HttpResponse(form.errors)
 
 
@@ -51,9 +51,8 @@ class Login(GenericTemplate):
             else:
                 return redirect("fancybar:fancybar")
         else:
-            #implement error handling here
+            # implement error handling here
             return HttpResponse(form.errors)
-
 
 
 class Logout(TemplateView):
