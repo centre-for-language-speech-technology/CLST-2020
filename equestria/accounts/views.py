@@ -3,6 +3,7 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import login, logout
 from fancybar.views import GenericTemplate
 from django.views.generic import TemplateView
+from django.http import HttpResponse
 
 
 class Signup(GenericTemplate):
@@ -23,6 +24,9 @@ class Signup(GenericTemplate):
             #  log in the user
             login(request, user)
             return redirect("fancybar:fancybar")
+        else:
+            #implement error handling here
+            return HttpResponse(form.errors)
 
 
 class Login(GenericTemplate):
@@ -46,6 +50,10 @@ class Login(GenericTemplate):
                 return redirect(request.POST.get("next"))
             else:
                 return redirect("fancybar:fancybar")
+        else:
+            #implement error handling here
+            return HttpResponse(form.errors)
+
 
 
 class Logout(TemplateView):
