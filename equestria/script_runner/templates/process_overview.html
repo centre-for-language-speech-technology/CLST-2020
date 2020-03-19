@@ -28,32 +28,17 @@
 <div class="container-fluid">
   <div class="row">
     <div class="col-md-7" id="entry-list">
-      <div>
-        <h5>Process {{ process.name }}</h5>
-        <div id="process_profile_overview" style="display: none;">
-          {% for profile in process.profiles %}
-          <form method="post" class="accent-darker shadow rounded padding" id="form_{{ profile.id }}" enctype="multipart/form-data">
-            {% csrf_token %}
-            <h5>Profile {{ forloop.counter }}</h5>
-            {%  for input_template in profile.input_templates %}
-            {{ input_template.label }}
-            <br />
-            <input type="file" accept="{{ input_template.extension }}" name="template_id_{{ input_template.id }}" {% if not input_template.optional %} required {% endif %} />
-            <p>Accepts {{ input_template.extension }}</p>
-            {% endfor %}
-            <input type="hidden" name="form_handler" value="run_profile"/>
-            <input type="hidden" name="profile_id" value="{{ profile.id }}"/>
-            <input type="submit" class="btn btn-md" value="Run" id="button_{{ profile.id }}">
-          </form>
-          {% endfor %}
-        </div>
-        <button value="submit" style="display: none;" id="process_download_button">Download files</button>
-        <div class="container-fluid">
-            <h5>Status: </h5>
-            <p id="process_status_message">
-                Status message is loading...
-            </p>
-        </div>
+      
+      <h5>Process {{ process.name }}</h5>
+      <div id="process_profile_overview" style="display: none;">
+      	{% include "profile_inputs.html" %}
+      </div>
+      <button value="submit" style="display: none;" id="process_download_button">Download files</button>
+      <div class="container-fluid">
+        <h5>Status: </h5>
+        <p id="process_status_message">
+          Status message is loading...
+        </p>
       </div>
     </div>
     <div class="col-md-5 lighter shadow padding rounded">
@@ -80,12 +65,13 @@
 
 {% block scripts %}
 <script>
-    STATUS_URL = "{% url 'script_runner:process_details' process_id=process.id %}";
-    CSRF_TOKEN = "{{ csrf_token }}";
+  STATUS_URL = "{% url 'script_runner:process_details' process_id=process.id %}";
+  CSRF_TOKEN = "{{ csrf_token }}";
 </script>
 <script src="{% static 'fancybar/js/search.js' %}"></script>
 <script src="{% static 'fancybar/js/dropdown.js' %}"></script>
 <script src="{% static 'fancybar/js/clock.js' %}"></script>
 <script src="{% static 'fancybar/js/output_loading.js' %}"></script>
 <script src="{% static 'script_runner/js/process_reload.js' %}"></script>
+<script src="{% static 'fancybar/js/validate.js' %}"></script>
 {% endblock %}

@@ -26,7 +26,7 @@ def create_templates_from_data(process, inputtemplates):
         )
 
 
-def start_clam_server(profile, process_to_run, argument_files):
+def start_clam_server(profile, argument_files):
     """Add inputs and start a clam server."""
     process_to_run = Process.objects.get(pk=profile.process.id)
     clam_server = Script.objects.get(pk=process_to_run.script.id)

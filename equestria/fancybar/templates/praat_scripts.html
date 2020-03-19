@@ -103,48 +103,7 @@ Run Praat Script
               <h5>{{ process.name }}</h5>
               <p>{{ process.description }}</p>
             </div>
-
-	    <div class="container-fluid collapse padding-xl" id="collapse{{ forloop.counter }}">
-	      <div class="row accent-darker padding shadow rounded">
-		<div class="col-md-10">
-                  {% for profile in process.profiles %}
-                  <form method="post" class="" id="form_{{ profile.id }}" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    <h5>Profile {{ forloop.counter }}</h5>
-                    {%  for input_template in profile.input_templates %}
-                    {{ input_template.label }}
-                    <input type="file" onChange="validate(this, this.value, {{ forloop.counter }},['{{ input_template.extension }}'])"
-			   name="template_id_{{ input_template.id }}" {% if not input_template.optional %} required {% endif %}
-			   ></input>
-		    <!-- accept="{{ input_template.mime }}" -->
-		    
-                    <p id="p{{ forloop.counter }}">Accepts {{ input_template.extension }}</p>
-                    {% endfor %}
-                    <input type="hidden" name="form_handler" value="run_profile"/>
-                    <input type="hidden" name="profile_id" value="{{ profile.id }}"/>
-                    <input type="submit" class="btn btn-md" value="Run" id="button_{{ profile.id }}">
-                  </form>
-		  {% endfor %}
-                  <br />
-                </div>
-		<div class="col-md-2">
-		  <p style="text-align: right">
-		    <i class="fa fa-download fab-glyph clickable" data-toggle="collapse" data-target="#downloadcollapse{{ forloop.counter }}"></i>
-		  </p>
-		  <div class="collapse" id="downloadcollapse{{ forloop.counter }}">
-
-		    <form method="post" class="" id="form_download_{{ process.id }}" enctype="multipart/form-data">
-		      {% csrf_token %}
-		      <input type="hidden" name="form_handler" value="download_process"/>
-		      <input type="hidden" name="process_id" value="{{ process.id }}"/>
-		      <input type="submit" style="width: 10em;" class="btn btn-md" name="archive_type" value="zip"     id="button_download_zip_{{ process.id }}">
-		      <input type="submit" style="width: 10em;" class="btn btn-md" name="archive_type" value="tar.gz"  id="button_download_gz_{{ process.id }}">
-		      <input type="submit" style="width: 10em;" class="btn btn-md" name="archive_type" value="tar.bz2" id="button_download_bz_{{ process.id }}">
-		    </form>
-		  </div>
-		</div>
-	      </div>
-	    </div>
+	    {% include "profile_card.html" %}
 	  </div>
           {% if not forloop.last %}
           <br />
@@ -180,17 +139,5 @@ Run Praat Script
     <script src="{% static 'fancybar/js/dropdown.js' %}"></script>
     <script src="{% static 'fancybar/js/clock.js' %}"></script>
     <script src="{% static 'fancybar/js/output_loading.js' %}"></script>
-
-    <script defer>
-      function validate(obj, file, counter, arrayExtensions) {
-	  var ext = file.split(".");
-	  ext = ext[ext.length-1].toLowerCase();      
-
-	  if (arrayExtensions.lastIndexOf(ext) == -1) {
-	      $(obj).val("");
-	      $(obj).fadeOut(100).fadeIn(100).fadeOut(100).fadeIn(100);
-	      $("#p" + counter).fadeOut(100).fadeIn(100).fadeOut(100).fadeIn(100);
-	  }
-      }
-    </script>
+    <script src="{% static 'fancybar/js/validate.js' %}"></script>
     {% endblock %}

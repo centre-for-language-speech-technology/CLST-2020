@@ -102,7 +102,7 @@ class ProcessOverview(TemplateView):
                 )
             )
 
-        start_clam_server(profile, process_to_run, argument_files)
+        start_clam_server(profile, argument_files)
 
 
 class CLAMFetch(TemplateView):
