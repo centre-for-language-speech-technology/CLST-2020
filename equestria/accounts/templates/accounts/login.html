@@ -8,6 +8,13 @@
 </head>
 <body>
     <h1>Log in</h1>
+    {% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
     <form class="site-form" action="{% url 'accounts:login' %}" method="post">
         {% csrf_token %}
         {{ form }}
