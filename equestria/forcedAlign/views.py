@@ -5,6 +5,9 @@ from django.views.generic import TemplateView
 from upload.forms import UploadTXTForm, UploadWAVForm
 from django.core.files.storage import FileSystemStorage
 from django.http import HttpResponseRedirect
+from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import redirect
 
 # Create your views here.
 
@@ -20,10 +23,13 @@ class FAView(TemplateView):
         returning the html file with two upload forms from upload.forms
         with callback URLs upload/wav and upload/txt
         """
-        wavForm = UploadWAVForm()
-        txtForm = UploadTXTForm()
-        return render(
-            request,
-            self.template_name,
-            {"WAVform": wavForm, "TXTform": txtForm},
-        )
+        if not request.user.is_authenticated:
+            return redirect("%s?next=%s" % (settings.LOGIN_URL, request.path))
+        else:
+            wavForm = UploadWAVForm()
+            txtForm = UploadTXTForm()
+            return render(
+                request,
+                self.template_name,
+                {"WAVform": wavForm, "TXTform": txtForm},
+            )
