@@ -52,6 +52,8 @@ class UploadWAVView(TemplateView):
     Also acts as callback URL for the uploads in forced alignment page.
     """
 
+    """View for uploading wav files."""
+
     template_name = "upload_wav2.html"
 
     def get(self, request):

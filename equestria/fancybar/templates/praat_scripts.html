@@ -13,63 +13,49 @@ Run Praat Script
 {% endblock %}
 
 {% block navbaritems %}
-<li class="nav-item">
-    <a class="nav-link waves-effect waves-light" href="upload/wav">Upload wav</a>
-</li>
-<li class="nav-item">
-    <a class="nav-link waves-effect waves-light" href="upload/txt">Upload txt</a>
-</li>
-<li class="nav-item">
-    <a class="nav-link waves-effect waves-light" href="forced">Forced Alignment</a>
-</li>
-<li class="nav-item">
-    <a class="nav-link waves-effect waves-light" href="update_dictionary">Update Dictionary</a>
-</li>
-<li class="nav-item">
-    <a class="nav-link waves-effect waves-light" href="auto_segmentation">Automatic Segmentation</a>
-</li>
-<li class="nav-item active">
-    <a class="nav-link waves-effect waves-light" href="praat_scripts">Praat Scripts</a>
-</li>
-<li class="nav-item">
-    <a class="nav-link waves-effect waves-light" href="download_results">Download Results</a>
-</li>
+    {% include "header.html" with active="praat" %}
 {% endblock %}
 
 {% block fab %}
 <a href="#" class="fab" id="download-button">
-<i class="fa fa-download fab-glyph"></i>
+  <i class="fa fa-download fab-glyph"></i>
 </a>
 <ul class="fab-list">
-<li class="fab-list-element"><a class="fab-circle fab-text" href="#">
+  <li class="fab-list-element"><a class="fab-circle fab-text" href="#">
       zip
-</a></li>
-<li class="fab-list-element"><a class="fab-circle fab-text" href="#">
-tar.gz
-</a></li>
-<li class="fab-list-element"><a class="fab-circle fab-text" href="#">
-tar.bz2
-</a></li>
+  </a></li>
+  <li class="fab-list-element"><a class="fab-circle fab-text" href="#">
+      tar.gz
+  </a></li>
+  <li class="fab-list-element"><a class="fab-circle fab-text" href="#">
+      tar.bz2
+  </a></li>
 </ul>
 {% endblock %}
 
 {% block body %}
 <!--
-<div class="rounded shadow lighter padding">
-<select class="mdb-select md-form">
-    <option value="" disabled selected>Choose a script</option>
-    {% for script in scripts %}
-    <option value="" data-icon="https://mdbootstrap.com/img/Photos/Avatars/avatar-1.jpg" class="rounded-circle">
-        {{ script.name }}
-    </option>
-    {% endfor %}
-</select>
-<br />
-<span class="btn btn-dark">Run script</span>
-</div>
--->
-<br />
-<h3>Please select a script to run:</h3>
+    <div class="rounded shadow lighter padding">
+      <select class="mdb-select md-form">
+	<option value="" disabled selected>Choose a script</option>
+	{% for script in scripts %}
+	<option value="" data-icon="https://mdbootstrap.com/img/Photos/Avatars/avatar-1.jpg" class="rounded-circle">
+          {{ script.name }}
+	</option>
+	{% endfor %}
+      </select>
+      <br />
+      <span class="btn btn-dark">Run script</span>
+    </div>
+    -->
+    <br />
+    <h3>Please select a script to run:</h3>
+
+    <form method="post" class="accent-darker shadow rounded" id="form_create_project">
+	      {% csrf_token %}
+        <input type="hidden" name="form_handler" value="create_project"/>
+        <input type="submit" class="btn btn-md" value="Create" id="button_create_project">
+    </form>
 
 <br />
 <br /><br /><br /><br /><br />
@@ -83,61 +69,37 @@ tar.bz2
             </div>
           </div>
             <br />
-            {% for script in scripts %}
-            <form method="post" class="accent-darker shadow rounded" id="form_{{ script.id }}">
-	      {% csrf_token %}
-	      <input type=hidden name="script_name" value="{{ script.name }}"/>
-	      <input type=hidden name="script_id" value="{{ script.id }}"/>
-              <div class="row shadow rounded entry">
-		  <div class="col-md-3 lighter padding" type="button" data-toggle="collapse" data-target="#collapse{{ forloop.counter }}">
-	            <img class="rounded-circle shadow bg-border" width="100px" height="100px" src="{{ script.img.url }}" alt="{{ script.icon }}" />
-		  </div>
-		  <div class="col-md-9 lighter padding" type="button" data-toggle="collapse" data-target="#collapse{{ forloop.counter }}">
-	            <h5>{{ script.name }}</h5>
-	            <p>{{ script.description }}</p>
-		  </div>
-	    
-	    <div class="collapse padding-xl" id="collapse{{ forloop.counter }}">
-	      {% for argument in script.args %}
-	      <h5>{{ argument.name }}</h5>
-	      <p>{{ argument.description }}</p>
-	      {% if argument.arg_type == USER_SPECIFIED_FILE %}
-  	          <input type="file" name="script_{{ script.id }}_argument_{{ argument.id }}" {% if argument.required %} required {% endif %}/>
-	      {% elif argument.arg_type == USER_SPECIFIED_TEXT %}
-	          <input type="text" name="script_{{ script.id }}_argument_{{ argument.id }}" {% if argument.required %} required {% endif %}/>
-	      {% elif argument.arg_type == USER_SPECIFIED_BOOL %}
-	          <input type="checkbox" name="script_{{ script.id }}_argument_{{ argument.id }}" {% if argument.required %} required {% endif %}/>
-	      {% elif argument.arg_type == USER_SPECIFIED_INT %}
-	          <input type="number" name="script_{{ script.id }}_argument_{{ argument.id }}" {% if argument.required %} required {% endif %}/>
-	      {% else %}
-	          <p>You should not be able to see this text.</p>
-	      {% endif %}
-	      {% if not forloop.last %}
-		  <br /><hr/>
-              {% endif %}
-	      {% endfor %}
-		  <br />
-	      <input type="submit" class="btn btn-md" value="Run" id="button_{{ script.id }}">
+            {% for process in processes %}
+            <div class="row shadow rounded entry">
+                <div class="col-md-3 lighter padding" type="button" data-toggle="collapse" data-target="#collapse{{ forloop.counter }}">
+                    <img class="rounded-circle shadow bg-border" width="100px" height="100px" src="{{ script.img.url }}" alt="{{ script.icon }}" />
+                </div>
+                <div class="col-md-9 lighter padding" type="button" data-toggle="collapse" data-target="#collapse{{ forloop.counter }}">
+                    <h5>{{ process.name }}</h5>
+                    <p>{{ process.description }}</p>
+                </div>
+
+                <div class="collapse padding-xl" id="collapse{{ forloop.counter }}">
+                    {% for profile in process.profiles %}
+                        <form method="post" class="accent-darker shadow rounded" id="form_{{ profile.id }}" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <h5>Profile {{ forloop.counter }}</h5>
+                        {%  for input_template in profile.input_templates %}
+                            {{ input_template.label }}
+                            <input type="file" accept="{{ input_template.extension }}" name="template_id_{{ input_template.id }}" {% if not input_template.optional %} required {% endif %} />
+                            <p>Accepts {{ input_template.extension }}</p>
+                        {% endfor %}
+                        <input type="hidden" name="form_handler" value="run_profile"/>
+                        <input type="hidden" name="profile_id" value="{{ profile.id }}"/>
+                        <input type="submit" class="btn btn-md" value="Run" id="button_{{ profile.id }}">
+                        </form>
+			{% endfor %}
+                    <br />
+                </div>
 	    </div>
-	    
-              </div>
-	      <script>
-		$( document ).ready(function() {
-		    $(function() {
-			$('#form_{{ script.id }}').on('submit', function(e) {
-			    e.preventDefault();
-			    $("#file_to_load").text("{{ script.primary_output_file  }}");
-			    $.post('praat_scripts', $(this).serialize(), function (data) {
-				// what to do when the request was successfull
-			    })
-			});
-		    });
-		});
-	      </script>
-            </form>
-            {% if not forloop.last %}
-            <br />
-            {% endif %}
+                {% if not forloop.last %}
+                <br />
+                {% endif %}
             {% endfor %}
         </div>
         <div class="col-md-1">
@@ -147,26 +109,26 @@ tar.bz2
 	  <p class="clock"></p>
 	  <p>Showing file: <code id="file_to_load">None</code></p>
           <div class="shadow padding" style="height: 90%">
-	      <div id="console_output" ></div>
-	        <!-- {% if not script_run %} -->
-	        <!-- <p> -->
-	        <!--     <\!-- I wanted to print the output of the command here live (for transparency/debugging by the user), but we probably need a websocket or AJAX for that -\-> -->
+	    <div id="console_output" ></div>
+	    <!-- {% if not script_run %} -->
+	    <!-- <p> -->
+	      <!--     <\!-- I wanted to print the output of the command here live (for transparency/debugging by the user), but we probably need a websocket or AJAX for that -\-> -->
 	        <!-- </p> -->
-	        <!-- {% else %} -->
-	        <!-- <p>Running script with name <code>{{ script_run }}</code>...</p> -->
-	        <!-- <p>This is passed via the backend btw, not js</p> -->
-	        <!-- <p>Look at the ./manage.py runserver output in your console</p> -->
-	        <!-- <p>Done. Script ran <span style="color: green">successfully</span>!</p> -->
-	        <!-- {% endif %} -->
-            </div>
+	    <!-- {% else %} -->
+	    <!-- <p>Running script with name <code>{{ script_run }}</code>...</p> -->
+	    <!-- <p>This is passed via the backend btw, not js</p> -->
+	    <!-- <p>Look at the ./manage.py runserver output in your console</p> -->
+	    <!-- <p>Done. Script ran <span style="color: green">successfully</span>!</p> -->
+	    <!-- {% endif %} -->
+          </div>
         </div>
+      </div>
     </div>
-</div>
-{% endblock %}
+    {% endblock %}
 
-{% block scripts %}
-<script src="{% static 'fancybar/js/search.js' %}"></script>
-<script src="{% static 'fancybar/js/dropdown.js' %}"></script>
-<script src="{% static 'fancybar/js/clock.js' %}"></script>
-<script src="{% static 'fancybar/js/output_loading.js' %}"></script>
-{% endblock %}
+    {% block scripts %}
+    <script src="{% static 'fancybar/js/search.js' %}"></script>
+    <script src="{% static 'fancybar/js/dropdown.js' %}"></script>
+    <script src="{% static 'fancybar/js/clock.js' %}"></script>
+    <script src="{% static 'fancybar/js/output_loading.js' %}"></script>
+    {% endblock %}

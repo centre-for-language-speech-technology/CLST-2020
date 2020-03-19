@@ -15,9 +15,12 @@ from django.shortcuts import redirect
 class FAView(TemplateView):
     """Class to handle get requests to the forced alignment page."""
 
+    """Forced allignment view."""
+
     template_name = "ForcedAlign.html"
 
     def get(self, request):
+
         """Handle requests to the /forced page.
         
         Get requests are handled wihtin this class while the upload

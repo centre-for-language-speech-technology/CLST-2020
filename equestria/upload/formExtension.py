@@ -6,6 +6,8 @@ from django import forms
 class ExtFileField(forms.FileField):
     """
     Extend FileField with filetype restrictions.
+    
+    https://djangosnippets.org/snippets/977/ .
 
     This class was imported (https://djangosnippets.org/snippets/977/).
     Same as forms.FileField, but you can specify a file extension whitelist.

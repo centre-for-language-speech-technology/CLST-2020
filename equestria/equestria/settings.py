@@ -25,8 +25,8 @@ SECRET_KEY = "20!5%%x%+4j1un2v1p^cz!ld2fx00+jd!%!3%ax^d&mk4pl9w#"
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
+X_FRAME_OPTIONS = "SAMEORIGIN"
 
 # Application definition
 
@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "forcedAlign",
     "magic",
     # "libmagic",
+    "colorfield",
 ]
 
 CRISPY_TEMPLATE_PACK = "bootstrap4"
@@ -94,6 +95,8 @@ DATABASES = {
     }
 }
 
+
+AUTH_PROFILE_MODULE = "accounts.UserProfile"
 
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators

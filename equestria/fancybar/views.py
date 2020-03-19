@@ -1,7 +1,8 @@
+from django.http import HttpResponseRedirect
+from django.urls import reverse
 from django.views.generic import TemplateView
-from django.shortcuts import render
-from script_runner.models import Script, Argument
-from django.core.files.storage import FileSystemStorage
+from django.shortcuts import render, redirect
+from script_runner.models import Script
 from upload import forms as uploadForms
 from script_runner.constants import *
 from script_runner import backend_interface
@@ -10,6 +11,18 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
 from django.conf import settings
+from script_runner.models import Process
+from script_runner.models import Profile
+from script_runner.models import InputTemplate
+import clam.common.client
+import clam.common.data
+import clam.common.status
+import random
+from urllib.parse import urlencode
+from script_runner.clamhelper import (
+    create_templates_from_data,
+    start_clam_server,
+)
 
 
 # Create your views here.
@@ -19,6 +32,15 @@ class GenericTemplate(TemplateView):
     """View to render a html page without any additional features."""
 
     template_name = "template.html"
+
+    def __get_profile(self, request):
+        """Retrieve profile based on user in request."""
+        user_profile = (
+            UserProfile.objects.select_related()
+            .filter(user_id=request.user.id)
+            .first()
+        )
+        return user_profile
 
     def get(self, request):
         """Respond to get request."""
@@ -46,17 +68,31 @@ class PraatScripts(TemplateView):
         "USER_SPECIFIED_TEXT": USER_SPECIFIED_TEXT,
         "USER_SPECIFIED_BOOL": USER_SPECIFIED_BOOL,
         "USER_SPECIFIED_INT": USER_SPECIFIED_INT,
+        "profile": None,
     }
+
+    def __get_profile(self, request):
+        """Retrieve profile based on user in request."""
+        user_profile = (
+            UserProfile.objects.select_related()
+            .filter(user_id=request.user.id)
+            .first()
+        )
+        return user_profile
 
     def __init__(self, **kwargs):
         """Load all script from the database."""
         super().__init__(**kwargs)
-        self.arg["scripts"] = Script.objects.all()
+        self.arg["processes"] = Process.objects.all()
 
-        for s in self.arg["scripts"]:
-            s.args = Argument.objects.select_related().filter(
-                associated_script=s.id
+        for process in self.arg["processes"]:
+            process.profiles = Profile.objects.select_related().filter(
+                process=process.id
             )
+            for profile in process.profiles:
+                profile.input_templates = InputTemplate.objects.select_related().filter(
+                    corresponding_profile=profile.id
+                )
 
     def __filter_arguments(self, request):
         """Filter relevant arguments from post request."""
@@ -93,12 +129,53 @@ class PraatScripts(TemplateView):
         if not request.user.is_authenticated:
             return redirect("%s?next=%s" % (settings.LOGIN_URL, request.path))
         else:
-            name = request.POST.get("script_name", "")
-            script_id = request.POST.get("script_id", "")
-            args = self.__filter_arguments(request)
-            self.__run_and_log_script(script_id, args)
-            self.arg["script_run"] = name
-            return render(request, self.template_name, self.arg)
+            if request.POST.get("form_handler") == "create_project":
+                # TODO: Change this
+                clamclient = clam.common.client.CLAMClient(
+                    "http://localhost:8080"
+                )
+                project_name = str(random.getrandbits(64))
+                clamclient.create(project_name)
+                data = clamclient.get(project_name)
+                process = Process.objects.create(
+                    name="new process",
+                    script=Script.objects.get(pk=1),
+                    clam_id=project_name,
+                )
+                new_profile = Profile.objects.create(process=process)
+                create_templates_from_data(data.inputtemplates())
+                return render(request, self.template_name, self.arg)
+            elif request.POST.get("form_handler") == "run_profile":
+                profile_id = request.POST.get("profile_id")
+                profile = Profile.objects.get(pk=profile_id)
+                argument_files = list()
+                for (
+                    input_template
+                ) in InputTemplate.objects.select_related().filter(
+                    corresponding_profile=profile
+                ):
+                    # TODO: This is now writing to the main directory, replace this with files from the uploaded files
+                    with open(
+                        request.FILES[
+                            "template_id_{}".format(input_template.id)
+                        ].name,
+                        "wb",
+                    ) as file:
+                        for chunk in request.FILES[
+                            "template_id_{}".format(input_template.id)
+                        ]:
+                            file.write(chunk)
+                    argument_files.append(
+                        (
+                            request.FILES[
+                                "template_id_{}".format(input_template.id)
+                            ].name,
+                            input_template.template_id,
+                        )
+                    )
+
+                start_clam_server(profile, process_to_run, argument_files)
+                return render(request, self.template_name, self.arg)
 
 
 class UploadWav(GenericTemplate):
@@ -117,6 +194,14 @@ class ForcedAlignment(TemplateView):
     """Page to run main forced alignment script. Contains two upload forms for txt and wav files."""
 
     template_name = "forced_alignment.html"
+    arg = dict()
+
+    def __init__(self, **kwargs):
+        """Load all script from the database."""
+        super().__init__(**kwargs)
+        self.arg["scripts"] = Script.objects.select_related().filter(
+            forced_alignment_script=True
+        )
 
     """
     TODO: Why are there two get methods here?
@@ -130,19 +215,35 @@ class ForcedAlignment(TemplateView):
             return redirect("%s?next=%s" % (settings.LOGIN_URL, request.path))
         else:
             form = uploadForms.UploadFileForm()
-            return render(request, self.template_name, {"form": form})
+            return render(request, self.template_name, self.arg)
 
     def post(self, request):
         """Save uploaded files. TODO: Does not yet run anything."""
         if not request.user.is_authenticated:
             return redirect("%s?next=%s" % (settings.LOGIN_URL, request.path))
         else:
-            form = uploadForms.UploadFileForm(request.POST, request.FILES)
-            f = request.FILES["f"]
-            fs = FileSystemStorage()
-            fs.save(f.name, f)
-            # TODO: execute script
-            return render(request, self.template_name)
+            if request.POST.get("form_handler") == "create_project":
+                script_id = request.POST.get("script_id")
+                clamclient = clam.common.client.CLAMClient(
+                    "http://localhost:8080"
+                )
+                # TODO: This should later on be something like [username]_[project_name]
+                project_name = request.POST.get("project_name")
+                clamclient.create(project_name)
+                data = clamclient.get(project_name)
+                process = Process.objects.create(
+                    name=project_name,
+                    script=Script.objects.get(pk=script_id),
+                    clam_id=project_name,
+                )
+                new_profile = Profile.objects.create(process=process)
+                create_templates_from_data(data.inputtemplates())
+                return redirect_with_parameters(
+                    "script_runner:process",
+                    process.id,
+                    redirect="fancybar:update_dictionary",
+                )
+            return render(request, self.template_name, self.arg)
 
 
 class UpdateDictionary(GenericTemplate):
@@ -162,4 +263,16 @@ class DownloadResults(GenericTemplate):
 
     template_name = "download_results.html"
 
-    template_name = "download_results.html"
+
+def redirect_with_parameters(url_name, *args, **kwargs):
+    """
+    Redirects to a page with GET parameters specified in kwargs.
+
+    :param url_name: the url to redirect to (reverse will get called on this string)
+    :param args: the arguments for reverse in the url
+    :param kwargs: the GET parameters
+    :return: HttpResponseRedirect with the asked url
+    """
+    url = reverse(url_name, args=args)
+    params = urlencode(kwargs)
+    return HttpResponseRedirect(url + "?%s" % params)
