@@ -161,13 +161,13 @@ class PraatScripts(TemplateView):
                     )
                 )
 
-            start_clam_server(profile, process_to_run, argument_files)
+            start_clam_server(profile, argument_files)
 
             return render(request, self.template_name, self.arg)
         elif request.POST.get("form_handler") == "download_process":
             process_id = request.POST.get("process_id")
             archive_type = request.POST.get("archive_type")
-            clam_server = Script.objects.get(pk=process_id)
+            clam_server = Script.objects.get(pk=1)
             clam_id = Process.objects.get(pk=process_id).clam_id
             if not exists("outputs"):
                 makedirs("outputs")
@@ -178,7 +178,7 @@ class PraatScripts(TemplateView):
                 join("outputs", "{}.{}".format(clam_id, archive_type)),
             )
             return redirect(
-                "script_runner:downloads",
+                "script_runner:clam",
                 path="outputs/{}.{}".format(clam_id, archive_type),
             )
 
