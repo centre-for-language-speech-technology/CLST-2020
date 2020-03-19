@@ -13,6 +13,7 @@ from django.shortcuts import redirect
 def safeFile(request,form,filetype):
     """Function to safe uploaded file"""
     print("valid form")
+    print(request.user.username)
     uploadedfile = request.FILES[filetype]
     loc = "media/sname/" + filetype
     fs = FileSystemStorage(location=loc)

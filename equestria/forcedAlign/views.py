@@ -10,9 +10,15 @@ from django.http import HttpResponseRedirect
 
 
 class FAView(TemplateView):
+    """Class to handle get requests to the forced alignment page"""
     template_name = "ForcedAlign.html"
 
     def get(self, request):
+        """
+        Function to handle get requests to the forced alignment page
+        returning the html file with two upload forms from upload.forms
+        with callback URLs upload/wav and upload/txt
+        """
         wavForm = UploadWAVForm()
         txtForm = UploadTXTForm()
         return render(
