@@ -132,8 +132,7 @@ class PraatScripts(TemplateView):
                 script=Script.objects.get(pk=1),
                 clam_id=project_name,
             )
-            new_profile = Profile.objects.create(process=process)
-            create_templates_from_data(data.inputtemplates())
+            create_templates_from_data(process, data.inputtemplates())
             return render(request, self.template_name, self.arg)
         elif request.POST.get("form_handler") == "run_profile":
             profile_id = request.POST.get("profile_id")
@@ -234,8 +233,7 @@ class ForcedAlignment(TemplateView):
                 script=Script.objects.get(pk=script_id),
                 clam_id=project_name,
             )
-            new_profile = Profile.objects.create(process=process)
-            create_templates_from_data(data.inputtemplates())
+            create_templates_from_data(process, data.inputtemplates())
             return redirect_with_parameters(
                 "script_runner:process",
                 process.id,

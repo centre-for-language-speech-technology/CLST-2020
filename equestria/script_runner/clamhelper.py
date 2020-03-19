@@ -10,8 +10,9 @@ import random
 from urllib.parse import urlencode
 
 
-def create_templates_from_data(inputtemplates):
+def create_templates_from_data(process, inputtemplates):
     """Create template objects from data."""
+    new_profile = Profile.objects.create(process=process)
     for input_template in inputtemplates:
         InputTemplate.objects.create(
             template_id=input_template.id,
