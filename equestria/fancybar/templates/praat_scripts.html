@@ -99,7 +99,7 @@ Run Praat Script
 	      <img class="rounded-circle shadow bg-border" width="100px" height="100px" src="https://static.tvtropes.org/pmwiki/pub/images/830px-Mysterious_Mare_Do_Well-1_9628.png" alt="{{ script.icon }}" />
 	      {% endif %}
             </div>
-            <div class="col-md-9 lighter padding" type="button" data-toggle="collapse" data-target="#collapse{{ forloop.counter }}">
+            <div class="col-md-9 lighter padding" type="button" data-toggle="collapse" data-target="#collapse{{ forloop.counter }}" onclick="select_output()">
               <h5>{{ process.name }}</h5>
               <p>{{ process.description }}</p>
             </div>
@@ -140,4 +140,9 @@ Run Praat Script
     <script src="{% static 'fancybar/js/clock.js' %}"></script>
     <script src="{% static 'fancybar/js/output_loading.js' %}"></script>
     <script src="{% static 'fancybar/js/validate.js' %}"></script>
+    <script defer>
+      function select_output() {
+	  alert("Hello");
+      }
+    </script>
     {% endblock %}
