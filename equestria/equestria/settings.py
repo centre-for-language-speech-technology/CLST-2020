@@ -45,7 +45,7 @@ INSTALLED_APPS = [
     "accounts",
     "forcedAlign",
     "magic",
-    #"libmagic",
+    # "libmagic",
 ]
 
 CRISPY_TEMPLATE_PACK = "bootstrap4"

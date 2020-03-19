@@ -18,6 +18,7 @@ def getFileType(path):
     print(mime)
     return mime[0]
 
+
 def makeDBEntry(request, path):
     """Create an entry in the Database for the uploaded file."""
     file = File()
