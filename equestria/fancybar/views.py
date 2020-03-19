@@ -12,6 +12,8 @@ import clam.common.data
 import clam.common.status
 import random
 from urllib.request import urlretrieve
+from os.path import join, exists
+from os import makedirs
 
 
 # Create your views here.
@@ -140,11 +142,13 @@ class PraatScripts(TemplateView):
             archive_type = request.POST.get("archive_type")
             clam_server = Script.objects.get(pk=process_id)
             clam_id = Process.objects.get(pk=process_id).clam_id
+            if not exists("outputs"):
+                makedirs("outputs")
             urlretrieve(
                 "{}/{}/output?format=".format(
                     clam_server.hostname, clam_id, archive_type
                 ),
-                "outputs/{}.{}".format(clam_id, archive_type),
+                join("outputs", "{}.{}".format(clam_id, archive_type)),
             )
             return redirect(
                 "script_runner:downloads",
