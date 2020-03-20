@@ -3,6 +3,8 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import login, logout
 from fancybar.views import GenericTemplate
 from django.views.generic import TemplateView
+from django.http import HttpResponse
+from django.contrib import messages
 from accounts.models import UserProfile
 
 
@@ -24,6 +26,13 @@ class Signup(GenericTemplate):
             #  log in the user
             login(request, user)
             return redirect("fancybar:fancybar")
+        else:
+            # implement error handling here
+            messages.info(
+                request,
+                "Invalid password or already taken user name. Please check the requirements for passwords",
+            )
+            return redirect("accounts:signup")
 
 
 class Login(GenericTemplate):
@@ -47,6 +56,10 @@ class Login(GenericTemplate):
                 return redirect(request.POST.get("next"))
             else:
                 return redirect("fancybar:fancybar")
+        else:
+            # implement error handling here
+            messages.info(request, "Invalid username or password")
+            return redirect("accounts:login")
 
 
 class Logout(TemplateView):

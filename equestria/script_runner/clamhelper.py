@@ -1,13 +1,15 @@
-from script_runner.models import InputTemplate
-from script_runner.models import Script
+from script_runner.models import InputTemplate, Script, Process, Profile
 from script_runner.constants import *
-from script_runner.models import Process
-from script_runner.models import Profile
 import clam.common.client
 import clam.common.data
 import clam.common.status
 import random
 from urllib.parse import urlencode
+from urllib.request import urlretrieve
+from os.path import join, exists
+from os import makedirs
+from urllib.parse import urlencode
+from django.shortcuts import render, redirect
 
 
 def create_templates_from_data(process, inputtemplates):
@@ -39,3 +41,23 @@ def start_clam_server(profile, argument_files):
         clamclient.addinputfile(process_to_run.clam_id, template, file)
 
     clamclient.startsafe(process_to_run.clam_id)
+
+
+def download_process(request):
+    """Download process data."""
+    process_id = request.POST.get("process_id")
+    archive_type = request.POST.get("archive_type")
+    clam_server = Script.objects.get(pk=1)
+    clam_id = Process.objects.get(pk=process_id).clam_id
+    if not exists("outputs"):
+        makedirs("outputs")
+        urlretrieve(
+            "{}/{}/output?format=".format(
+                clam_server.hostname, clam_id, archive_type
+            ),
+            join("outputs", "{}.{}".format(clam_id, archive_type)),
+        )
+        return redirect(
+            "script_runner:clam",
+            path="outputs/{}.{}".format(clam_id, archive_type),
+        )

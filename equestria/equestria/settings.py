@@ -25,7 +25,7 @@ SECRET_KEY = "20!5%%x%+4j1un2v1p^cz!ld2fx00+jd!%!3%ax^d&mk4pl9w#"
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
+ALLOWED_HOSTS = ["127.0.0.1", "localhost", "sermak.xyz"]
 X_FRAME_OPTIONS = "SAMEORIGIN"
 
 # Application definition
@@ -43,8 +43,10 @@ INSTALLED_APPS = [
     "crispy_forms",
     "script_runner",
     "accounts",
-    "colorfield",
     "forcedAlign",
+    # "magic",
+    # "libmagic",
+    "colorfield",
 ]
 
 CRISPY_TEMPLATE_PACK = "bootstrap4"
@@ -138,4 +140,4 @@ STATIC_URL = "/static/"
 FILE_PATH_FIELD_DIRECTORY = BASE_DIR
 STATIC_ROOT = os.path.join(BASE_DIR, "static/")
 MEDIA_URL = "/media/"
-MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
