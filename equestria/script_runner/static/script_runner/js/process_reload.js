@@ -42,6 +42,27 @@ function update_status_message(message) {
     STATUS_MESSAGE.innerHTML = message;
 }
 
+function update_ui(status) {
+    console.log(status);
+    if (status === 0) {
+        //Ready
+        toggle_download(false);
+        toggle_profile_overview(true);
+    }
+    else if (status === 1) {
+        //Running
+        toggle_download(false);
+        toggle_profile_overview(false);
+	update_console_output();
+    }
+    else {
+        //Finished
+        toggle_download(true);
+        toggle_profile_overview(false);
+	fetch_console_output_if_not_loaded();
+    }
+}
+
 function update_process_status(returned_data) {
     //Update status message
     if (returned_data.errors) {
@@ -51,44 +72,35 @@ function update_process_status(returned_data) {
         update_status_message(returned_data.status_message);
     }
 
-    if (returned_data.status === 0) {
-        //Ready
-        toggle_download(false);
-        toggle_profile_overview(true);
-    }
-    else if (returned_data.status === 1) {
-        //Running
-        toggle_download(false);
-        toggle_profile_overview(false);
-    }
-    else {
-        //Finished
-        toggle_download(true);
-        toggle_profile_overview(false);
-    }
+    update_ui(returned_data.status)
 }
 
 function reload_process_status() {
     get_status(STATUS_URL, update_process_status);
 }
 
-if (typeof STATUS_URL !== 'undefined' && typeof CSRF_TOKEN !== 'undefined') {
-    reload_process_status();
-    jQuery(document).ready(function($) {
-        window.setInterval(function(){
-            reload_process_status();
-        }, 10000);
-    });
+function check_env_vars() {
+    var ret = typeof STATUS_URL !== 'undefined' && typeof CSRF_TOKEN !== 'undefined';
+    if (!ret) {
+	console.warn("STATUS_URL or CSRF_TOKEN is not defined by the webpage, automatic status checking is disabled.");
+    }
+    return ret;
 }
-else {
-    console.warn("STATUS_URL or CSRF_TOKEN is not defined by the webpage, automatic status checking is disabled.")
+
+var timeout = 1000;
+function main_loop() {
+    reload_process_status()
+    setTimeout(main_loop, timeout);
+}
+
+function fetch_console_output_if_not_loaded() {
+    if ($('#console_output').html() === "")
+	update_console_output()
 }
 
 function update_console_output() {
-    var timeout = 1000;
     var file_to_load = $("#file_to_load").text();
     if (file_to_load === "None") {
-	setTimeout(update_console_output, timeout);
 	return;
     }
     if (!file_to_load.startsWith("/scripts/process/")) {
@@ -98,10 +110,11 @@ function update_console_output() {
 	//	alert(content);
 	$('#console_output').html(content.replace(/\n/g, '<br />'));
     }, 'text'); 
-    // execute every half a second
-    setTimeout(update_console_output, timeout);
 }
 
-$( document ).ready(function() {
-    update_console_output();
+$(document).ready(function() {
+    if (check_env_vars()) main_loop();
+    // assuming the user has bad internet and function execution takes more than a second
+    // setInterval will run the function again, while setTimeout will wait for completion first
+    // reloading a system log file every 10s is way too slow
 });

@@ -1,15 +1,17 @@
-<form method="post" class="" id="form_{{ profile.id }}" enctype="multipart/form-data">
-  {% csrf_token %}
-  <h5>Profile {{ forloop.counter }}</h5>
-  {%  for input_template in profile.input_templates %}
-  {{ input_template.label }}
-  <input type="file" onChange="validate(this, this.value, {{ forloop.counter }},['{{ input_template.extension }}'])"
-	 name="template_id_{{ input_template.id }}" {% if not input_template.optional %} required {% endif %}
-	 ></input>
-  <!-- accept="{{ input_template.mime }}" -->
-  <p id="p{{ forloop.counter }}">Accepts {{ input_template.extension }}</p>
-  {% endfor %}
-  <input type="hidden" name="form_handler" value="run_profile"/>
-  <input type="hidden" name="profile_id" value="{{ profile.id }}"/>
-  <input type="submit" class="btn btn-md" value="Run" id="button_{{ profile.id }}">
-</form>
+<div id="process_profile_overview" style="display: none;">
+  <form method="post" class="" id="form_{{ profile.id }}" enctype="multipart/form-data">
+    {% csrf_token %}
+    <h5>Profile {{ forloop.counter }}</h5>
+    {%  for input_template in profile.input_templates %}
+    {{ input_template.label }}
+    <input type="file" onChange="validate(this, this.value, {{ forloop.counter }},['{{ input_template.extension }}'])"
+	   name="template_id_{{ input_template.id }}" {% if not input_template.optional %} required {% endif %}
+	   ></input>
+    <!-- accept="{{ input_template.mime }}" -->
+    <p id="p{{ forloop.counter }}">Accepts {{ input_template.extension }}</p>
+    {% endfor %}
+    <input type="hidden" name="form_handler" value="run_profile"/>
+    <input type="hidden" name="profile_id" value="{{ profile.id }}"/>
+    <input type="submit" class="btn btn-md" value="Run" id="button_{{ profile.id }}">
+  </form>
+</div>

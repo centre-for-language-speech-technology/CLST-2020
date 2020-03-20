@@ -10,15 +10,8 @@
     <div class="col-md-7" id="entry-list">
       
       <h5>Process {{ process.name }}</h5>
-      <div id="process_profile_overview" style="display: none;">
+      <div>
       	{% include "profile_inputs.html" %}
-      </div>
-      <button value="submit" style="display: none;" id="process_download_button">Download files</button>
-      <div class="container-fluid">
-        <h5>Status: </h5>
-        <p id="process_status_message">
-          Status message is loading...
-        </p>
       </div>
     </div>
     <div class="col-md-5 lighter shadow padding rounded">
