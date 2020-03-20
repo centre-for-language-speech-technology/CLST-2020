@@ -1,4 +1,4 @@
-<div id="process_profile_overview" style="display: none;">
+<div id="process_profile_overview_{{ process.id }}" style="display: none;">
   <form method="post" class="" id="form_{{ profile.id }}" enctype="multipart/form-data">
     {% csrf_token %}
     <h5>Profile {{ forloop.counter }}</h5>

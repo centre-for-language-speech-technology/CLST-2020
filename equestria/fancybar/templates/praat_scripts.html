@@ -135,11 +135,17 @@ Run Praat Script
     {% endblock %}
 
     {% block scripts %}
+    <script>
+      CSRF_TOKEN = "{{ csrf_token }}";
+      PROCESS_LIST = [
+	  {% for process in processes %}[{{ process.id }}, "{% url 'script_runner:process_details' process_id=process.id %}"],{% endfor %}
+      ];
+    </script>
     <script src="{% static 'fancybar/js/search.js' %}"></script>
     <script src="{% static 'fancybar/js/dropdown.js' %}"></script>
     <script src="{% static 'fancybar/js/clock.js' %}"></script>
-    <script src="{% static 'script_runner/js/process_reload.js' %}"></script>
     <script src="{% static 'fancybar/js/validate.js' %}"></script>
+    <script src="{% static 'script_runner/js/process_reload.js' %}"></script>
     <script defer>
       function select_output(process_name) {
 	  $("#file_to_load").text(process_name + "/output/error.log");
