@@ -45,11 +45,17 @@ class GenericTemplate(TemplateView):
 
     def get(self, request):
         """Respond to get request."""
-        return render(request, self.template_name)
+        if not request.user.is_authenticated:
+            return redirect("%s?next=%s" % (settings.LOGIN_URL, request.path))
+        else:
+            return render(request, self.template_name)
 
     def post(self, request):
         """Respond to post request."""
-        return render(request, self.template_name)
+        if not request.user.is_authenticated:
+            return redirect("%s?next=%s" % (settings.LOGIN_URL, request.path))
+        else:
+            return render(request, self.template_name)
 
 
 class Fancybar(GenericTemplate):
