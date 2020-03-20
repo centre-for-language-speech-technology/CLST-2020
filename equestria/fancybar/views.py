@@ -45,6 +45,29 @@ class GenericTemplate(TemplateView):
 
     def get(self, request):
         """Respond to get request."""
+        return render(request, self.template_name)
+
+    def post(self, request):
+        """Respond to post request."""
+        return render(request, self.template_name)
+
+
+class RestrictedTemplate(TemplateView):
+    """View to render a html page without any additional features that is login restricted."""
+
+    template_name = "template.html"
+
+    def __get_profile(self, request):
+        """Retrieve profile based on user in request."""
+        user_profile = (
+            UserProfile.objects.select_related()
+            .filter(user_id=request.user.id)
+            .first()
+        )
+        return user_profile
+
+    def get(self, request):
+        """Respond to get request."""
         if not request.user.is_authenticated:
             return redirect("%s?next=%s" % (settings.LOGIN_URL, request.path))
         else:
@@ -246,19 +269,19 @@ class ForcedAlignment(TemplateView):
             return render(request, self.template_name, self.arg)
 
 
-class UpdateDictionary(GenericTemplate):
+class UpdateDictionary(RestrictedTemplate):
     """Page to update dictionary."""
 
     template_name = "update_dictionary.html"
 
 
-class AutoSegmentation(GenericTemplate):
+class AutoSegmentation(RestrictedTemplate):
     """Page to run auto-segmentation."""
 
     template_name = "auto_segmentation.html"
 
 
-class DownloadResults(GenericTemplate):
+class DownloadResults(RestrictedTemplate):
     """Page to download results. TODO: Discuss if needed."""
 
     template_name = "download_results.html"
