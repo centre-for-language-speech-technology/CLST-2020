@@ -6,12 +6,12 @@ from django.views.generic import TemplateView
 from django.shortcuts import render, redirect
 from urllib.request import urlretrieve
 from os import makedirs
-from os.path import exists
+from os.path import join, exists, basename, dirname
 from django.views.static import serve
-from os.path import basename, dirname
 from .models import Process, Profile, InputTemplate, Script
 from django.http import JsonResponse
 from script_runner.clamhelper import start_clam_server
+from urllib.parse import urlencode
 
 
 class ProcessOverview(TemplateView):
@@ -48,6 +48,23 @@ class ProcessOverview(TemplateView):
             profile_id = request.POST.get("profile_id")
             self.run_profile(profile_id, request.FILES)
             return redirect(request.GET.get("redirect"))
+        elif request.POST.get("form_handler") == "download_process":
+            process_id = request.POST.get("process_id")
+            archive_type = request.POST.get("archive_type")
+            clam_server = Script.objects.get(pk=1)
+            clam_id = Process.objects.get(pk=process_id).clam_id
+            if not exists("outputs"):
+                makedirs("outputs")
+            urlretrieve(
+                "{}/{}/output?format=".format(
+                    clam_server.hostname, clam_id, archive_type
+                ),
+                join("outputs", "{}.{}".format(clam_id, archive_type)),
+            )
+            return redirect(
+                "script_runner:clam",
+                path="outputs/{}.{}".format(clam_id, archive_type),
+            )
 
         key = kwargs.get("process_id")
         try:
