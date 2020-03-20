@@ -5,8 +5,9 @@ from django.shortcuts import render, redirect
 from script_runner.models import Script
 from upload import forms as uploadForms
 from script_runner.constants import *
-#from script_runner import backend_interface
-#from script_runner.backend_interface import ClamConfiguration
+
+# from script_runner import backend_interface
+# from script_runner.backend_interface import ClamConfiguration
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
