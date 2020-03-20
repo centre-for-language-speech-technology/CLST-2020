@@ -5,8 +5,8 @@ from django.shortcuts import render, redirect
 from script_runner.models import Script
 from upload import forms as uploadForms
 from script_runner.constants import *
-from script_runner import backend_interface
-from script_runner.backend_interface import ClamConfiguration
+#from script_runner import backend_interface
+#from script_runner.backend_interface import ClamConfiguration
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
@@ -109,13 +109,6 @@ class PraatScripts(TemplateView):
                 ),
             ]
         return args
-
-    def __run_and_log_script(self, script_id, args):
-        """Pass script to backend for execution and print debug info."""
-        print('"Running" script ' + name + "...")
-        print(args)
-        script = Script.objects.get(pk=script_id)
-        backend_interface.run(script, args)
 
     def get(self, request):
         """Respond to get request."""

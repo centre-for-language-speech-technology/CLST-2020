@@ -44,7 +44,7 @@ INSTALLED_APPS = [
     "script_runner",
     "accounts",
     "forcedAlign",
-    "magic",
+    # "magic",
     # "libmagic",
     "colorfield",
 ]
