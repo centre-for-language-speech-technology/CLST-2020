@@ -2,7 +2,7 @@
 ### 
 
 [![BCH compliance](https://bettercodehub.com/edge/badge/GipHouse/CLST-2020?branch=master&token=49ec5b1fd248e296877a63e1b775cd5c828877fe)](https://bettercodehub.com/)
-![Server testing](https://github.com/GipHouse/CLST-2020/workflows/Server%20testing/badge.svg?branch=master)
+![Server testing](https://github.com/GipHouse/CLST-2020/workflows/Server%20testing/badge.svg)
 ![Coding style](https://github.com/GipHouse/CLST-2020/workflows/Coding%20style/badge.svg?branch=master)
 Getting started
 ---------------
