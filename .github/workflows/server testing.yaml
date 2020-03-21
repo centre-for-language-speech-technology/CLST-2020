@@ -36,6 +36,6 @@ jobs:
 
     - name: Perform tests
       run: |
-        PATH=./bin:$PATH; MOZ_HEADLESS=1 poetry run python3 equestria/manage.py test equestria
+        MOZ_HEADLESS=1 poetry run python3 equestria/manage.py test equestria
 
 
