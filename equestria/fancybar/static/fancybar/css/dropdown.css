@@ -47,9 +47,8 @@ body {
 .carousel-control .glyphicon-chevron-left, 
 .carousel-control .glyphicon-chevron-right {
   font-size: 12px;
-  background-color: #fff;
   line-height: 30px;
   text-shadow: none;
-  color: #333;
   border: 1px solid #ddd;
 }
+

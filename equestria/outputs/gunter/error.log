@@ -1,7 +1,0 @@
-[CLAM Dispatcher] Adding to PYTHONPATH: /home/user/dox/giphouse/CLST-2020/fa-clam/FAclam/FAclam
-[CLAM Dispatcher] Started CLAM Dispatcher v3.0.10 with FAclam.FAclam (2020-03-18 16:52:59)
-[CLAM Dispatcher] Running /home/user/dox/giphouse/CLST-2020/fa-clam/FAclam/FAclam/FAclam_wrapper.py "/tmp/FAclam-userdata/projects/anonymous/gunter/clam.xml" "/tmp/FAclam-userdata/projects/anonymous/gunter/.status" "/tmp/FAclam-userdata/projects/anonymous/gunter/output/"
-[CLAM Dispatcher] Running with pid 1219215 (2020-03-18 16:52:59)
-[CLAM Dispatcher] Process ended (2020-03-18 16:52:59, 0.351521s) 
-[CLAM Dispatcher] Removing temporary files
-[CLAM Dispatcher] Finished (2020-03-18 16:52:59), exit code 0, dispatcher wait time 0.35s, duration 0.352751s

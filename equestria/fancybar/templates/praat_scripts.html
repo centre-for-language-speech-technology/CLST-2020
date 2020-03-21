@@ -13,7 +13,8 @@ Run Praat Script
 {% endblock %}
 
 {% block navbaritems %}
-    {% include "header.html" with active="praat" %}
+
+{% include "header.html" with active="praat" %}
 {% endblock %}
 
 {% block fab %}
@@ -31,6 +32,7 @@ Run Praat Script
       tar.bz2
   </a></li>
 </ul>
+
 {% endblock %}
 
 {% block body %}
@@ -48,19 +50,38 @@ Run Praat Script
       <span class="btn btn-dark">Run script</span>
     </div>
     -->
+
+
+    {% if download_in_progress %}
+    <div id="notification-bar" class="regular closable shadow accent rounded container-fluid clickable" onclick="$('#notification-bar').fadeOut()">
+      <div class="row">
+	<div class="nb-content-wrapper col-md-11">
+          <div class="nb-text-wrapper">
+            <div class="nb-headline-text">
+	      <h4>Your download is being prepared and will start soon...</h4>
+            </div>
+          </div>
+	</div>
+	<div class="nb-close-wrapper col-md-1">
+	  <h2 class="icon-close">&#10006;</h2>
+	</div>
+      </div>
+    </div>
+    {% endif %}
+
     <br />
     <h3>Please select a script to run:</h3>
 
     <form method="post" class="accent-darker shadow rounded" id="form_create_project">
-	      {% csrf_token %}
-        <input type="hidden" name="form_handler" value="create_project"/>
-        <input type="submit" class="btn btn-md" value="Create" id="button_create_project">
+      {% csrf_token %}
+      <input type="hidden" name="form_handler" value="create_project"/>
+      <input type="submit" class="btn btn-md" value="Create" id="button_create_project">
     </form>
 
-<br />
-<br /><br /><br /><br /><br />
-<div class="container-fluid">
-    <div class="row">
+    <br />
+    <br /><br /><br /><br /><br />
+    <div class="container-fluid">
+      <div class="row">
         <div class="col-md-7" id="entry-list">
           <div class="row shadow rounded">
             <div class="search col-md-12 lighter padding shadow rounded">
@@ -68,39 +89,26 @@ Run Praat Script
 	      <input type="text" id="searchbar" onkeyup="search()" class="rounded shadow" style="width:90%; float:right" name="search" placeholder="Search..">
             </div>
           </div>
-            <br />
-            {% for process in processes %}
-            <div class="row shadow rounded entry">
-                <div class="col-md-3 lighter padding" type="button" data-toggle="collapse" data-target="#collapse{{ forloop.counter }}">
-                    <img class="rounded-circle shadow bg-border" width="100px" height="100px" src="{{ script.img.url }}" alt="{{ script.icon }}" />
-                </div>
-                <div class="col-md-9 lighter padding" type="button" data-toggle="collapse" data-target="#collapse{{ forloop.counter }}">
-                    <h5>{{ process.name }}</h5>
-                    <p>{{ process.description }}</p>
-                </div>
-
-                <div class="collapse padding-xl" id="collapse{{ forloop.counter }}">
-                    {% for profile in process.profiles %}
-                        <form method="post" class="accent-darker shadow rounded" id="form_{{ profile.id }}" enctype="multipart/form-data">
-                        {% csrf_token %}
-                        <h5>Profile {{ forloop.counter }}</h5>
-                        {%  for input_template in profile.input_templates %}
-                            {{ input_template.label }}
-                            <input type="file" accept="{{ input_template.extension }}" name="template_id_{{ input_template.id }}" {% if not input_template.optional %} required {% endif %} />
-                            <p>Accepts {{ input_template.extension }}</p>
-                        {% endfor %}
-                        <input type="hidden" name="form_handler" value="run_profile"/>
-                        <input type="hidden" name="profile_id" value="{{ profile.id }}"/>
-                        <input type="submit" class="btn btn-md" value="Run" id="button_{{ profile.id }}">
-                        </form>
-			{% endfor %}
-                    <br />
-                </div>
-	    </div>
-                {% if not forloop.last %}
-                <br />
-                {% endif %}
-            {% endfor %}
+          <br />
+          {% for process in processes %}
+          <div class="row shadow rounded entry">
+            <div class="col-md-3 lighter padding" type="button" data-toggle="collapse" data-target="#collapse{{ forloop.counter }}">
+	      {% if script.img %}
+              <img class="rounded-circle shadow bg-border" width="100px" height="100px" src="{{ script.img.url }}" alt="{{ script.icon }}" />
+	      {% else %}
+	      <img class="rounded-circle shadow bg-border" width="100px" height="100px" src="https://static.tvtropes.org/pmwiki/pub/images/830px-Mysterious_Mare_Do_Well-1_9628.png" alt="{{ script.icon }}" />
+	      {% endif %}
+            </div>
+            <div class="col-md-9 lighter padding" type="button" data-toggle="collapse" data-target="#collapse{{ forloop.counter }}" onclick="select_output('{{ process.name }}')">
+              <h5>{{ process.name }}</h5>
+              <p>{{ process.description }}</p>
+            </div>
+	    {% include "profile_card.html" %}
+	  </div>
+          {% if not forloop.last %}
+          <br />
+          {% endif %}
+          {% endfor %}
         </div>
         <div class="col-md-1">
         </div>
@@ -127,8 +135,20 @@ Run Praat Script
     {% endblock %}
 
     {% block scripts %}
+    <script>
+      CSRF_TOKEN = "{{ csrf_token }}";
+      PROCESS_LIST = [
+	  {% for process in processes %}[{{ process.id }}, "{% url 'script_runner:process_details' process_id=process.id %}"],{% endfor %}
+      ];
+    </script>
     <script src="{% static 'fancybar/js/search.js' %}"></script>
     <script src="{% static 'fancybar/js/dropdown.js' %}"></script>
     <script src="{% static 'fancybar/js/clock.js' %}"></script>
-    <script src="{% static 'fancybar/js/output_loading.js' %}"></script>
+    <script src="{% static 'fancybar/js/validate.js' %}"></script>
+    <script src="{% static 'script_runner/js/process_reload.js' %}"></script>
+    <script defer>
+      function select_output(process_name) {
+	  $("#file_to_load").text(process_name + "/output/error.log");
+      }
+    </script>
     {% endblock %}

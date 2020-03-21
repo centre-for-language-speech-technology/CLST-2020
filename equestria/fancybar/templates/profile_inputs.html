@@ -1,0 +1,30 @@
+<div class="row accent-darker padding shadow rounded container-fluid">
+  <div class="col-md-10">
+    {% for profile in process.profiles %}
+    {% include "profile_form.html" %}
+    {% endfor %}
+    <br /><hr>
+    <div class="container-fluid">
+      <h5>Status: </h5>
+      <p id="process_status_message_{{ process.id }}">
+	Status message is loading...
+      </p>
+    </div>
+  </div>
+  <div class="col-md-2">
+    <p style="text-align: right">
+      <i class="fa fa-download fab-glyph clickable" data-toggle="collapse" data-target="#downloadcollapse{{ forloop.counter }}" id="process_download_button_{{ process.id }}" style="display: none;"></i>
+      <!-- Should be id="{{ process_download_button }}" -->
+    </p>
+    <div class="collapse" id="downloadcollapse{{ forloop.counter }}">
+      <form method="post" class="" id="form_download_{{ process.id }}" enctype="multipart/form-data">
+	{% csrf_token %}
+	<input type="hidden" name="form_handler" value="download_process"/>
+	<input type="hidden" name="process_id" value="{{ process.id }}"/>
+	<input type="submit" style="width: 10em;" class="btn btn-md" name="archive_type" value="zip"     id="button_download_zip_{{ process.id }}">
+	<input type="submit" style="width: 10em;" class="btn btn-md" name="archive_type" value="tar.gz"  id="button_download_gz_{{ process.id }}">
+	<input type="submit" style="width: 10em;" class="btn btn-md" name="archive_type" value="tar.bz2" id="button_download_bz_{{ process.id }}">
+      </form>
+    </div>
+  </div>
+</div>

@@ -2,7 +2,8 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.views.generic import TemplateView
 from django.shortcuts import render, redirect
-from script_runner.models import Script
+from script_runner.models import Script, Argument
+from django.core.files.storage import FileSystemStorage
 from upload import forms as uploadForms
 from script_runner.constants import *
 
@@ -19,10 +20,14 @@ import clam.common.client
 import clam.common.data
 import clam.common.status
 import random
+from urllib.request import urlretrieve
+from os.path import join, exists
+from os import makedirs
 from urllib.parse import urlencode
 from script_runner.clamhelper import (
     create_templates_from_data,
     start_clam_server,
+    download_process,
 )
 
 
@@ -165,8 +170,7 @@ class PraatScripts(TemplateView):
                     script=Script.objects.get(pk=1),
                     clam_id=project_name,
                 )
-                new_profile = Profile.objects.create(process=process)
-                create_templates_from_data(data.inputtemplates())
+                create_templates_from_data(process, data.inputtemplates())
                 return render(request, self.template_name, self.arg)
             elif request.POST.get("form_handler") == "run_profile":
                 profile_id = request.POST.get("profile_id")
@@ -188,17 +192,22 @@ class PraatScripts(TemplateView):
                             "template_id_{}".format(input_template.id)
                         ]:
                             file.write(chunk)
-                    argument_files.append(
-                        (
-                            request.FILES[
-                                "template_id_{}".format(input_template.id)
-                            ].name,
-                            input_template.template_id,
-                        )
-                    )
+                            argument_files.append(
+                                (
+                                    request.FILES[
+                                        "template_id_{}".format(
+                                            input_template.id
+                                        )
+                                    ].name,
+                                    input_template.template_id,
+                                )
+                            )
 
-                start_clam_server(profile, process_to_run, argument_files)
-                return render(request, self.template_name, self.arg)
+                            start_clam_server(profile, argument_files)
+
+                            return render(request, self.template_name, self.arg)
+            elif request.POST.get("form_handler") == "download_process":
+                return download_process(request)
 
 
 class UploadWav(GenericTemplate):
@@ -259,8 +268,7 @@ class ForcedAlignment(TemplateView):
                     script=Script.objects.get(pk=script_id),
                     clam_id=project_name,
                 )
-                new_profile = Profile.objects.create(process=process)
-                create_templates_from_data(data.inputtemplates())
+                create_templates_from_data(process, data.inputtemplates())
                 return redirect_with_parameters(
                     "script_runner:process",
                     process.id,
