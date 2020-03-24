@@ -4,7 +4,7 @@
   {% for input_template in profile.input_templates %}
   <label for="{{ input_template.id }}">{{ input_template.label }}</label>
   <input type="file" onChange="validate(this, this.value, {{ forloop.counter }},['{{ input_template.extension }}'])"
-	 name="template_id_{{ input_template.id }}"
+	 name="{{ input_template.id }}"
          {% if not input_template.optional %} required {% endif %} />
   <!-- accept="{{ input_template.mime }}" -->
   <p id="p{{ forloop.counter }}">Accepts {{ input_template.extension }}</p>
