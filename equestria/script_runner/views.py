@@ -121,7 +121,10 @@ class CLAMFetch(TemplateView):
         """
         clam_id = kwargs.get("process")
         path = kwargs.get("p")
-        process = Process.objects.get(clam_id=clam_id)
+        try:
+            process = Process.objects.get(clam_id=clam_id)
+        except:
+            return HttpResponseNotFound("Process not found")
 
         save_file = "scripts/{}{}".format(clam_id, path)
         if not exists(dirname(save_file)):
@@ -190,6 +193,7 @@ class JsonProcess(TemplateView):
 
 
 def download_process_archive(request, **kwargs):
+    """Download the archive containing the process files."""
     process = Process.objects.get(pk=kwargs.get("process_id"))
     if process.output_file is not None:
         return serve(

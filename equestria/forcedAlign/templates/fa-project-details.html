@@ -10,19 +10,29 @@ Forced Alignment: Project
 {% endblock %}
 
 {% block body %}
-<div class="rounded shadow lighter padding mb-3">
-  <h3>{{ process.name }}</h3>
-  <p class="mb-0">Status:</p>
-  <strong><p id="process-django-status"></p></strong>
-  <a href="{% url 'script_runner:process_download' process_id=process.id %}" download class="btn btn-primary" id="process-download-button">Download results</a>
-</div>
-<div id="process-profiles" style="display: none;">
-  {% for profile in profiles %}
-  <div class="rounded shadow lighter padding mb-3">
-    {% include "profile.html" with profile=profile %}
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-7 rounded shadow lighter padding">
+      <h3>{{ process.name }}</h3>
+      <p class="">Status:</p>
+      <strong><p id="process-django-status"></p></strong>
+      <a href="{% url 'script_runner:process_download' process_id=process.id %}" download class="btn btn-primary" id="process-download-button">Download results</a>
+    </div>
+    <div id="process-profiles" style="display: none;">
+      {% for profile in profiles %}
+      <div class="rounded shadow lighter padding">
+	{% include "profile.html" with profile=profile %}
+      </div>
+      {% endfor %}
+    </div>
+    <div class="col-md-1">
+    </div>
+    <div class="col-md-4 rounded shadow lighter padding">
+      {% include "console_output.html" %}
+    </div>
   </div>
-  {% endfor %}
 </div>
+
 {% endblock %}
 
 
@@ -34,4 +44,10 @@ Forced Alignment: Project
 </script>
 <script src="{% static "forcedAlign/js/process-update.js" %}"></script>
 <script src="{% static "fancybar/js/validate.js" %}"></script>
+<script src="{% static "fancybar/js/clock.js" %}"></script>
+<script defer>
+  $( document ).ready(function() {
+      update_console_output(); $("#file_to_load").text("{{ process.clam_id }}" + "/output/error.log");
+  });
+</script>
 {% endblock %}
