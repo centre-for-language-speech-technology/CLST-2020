@@ -29,17 +29,21 @@ class FAView(TemplateView):
             return redirect("%s?next=%s" % (settings.LOGIN_URL, request.path))
         else:
             fa_scripts = Script.objects.filter(forced_alignment_script=True)
-            return render(request, self.template_name, {'fa_scripts': fa_scripts})
+            return render(
+                request, self.template_name, {"fa_scripts": fa_scripts}
+            )
 
     def post(self, request, **kwargs):
-        project_name = request.POST.get('project-name', None)
-        script_id = request.POST.get('script-id', None)
-        fa_script = Script.objects.filter(forced_alignment_script=True).get(id=script_id)
+        project_name = request.POST.get("project-name", None)
+        script_id = request.POST.get("script-id", None)
+        fa_script = Script.objects.filter(forced_alignment_script=True).get(
+            id=script_id
+        )
         if project_name is None or fa_script is None:
-            return render(request, self.template_name, {'failed': True})
+            return render(request, self.template_name, {"failed": True})
         else:
             process = start_project(project_name, fa_script)
-            return redirect('forcedAlign:fa_project', project=process.id)
+            return redirect("forcedAlign:fa_project", project=process.id)
 
 
 class ForcedAlignmentProjectDetails(TemplateView):
@@ -47,26 +51,32 @@ class ForcedAlignmentProjectDetails(TemplateView):
     template_name = "fa-project-details.html"
 
     def get(self, request, **kwargs):
-        process = Process.objects.get(id=kwargs.get('project'))
+        process = Process.objects.get(id=kwargs.get("project"))
         if process is not None:
             profiles = Profile.objects.filter(process=process)
             for profile in profiles:
                 profile.input_templates = InputTemplate.objects.select_related().filter(
                     corresponding_profile=profile.id
                 )
-            return render(request, self.template_name, {'profiles': profiles, 'process': process})
+            return render(
+                request,
+                self.template_name,
+                {"profiles": profiles, "process": process},
+            )
         else:
             raise Http404("Project not found")
 
     def post(self, request, **kwargs):
-        profile_id = request.POST.get('profile_id', None)
+        profile_id = request.POST.get("profile_id", None)
         if profile_id is None:
             raise Http404("Bad request")
 
         profile = Profile.objects.get(pk=profile_id)
 
         if self.run_profile(profile, request.FILES):
-            return redirect('forcedAlign:fa_project', project=profile.process.id)
+            return redirect(
+                "forcedAlign:fa_project", project=profile.process.id
+            )
         else:
             raise Http404("Something went wrong with processing the files.")
 
@@ -84,17 +94,9 @@ class ForcedAlignmentProjectDetails(TemplateView):
         ):
             random_token = secrets.token_hex(32)
             file_name = os.path.join(settings.TMP_DIR, random_token)
-            with open(
-                file_name, "wb",
-            ) as file:
+            with open(file_name, "wb",) as file:
                 for chunk in files[str(input_template.id)]:
                     file.write(chunk)
-            argument_files.append(
-                (
-                    file_name,
-                    input_template.template_id,
-                )
-            )
+            argument_files.append((file_name, input_template.template_id,))
         start_clam_server(profile, argument_files)
         return True
-

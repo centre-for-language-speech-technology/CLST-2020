@@ -176,11 +176,7 @@ class JsonProcess(TemplateView):
         process = Process.objects.get(pk=key)
         clam_info = update_script(process)
         if clam_info is None:
-            return JsonResponse(
-                {
-                    "django_status": process.status,
-                }
-            )
+            return JsonResponse({"django_status": process.status,})
         else:
             return JsonResponse(
                 {
@@ -194,8 +190,10 @@ class JsonProcess(TemplateView):
 
 
 def download_process_archive(request, **kwargs):
-    process = Process.objects.get(pk=kwargs.get('process_id'))
+    process = Process.objects.get(pk=kwargs.get("process_id"))
     if process.output_file is not None:
-        return serve(request, basename(process.output_file), dirname(process.output_file))
+        return serve(
+            request, basename(process.output_file), dirname(process.output_file)
+        )
     else:
         return HttpResponseNotFound("Downloaded archive not found")

@@ -19,7 +19,7 @@ urlpatterns = [
     path(
         "process/<int:process_id>/download",
         download_process_archive,
-        name="process_download"
+        name="process_download",
     ),
     path("clam/<path:path>", Downloads.as_view(), name="clam"),
 ]

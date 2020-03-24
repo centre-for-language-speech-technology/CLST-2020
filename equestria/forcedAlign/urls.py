@@ -6,7 +6,11 @@ from .views import FAView, ForcedAlignmentProjectDetails
 
 urlpatterns = [
     path("", FAView.as_view(), name="FA_form"),
-    path("<str:project>", ForcedAlignmentProjectDetails.as_view(), name="fa_project")
+    path(
+        "<str:project>",
+        ForcedAlignmentProjectDetails.as_view(),
+        name="fa_project",
+    ),
 ]
 
 

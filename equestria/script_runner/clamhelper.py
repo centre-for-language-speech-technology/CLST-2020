@@ -1,4 +1,13 @@
-from script_runner.models import InputTemplate, Script, Process, Profile, STATUS_RUNNING, STATUS_DOWNLOAD, STATUS_FINISHED, STATUS_ERROR
+from script_runner.models import (
+    InputTemplate,
+    Script,
+    Process,
+    Profile,
+    STATUS_RUNNING,
+    STATUS_DOWNLOAD,
+    STATUS_FINISHED,
+    STATUS_ERROR,
+)
 import clam.common.client
 import clam.common.data
 import clam.common.status
@@ -54,9 +63,9 @@ def start_clam_server(profile, argument_files):
 
 def download_process(request):
     """Download process data."""
-    #TODO: I adjusted this to a redirect, we have to change the method
+    # TODO: I adjusted this to a redirect, we have to change the method
     process_id = request.POST.get("process_id")
-    return redirect('script_runner:process_download', process_id=process_id)
+    return redirect("script_runner:process_download", process_id=process_id)
 
 
 def update_script(process):
@@ -100,7 +109,9 @@ def download_output_files(process, format="zip"):
     try:
         associated_script = process.script
         clamclient = clam.common.client.CLAMClient(associated_script.hostname)
-        downloaded_archive = os.path.join(settings.DOWNLOAD_DIR, process.clam_id + '.{}'.format(format))
+        downloaded_archive = os.path.join(
+            settings.DOWNLOAD_DIR, process.clam_id + ".{}".format(format)
+        )
         clamclient.downloadarchive(process.clam_id, downloaded_archive, format)
         process.status = STATUS_FINISHED
         process.output_file = downloaded_archive
@@ -110,4 +121,3 @@ def download_output_files(process, format="zip"):
         print(e)
         process.status = STATUS_ERROR
         process.save()
-
