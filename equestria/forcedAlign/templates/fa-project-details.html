@@ -10,24 +10,28 @@ Forced Alignment: Project
 {% endblock %}
 
 {% block body %}
-    <div class="rounded shadow lighter padding mb-3">
-        <h3>{{ process.name }}</h3>
-        <p class="mb-0">Status:</p>
-        <strong><p id="process-django-status"></p></strong>
-        <a href="{% url 'script_runner:process_download' process_id=process.id %}" download class="btn btn-primary" id="process-download-button">Download results</a>
-    </div>
-    <div id="process-profiles" style="display: none;">
-        {% for profile in profiles %}
-            <div class="rounded shadow lighter padding mb-3">
-                {% include "profile.html" with profile=profile %}
-            </div>
-        {% endfor %}
-    </div>
+<div class="rounded shadow lighter padding mb-3">
+  <h3>{{ process.name }}</h3>
+  <p class="mb-0">Status:</p>
+  <strong><p id="process-django-status"></p></strong>
+  <a href="{% url 'script_runner:process_download' process_id=process.id %}" download class="btn btn-primary" id="process-download-button">Download results</a>
+</div>
+<div id="process-profiles" style="display: none;">
+  {% for profile in profiles %}
+  <div class="rounded shadow lighter padding mb-3">
+    {% include "profile.html" with profile=profile %}
+  </div>
+  {% endfor %}
+</div>
 {% endblock %}
+
+
+
 {% block scripts %}
-    <script>
-        var CSRF_TOKEN = "{{ csrf_token }}";
-        var PROCESS_STATUS_URL = "{% url 'script_runner:process_details' process_id=process.id %}";
-    </script>
-    <script src="{% static "forcedAlign/js/process-update.js" %}"></script>
+<script>
+  var CSRF_TOKEN = "{{ csrf_token }}";
+  var PROCESS_STATUS_URL = "{% url 'script_runner:process_details' process_id=process.id %}";
+</script>
+<script src="{% static "forcedAlign/js/process-update.js" %}"></script>
+<script src="{% static "fancybar/js/validate.js" %}"></script>
 {% endblock %}
