@@ -1,17 +1,14 @@
-import clam.common.client
-import clam.common.data
-import clam.common.status
 from django.http import HttpResponseNotFound
 from django.views.generic import TemplateView
 from django.shortcuts import render, redirect
 from urllib.request import urlretrieve
 from os import makedirs
-from os.path import join, exists, basename, dirname
+from os.path import exists, basename, dirname
 from django.views.static import serve
 from .models import Process, Profile, InputTemplate, Script
 from django.http import JsonResponse
-from script_runner.clamhelper import start_clam_server
-from urllib.parse import urlencode
+from script_runner.clamhelper import start_clam_server, update_script
+from django.conf import settings
 
 
 class ProcessOverview(TemplateView):
@@ -177,14 +174,28 @@ class JsonProcess(TemplateView):
         """
         key = kwargs.get("process_id")
         process = Process.objects.get(pk=key)
-        clam_server = Script.objects.get(pk=process.script.id)
-        clamclient = clam.common.client.CLAMClient(clam_server.hostname)
-        clam_info = clamclient.get(process.clam_id)
-        return JsonResponse(
-            {
-                "status": clam_info.status,
-                "status_message": clam_info.statusmessage,
-                "errors": clam_info.errors,
-                "error_message": clam_info.errormsg,
-            }
-        )
+        clam_info = update_script(process)
+        if clam_info is None:
+            return JsonResponse(
+                {
+                    "django_status": process.status,
+                }
+            )
+        else:
+            return JsonResponse(
+                {
+                    "clam_status": clam_info.status,
+                    "status_message": clam_info.statusmessage,
+                    "django_status": process.status,
+                    "errors": clam_info.errors,
+                    "error_message": clam_info.errormsg,
+                }
+            )
+
+
+def download_process_archive(request, **kwargs):
+    process = Process.objects.get(pk=kwargs.get('process_id'))
+    if process.output_file is not None:
+        return serve(request, basename(process.output_file), dirname(process.output_file))
+    else:
+        return HttpResponseNotFound("Downloaded archive not found")

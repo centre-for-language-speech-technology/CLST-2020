@@ -1,12 +1,12 @@
-from django.contrib import admin
-from django.urls import path, include
+from django.urls import path
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.conf.urls.static import static
 from django.conf import settings
-from .views import FAView
+from .views import FAView, ForcedAlignmentProjectDetails
 
 urlpatterns = [
     path("", FAView.as_view(), name="FA_form"),
+    path("<str:project>", ForcedAlignmentProjectDetails.as_view(), name="fa_project")
 ]
 
 

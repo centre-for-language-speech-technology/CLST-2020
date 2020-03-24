@@ -141,3 +141,13 @@ FILE_PATH_FIELD_DIRECTORY = BASE_DIR
 STATIC_ROOT = os.path.join(BASE_DIR, "static/")
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+
+TMP_DIR = os.path.join(BASE_DIR, "tmp")
+DOWNLOAD_DIR = os.path.join(BASE_DIR, "outputs")
+
+
+if not os.path.exists(TMP_DIR):
+    os.makedirs(TMP_DIR)
+
+if not os.path.exists(DOWNLOAD_DIR):
+    os.makedirs(DOWNLOAD_DIR)
