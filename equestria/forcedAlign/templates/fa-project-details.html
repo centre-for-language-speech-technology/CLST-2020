@@ -47,7 +47,8 @@ Forced Alignment: Project
 <script src="{% static "fancybar/js/clock.js" %}"></script>
 <script defer>
   $( document ).ready(function() {
-      update_console_output(); $("#file_to_load").text("{{ process.clam_id }}" + "/output/error.log");
+      $("#file_to_load").text("{{ process.clam_id }}" + "/output/error.log");
+      update_console_output();
   });
 </script>
 {% endblock %}

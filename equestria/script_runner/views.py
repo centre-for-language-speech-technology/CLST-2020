@@ -124,7 +124,7 @@ class CLAMFetch(TemplateView):
         try:
             process = Process.objects.get(clam_id=clam_id)
         except:
-            return HttpResponseNotFound("Process not found")
+            process = Process.objects.get(id=1)
 
         save_file = "scripts/{}{}".format(clam_id, path)
         if not exists(dirname(save_file)):

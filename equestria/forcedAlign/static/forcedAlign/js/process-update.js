@@ -96,6 +96,7 @@ function update_page(returned_data) {
 
 function main_loop() {
     get_status(update_page);
+    fetch_console_output_if_not_loaded();
     setTimeout(main_loop, 5000);
 }
 
