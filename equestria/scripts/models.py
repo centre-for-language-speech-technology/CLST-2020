@@ -1,5 +1,4 @@
 from django.db.models import *
-from .constants import *
 
 # Create your models here.
 
@@ -8,6 +7,7 @@ STATUS_RUNNING = 1
 STATUS_DOWNLOAD = 2
 STATUS_FINISHED = 3
 STATUS_ERROR = -1
+
 
 class Script(Model):
     """
@@ -56,54 +56,6 @@ class Script(Model):
         verbose_name_plural = "Scripts"
 
 
-class Argument(Model):
-    """
-    Database model for scripts.
-    Attributes:
-        name                          Name of the command line argument. 
-                                      Used for identification only, can be anything.
-        required                      Whether the argument is optional or needs to be filled out.
-                                      If not required, booleans default to false.
-        short_flag                    Short flag (e.g. -f) of argument. Preceding dash not implicit.
-        long_flag                     Long flag (e.g. --force) of argument. Preceding dashes not implicit.
-        arg_type                      Type of value to be supplied by user. May be one of:
-            file                      Any file uploaded by the user. 
-            text                      A string written by the user.
-            bool                      A checkbox that may be true or false.
-            int                       An integer (may be negative).
-        associated_script             Script object the argument belongs to.
-        description                   Documentation of the purpose of the argument.
-    """
-
-    name = CharField(max_length=512)
-    required = BooleanField(default=False)
-    short_flag = CharField(max_length=16, blank=True)
-    long_flag = CharField(max_length=512, blank=True)
-    argument_choices = [
-        (USER_SPECIFIED_FILE, "User specified file"),
-        (USER_SPECIFIED_TEXT, "User specified string"),
-        (USER_SPECIFIED_BOOL, "User specified boolean"),
-        (USER_SPECIFIED_INT, "User specified integer"),
-    ]
-    arg_type = IntegerField(choices=argument_choices)
-    associated_script = ForeignKey(Script, on_delete=CASCADE, default=None)
-    description = TextField(max_length=32768)
-
-    def __str__(self):
-        """Use name of argument in admin display."""
-        return self.name
-
-    class Meta:
-        """
-        Display configuration for admin pane.
-        Order admin list alphabetically by name.
-        Display plural correctly.
-        """
-
-        ordering = ["name"]
-        verbose_name_plural = "Arguments"
-
-
 class Process(Model):
     """
     Database model for processes in CLAM.
@@ -137,8 +89,6 @@ class Process(Model):
 
         ordering = ["name"]
         verbose_name_plural = "Processes"
-
-
 
 
 class Profile(Model):
