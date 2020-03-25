@@ -6,7 +6,7 @@ Run Praat Script
 {% endblock %}
 
 {% block style %}
-<link href="{% static 'fancybar/css/dropdown.css' %}" type="text/css" />
+<link href="{% static 'equestria/css/dropdown.css' %}" type="text/css" />
 {% endblock %}
 
 {% block prebody %}
@@ -141,10 +141,10 @@ Run Praat Script
 	  {% for process in processes %}[{{ process.id }}, "{% url 'script_runner:process_details' process_id=process.id %}"],{% endfor %}
       ];
     </script>
-    <script src="{% static 'fancybar/js/search.js' %}"></script>
-    <script src="{% static 'fancybar/js/dropdown.js' %}"></script>
-    <script src="{% static 'fancybar/js/clock.js' %}"></script>
-    <script src="{% static 'fancybar/js/../../scripts/static/scripts/js/validate.js' %}"></script>
+    <script src="{% static 'equestria/js/search.js' %}"></script>
+    <script src="{% static 'equestria/js/dropdown.js' %}"></script>
+    <script src="{% static 'equestria/js/clock.js' %}"></script>
+    <script src="{% static 'scripts/js/validate.js' %}"></script>
     <script src="{% static 'script_runner/js/process_reload.js' %}"></script>
     <script defer>
       function select_output(process_name, output_path) {

@@ -7,7 +7,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <link rel="stylesheet" href="{% static 'fancybar/css/main.css' %}">
+    <link rel="stylesheet" href="{% static 'equestria/css/main.css' %}">
     <style type="text/css" media="screen">
       {% if profile.background_color %}
       :root {
@@ -159,20 +159,20 @@
     <meta name="description" content="">
     <meta name="author" content="GipHouse">
 
-    <link rel="icon" type="image/png" sizes="64x64" href="{% static 'fancybar/favicon/favicon-64x64.png' %}">
-    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'fancybar/favicon/favicon-32x32.png' %}">
+    <link rel="icon" type="image/png" sizes="64x64" href="{% static 'equestria/favicon/favicon-64x64.png' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'equestria/favicon/favicon-32x32.png' %}">
 
     <!-- scripts are above body, so that they can be used within other templates within the body -->
     <!-- JQuery (dependency of bootstrap) -->
-    <script type="text/javascript" src="{% static 'fancybar/js/jquery.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'equestria/js/jquery.min.js' %}"></script>
     <!-- Bootstrap tooltips -->
-    <script type="text/javascript" src="{% static 'fancybar/js/popper.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'equestria/js/popper.min.js' %}"></script>
     <!-- Bootstrap core JavaScript -->
-    <script type="text/javascript" src="{% static 'fancybar/js/bootstrap.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'equestria/js/bootstrap.min.js' %}"></script>
     <!-- MDB core JavaScript -->
-    <script type="text/javascript" src="{% static 'fancybar/js/mdb.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'equestria/js/mdb.min.js' %}"></script>
     <!-- Main script -->
-    <script type="text/javascript" src="{% static 'fancybar/js/main.js' %}"></script>
+    <script type="text/javascript" src="{% static 'equestria/js/main.js' %}"></script>
 
     <title>
       {% block title %}
@@ -181,7 +181,7 @@
     </title>
     
     {% block head %}
-        {% include "header.html" %}
+    {% include "header.html" %}
     {% endblock %}
 
     <!-- Font Awesome (for symbols and glyphs) -->
@@ -192,10 +192,10 @@
           rel="stylesheet">
 
     <!-- Bootstrap core CSS -->
-    <link href="{% static 'fancybar/css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'equestria/css/bootstrap.min.css' %}" rel="stylesheet">
 
     <!-- Material Design Bootstrap -->
-    <link href="{% static 'fancybar/css/mdb.min.css' %}" rel="stylesheet">
+    <link href="{% static 'equestria/css/mdb.min.css' %}" rel="stylesheet">
 
     {% block style %}
     {% endblock %}
