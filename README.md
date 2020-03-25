@@ -7,6 +7,8 @@
 Getting started
 ---------------
 
+Starting the Django server
+
 0. Get at least Python 3.7 and install poetry and the requirements as per below.
 1. Clone this repository
 2. Make sure `poetry` uses your python 3 installation: `poetry env use python3`
@@ -14,6 +16,19 @@ Getting started
 4. Run `poetry shell`
 5. `cd equestria`
 6. `./manage.py migrate` to initialise the database
-7. `./manage.py createsuperuser` to create the first user
-8. `./manage.py runserver` to run a testing server
-9. ./manage.py makemigrations app1 when adding app1 to database
+7. `./manage.py loaddata clam` to load the test CLAM server into the database
+8. `./manage.py createsuperuser` to create the first user
+9. `./manage.py runserver` to run a testing server
+
+Starting the CLAM test server
+
+1. In another shell, execute `cd fa-clam`.
+2. Make sure `poetry` uses your python 3 installation: `poetry env use python3`
+3. Run `poetry install`
+4. Run `poetry shell`
+5. `cd FAclam`
+6. `./startserver_development`
+
+Adding an application to the Django migrations
+
+Execute `./manage.py makemigrations app1` when adding app1 to database
