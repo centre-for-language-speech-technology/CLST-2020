@@ -254,26 +254,6 @@ class ForcedAlignment(TemplateView):
         if not request.user.is_authenticated:
             return redirect("%s?next=%s" % (settings.LOGIN_URL, request.path))
         else:
-            if request.POST.get("form_handler") == "create_project":
-                script_id = request.POST.get("script_id")
-                clamclient = clam.common.client.CLAMClient(
-                    "http://localhost:8080"
-                )
-                # TODO: This should later on be something like [username]_[project_name]
-                project_name = request.POST.get("project_name")
-                clamclient.create(project_name)
-                data = clamclient.get(project_name)
-                process = Process.objects.create(
-                    name=project_name,
-                    script=Script.objects.get(pk=script_id),
-                    clam_id=project_name,
-                )
-                create_templates_from_data(process, data.inputtemplates())
-                return redirect_with_parameters(
-                    "script_runner:process",
-                    process.id,
-                    redirect="fancybar:update_dictionary",
-                )
             return render(request, self.template_name, self.arg)
 
 

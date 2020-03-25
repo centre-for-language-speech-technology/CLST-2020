@@ -1,0 +1,54 @@
+{% extends 'progbase.html' %}
+{% load static %}
+
+{% block title %}
+Forced Alignment: Project
+{% endblock %}
+
+{% block navbaritems %}
+{% include "header.html" with active="forced" %}
+{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-7 rounded shadow lighter padding">
+      <h3>{{ process.name }}</h3>
+      <p class="">Status:</p>
+      <strong><p id="process-django-status"></p></strong>
+      <a href="{% url 'script_runner:process_download' process_id=process.id %}" download class="btn btn-primary" id="process-download-button">Download results</a>
+    </div>
+    <div id="process-profiles" style="display: none;">
+      {% for profile in profiles %}
+      <div class="rounded shadow lighter padding">
+	{% include "profile.html" with profile=profile %}
+      </div>
+      {% endfor %}
+    </div>
+    <div class="col-md-1">
+    </div>
+    <div class="col-md-4 rounded shadow lighter padding">
+      {% include "console_output.html" %}
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+
+
+{% block scripts %}
+<script>
+  var CSRF_TOKEN = "{{ csrf_token }}";
+  var PROCESS_STATUS_URL = "{% url 'script_runner:process_details' process_id=process.id %}";
+</script>
+<script src="{% static "forcedAlign/js/process-update.js" %}"></script>
+<script src="{% static "fancybar/js/validate.js" %}"></script>
+<script src="{% static "fancybar/js/clock.js" %}"></script>
+<script defer>
+  $( document ).ready(function() {
+      $("#file_to_load").text("{{ process.clam_id }}" + "/{{ process.output_path }}");
+      update_console_output();
+  });
+</script>
+{% endblock %}

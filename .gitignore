@@ -6,3 +6,6 @@ venv/
 equestria.egg-info/
 db.sqlite3
 geckodriver.log
+outputs/
+tmp/
+scripts/

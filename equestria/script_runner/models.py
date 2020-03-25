@@ -3,6 +3,12 @@ from .constants import *
 
 # Create your models here.
 
+STATUS_CREATED = 0
+STATUS_RUNNING = 1
+STATUS_DOWNLOAD = 2
+STATUS_FINISHED = 3
+STATUS_ERROR = -1
+
 
 class Script(Model):
     """
@@ -59,11 +65,16 @@ class Process(Model):
         name                          Name of the process.
                                       Used for identification only, can be anything.
         clam_id                       Identification number given by CLAM.
+        output_path                   Path to the primary output file (e.g. output/error.log)
     """
 
     name = CharField(max_length=512, blank=False)
     script = ForeignKey(Script, on_delete=SET_NULL, blank=False, null=True)
     clam_id = CharField(max_length=256, blank=True)
+    output_path = CharField(max_length=512, default="output/error.log")
+    status = IntegerField(default=STATUS_CREATED)
+    # TODO: Change this to a field of our user's files
+    output_file = CharField(max_length=512, default=None, null=True, blank=True)
 
     def __str__(self):
         """Use name of process in admin display."""
