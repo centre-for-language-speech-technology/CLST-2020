@@ -19,6 +19,13 @@ import os
 
 
 def start_project(project_name, script):
+    """
+    Start a project.
+
+    :param project_name: the project name
+    :param script: the script
+    :return: the process
+    """
     random_token = secrets.token_hex(32)
     clamclient = clam.common.client.CLAMClient(script.hostname)
     clamclient.create(random_token)
@@ -69,6 +76,12 @@ def download_process(request):
 
 
 def update_script(process):
+    """
+    Update a script.
+
+    :param process: the process to update
+    :return: the data or None on failure
+    """
     if process.status == STATUS_RUNNING:
         associated_script = process.script
         clamclient = clam.common.client.CLAMClient(associated_script.hostname)
@@ -88,7 +101,7 @@ def update_script(process):
 
 def update_all_scripts():
     """
-    Starts downloads for all the running scripts.
+    Start downloads for all the running scripts.
 
     :return: None
     """
