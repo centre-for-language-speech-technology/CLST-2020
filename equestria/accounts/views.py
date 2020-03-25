@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import login, logout
-from fancybar.views import GenericTemplate
+from equestria.views import GenericTemplate
 from django.views.generic import TemplateView
 from django.http import HttpResponse
 from django.contrib import messages
