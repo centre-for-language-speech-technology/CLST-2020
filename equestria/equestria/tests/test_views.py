@@ -1,6 +1,6 @@
-from django.test import SimpleTestCase, TestCase, Client
+from django.contrib.auth.models import User
+from django.test import TestCase, Client
 from django.urls import reverse
-from fancybar.views import *
 
 
 class GenericViewTest(TestCase):
@@ -95,17 +95,17 @@ class TestLoginSystem(RestrictedViewTest):
 class TestFancybar(GenericViewTest):
     """Test the Fancybar view."""
 
-    name = "fancybar:fancybar"
+    name = "welcome"
 
     def test_get(self):
         """Test a get request."""
-        self.get_uses_template_and_defaults("template.html",)
+        self.get_uses_template_and_defaults("welcome.html",)
 
 
 class TestPraatScripts(RestrictedViewTest):
     """Test the PraatScripts view."""
 
-    name = "fancybar:praat_scripts"
+    name = "praat_scripts"
 
     def test_get(self):
         """Test a get request."""
@@ -114,42 +114,22 @@ class TestPraatScripts(RestrictedViewTest):
         self.get_uses_template_and_defaults("praat_scripts.html")
 
 
-class TestUploadWav(GenericViewTest):
-    """Test the UploadWav view."""
-
-    name = "fancybar:upload_wav"
-
-    def test_get(self):
-        """Test a get request."""
-        self.get_uses_template_and_defaults("upload_wav.html")
-
-
-class TestUploadTxt(GenericViewTest):
-    """Test the UploadTxt view."""
-
-    name = "fancybar:upload_txt"
-
-    def test_get(self):
-        """Test a get request."""
-        self.get_uses_template_and_defaults("upload_txt.html")
-
-
 class TestForcedAlignment(RestrictedViewTest):
     """Test the ForcedAlignment view."""
 
-    name = "fancybar:forced_alignment"
+    name = "scripts:fa_create"
 
     def test_get(self):
         """Test a get request."""
         self.redirects_to_login()
         self.login()
-        self.get_uses_template_and_defaults("forced_alignment.html")
+        self.get_uses_template_and_defaults("fa-project-create.html")
 
 
 class TestUpdateDictionary(RestrictedViewTest):
     """Test the UpdateDictionary view."""
 
-    name = "fancybar:update_dictionary"
+    name = "update_dictionary"
 
     def test_get(self):
         """Test a get request."""
@@ -161,22 +141,10 @@ class TestUpdateDictionary(RestrictedViewTest):
 class TestAutoSegmentation(RestrictedViewTest):
     """Test the AutoSegmentation view."""
 
-    name = "fancybar:auto_segmentation"
+    name = "auto_segmentation"
 
     def test_get(self):
         """Test a get request."""
         self.redirects_to_login()
         self.login()
         self.get_uses_template_and_defaults("auto_segmentation.html")
-
-
-class TestDownloadResults(RestrictedViewTest):
-    """Test the DownloadResults view."""
-
-    name = "fancybar:download_results"
-
-    def test_get(self):
-        """Test a get request."""
-        self.redirects_to_login()
-        self.login()
-        self.get_uses_template_and_defaults("download_results.html")

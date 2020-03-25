@@ -107,7 +107,7 @@ class ForcedAlignmentProjectDetails(TemplateView):
         :param kwargs: keyword arguments
         :return: A render of 404 or fa-project-details page
         """
-        process = Process.objects.get(id=kwargs.get("project"))
+        process = Process.objects.get(id=kwargs.get("process"))
         if process is not None:
             profiles = Profile.objects.filter(process=process)
             for profile in profiles:

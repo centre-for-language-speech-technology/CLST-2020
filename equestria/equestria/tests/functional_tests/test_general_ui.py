@@ -1,7 +1,5 @@
 from selenium import webdriver
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
-from django.urls import reverse
-import time
 
 
 class GenericFuncTest(StaticLiveServerTestCase):
