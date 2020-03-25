@@ -8,7 +8,7 @@ from os.path import exists, basename, dirname
 from django.views.static import serve
 from .models import Process, Profile, InputTemplate, Script
 from django.http import JsonResponse
-from scripts.clamhelper import start_clam_server, update_script
+from scripts.clamhelper import start_clam_server, update_script, start_project
 from django.conf import settings
 
 
@@ -105,60 +105,6 @@ class ProcessOverview(TemplateView):
         start_clam_server(profile, argument_files)
 
 
-class CLAMFetch(TemplateView):
-    """
-    Download and serve files from CLAM.
-
-    I initially did this by parsing XML, but this happens to be faster.
-    """
-
-    def get(self, request, **kwargs):
-        """
-        Nothing yet.
-
-        :param request:
-        :param kwargs:
-        :return:
-        """
-        clam_id = kwargs.get("process")
-        path = kwargs.get("p")
-        try:
-            process = Process.objects.get(clam_id=clam_id)
-        except:
-            process = Process.objects.get(id=1)
-
-        save_file = "scripts/{}{}".format(clam_id, path)
-        if not exists(dirname(save_file)):
-            makedirs(dirname(save_file))
-
-        try:
-            urlretrieve(
-                "{}/{}/output{}".format(process.script.hostname, clam_id, path),
-                save_file,
-            )
-        except urllib.error.HTTPError:
-            print(
-                "\033[91m"
-                + "ERROR. NEED TO REDIRECT TO LOCAL COPY OF OUTPUT FILE"
-                + "\033[0m"
-            )  # TODO
-        return redirect(
-            "script_runner:clam", path="scripts/{}/{}".format(clam_id, path),
-        )
-
-
-class Downloads(TemplateView):
-    """View to serve downloadable files."""
-
-    def get(self, request, path):
-        """Respond to get request by serving requested download file."""
-        return serve(request, basename(path), dirname(path))
-
-    def post(self, request, path):
-        """Respond to post request by serving requested download file."""
-        return serve(request, basename(path), dirname(path))
-
-
 class JsonProcess(TemplateView):
     """View for representing Processes as JSON."""
 
@@ -199,6 +145,99 @@ class JsonProcess(TemplateView):
                     "error_message": clam_info.errormsg,
                 }
             )
+
+
+class FAView(TemplateView):
+    """Class to handle get requests to the forced alignment page."""
+
+    """Forced allignment view."""
+
+    template_name = "fa-project-create.html"
+
+    def get(self, request, **kwargs):
+        """
+        Handle requests to the /forced page.
+
+        Get requests are handled within this class while the upload
+        post requests are handled in the upload app
+        with callback URLs upload/wav and upload/txt.
+        """
+        if not request.user.is_authenticated:
+            return redirect("%s?next=%s" % (settings.LOGIN_URL, request.path))
+        else:
+            fa_scripts = Script.objects.filter(forced_alignment_script=True)
+            return render(
+                request, self.template_name, {"fa_scripts": fa_scripts}
+            )
+
+    def post(self, request, **kwargs):
+        project_name = request.POST.get("project-name", None)
+        script_id = request.POST.get("script-id", None)
+        fa_script = Script.objects.filter(forced_alignment_script=True).get(
+            id=script_id
+        )
+        if project_name is None or fa_script is None:
+            return render(request, self.template_name, {"failed": True})
+        else:
+            process = start_project(project_name, fa_script)
+            return redirect("forcedAlign:fa_project", project=process.id)
+
+
+class ForcedAlignmentProjectDetails(TemplateView):
+
+    template_name = "fa-project-details.html"
+
+    def get(self, request, **kwargs):
+        process = Process.objects.get(id=kwargs.get("project"))
+        if process is not None:
+            profiles = Profile.objects.filter(process=process)
+            for profile in profiles:
+                profile.input_templates = InputTemplate.objects.select_related().filter(
+                    corresponding_profile=profile.id
+                )
+            return render(
+                request,
+                self.template_name,
+                {"profiles": profiles, "process": process},
+            )
+        else:
+            raise Http404("Project not found")
+
+    def post(self, request, **kwargs):
+        profile_id = request.POST.get("profile_id", None)
+        if profile_id is None:
+            raise Http404("Bad request")
+
+        profile = Profile.objects.get(pk=profile_id)
+
+        if self.run_profile(profile, request.FILES):
+            return redirect(
+                "forcedAlign:fa_project", project=profile.process.id
+            )
+        else:
+            raise Http404("Something went wrong with processing the files.")
+
+    def run_profile(self, profile, files):
+        """
+        Run a specified process with the given profile.
+
+        :param profile_id: the profile id to run
+        :param files: the files to be uploaded to the CLAM server
+        :return: None
+        """
+        argument_files = list()
+        for input_template in InputTemplate.objects.select_related().filter(
+            corresponding_profile=profile
+        ):
+            random_token = secrets.token_hex(32)
+            file_name = os.path.join(settings.TMP_DIR, random_token)
+            with open(file_name, "wb",) as file:
+                for chunk in files[str(input_template.id)]:
+                    file.write(chunk)
+            argument_files.append((file_name, input_template.template_id,))
+        start_clam_server(profile, argument_files)
+        return True
+
 
 
 def download_process_archive(request, **kwargs):

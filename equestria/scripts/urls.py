@@ -3,23 +3,20 @@ from scripts.views import *
 
 urlpatterns = [
     path("process/<int:process>", ProcessOverview.as_view(), name="process"),
+    path("fa/", FAView.as_view(), name="FA_form"),
     path(
-        "process/<int:process_id>/<str:process>/output<path:p>",
-        CLAMFetch.as_view(),
-        name="clam_fetch",
+        "fa/<int:process>",
+        ForcedAlignmentProjectDetails.as_view(),
+        name="fa_project",
     ),
     path(
-        "process/<int:process_id>/", ProcessOverview.as_view(), name="process"
-    ),
-    path(
-        "process/<int:process_id>/status",
+        "process/<int:process>/status",
         JsonProcess.as_view(),
         name="process_details",
     ),
     path(
-        "process/<int:process_id>/download",
+        "process/<int:process>/download",
         download_process_archive,
         name="process_download",
     ),
-    path("clam/<path:path>", Downloads.as_view(), name="clam"),
 ]

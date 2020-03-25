@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     "crispy_forms",
     "accounts",
     "forcedAlign",
+    "equestria",
     # "magic",
     # "libmagic",
     "colorfield",
@@ -67,7 +68,6 @@ TEMPLATES = [
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "DIRS": [
             os.path.join(BASE_DIR, "templates"),
-            os.path.join(BASE_DIR, "outputs"),
         ],
         "APP_DIRS": True,
         "OPTIONS": {
@@ -80,8 +80,6 @@ TEMPLATES = [
         },
     },
 ]
-
-TEMPLATE_DIRS = (os.path.join(BASE_DIR, "templates"),)
 
 
 WSGI_APPLICATION = "equestria.wsgi.application"
