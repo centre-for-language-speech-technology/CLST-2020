@@ -1,32 +1,6 @@
-from django.http import HttpResponseRedirect
-from django.urls import reverse
-from django.shortcuts import render, redirect
-from scripts.models import Script, Argument
-from django.core.files.storage import FileSystemStorage
+from scripts.models import Script
 from upload import forms as uploadForms
-from scripts.constants import *
-
-# from scripts import backend_interface
-# from scripts.backend_interface import ClamConfiguration
-from django.contrib.auth.models import User
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import redirect
 from django.conf import settings
-from scripts.models import Process
-from scripts.models import Profile
-from scripts.models import InputTemplate
-import clam.common.client
-import clam.common.data
-import clam.common.status
-import random
-from urllib.request import urlretrieve
-from os.path import join, exists
-from os import makedirs
-from urllib.parse import urlencode
-from scripts.clamhelper import (
-    create_templates_from_data,
-    start_clam_server,
-)
 from equestria.view_generic import *
 
 

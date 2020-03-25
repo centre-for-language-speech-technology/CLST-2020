@@ -2,7 +2,6 @@ from django.urls import path
 from scripts.views import *
 
 urlpatterns = [
-    path("process/<int:process>", ProcessOverview.as_view(), name="process"),
     path("fa/", FAView.as_view(), name="fa_create"),
     path(
         "fa/<int:process>",

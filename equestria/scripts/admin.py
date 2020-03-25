@@ -4,23 +4,6 @@ from scripts import models
 # Register your models here.
 
 
-class ArgumentInline(admin.StackedInline):
-    """
-    Display Arguments as a stacked inline form in the admin panel.
-
-    Show only arguments that are explicitly created, do not show empty ones.
-    """
-
-    model = models.Argument
-    extra = 0
-class ScriptAdmin(admin.ModelAdmin):
-    """Arguments and ouput files are displayed inline when creating/modifying scripts."""
-
-    inlines = [
-        ArgumentInline,
-    ]
-
-
 class ProfileInline(admin.StackedInline):
     """
     Display profiles as a stacked inline form in the admin panel.
@@ -55,6 +38,6 @@ class ProfileAdmin(admin.ModelAdmin):
     inlines = [InputTemplateInline]
 
 
-admin.site.register(models.Script, ScriptAdmin)
+admin.site.register(models.Script)
 admin.site.register(models.Process, ProcessAdmin)
 admin.site.register(models.Profile, ProfileAdmin)

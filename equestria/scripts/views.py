@@ -11,99 +11,6 @@ import secrets
 import os
 
 
-class ProcessOverview(TemplateView):
-    """View for the process overview."""
-
-    template_name = "process_overview.html"
-
-    def get(self, request, **kwargs):
-        """
-        Render for get request for Process overview.
-
-        :param request: the request from the user
-        :param kwargs: keyword arguments
-        :return: a render or HttpNotFound if the process_id does not exist
-        """
-        key = kwargs.get("process_id")
-        try:
-            process = Process.objects.get(pk=key)
-            arg = self.create_argument(process)
-            return render(request, self.template_name, arg)
-        except Process.DoesNotExist:
-            # TODO: Make a nice 404 page
-            return HttpResponseNotFound("<h1>Page not found</h1>")
-
-    def post(self, request, **kwargs):
-        """
-        Render for post request for Process overview.
-
-        :param request: the request from the user
-        :param kwargs: keyword arguments
-        :return: a render or HttpNotFound if the process_id does not exist
-        """
-        if request.POST.get("form_handler") == "run_profile":
-            profile_id = request.POST.get("profile_id")
-            self.run_profile(profile_id, request.FILES)
-            return redirect(request.GET.get("redirect"))
-        elif request.POST.get("form_handler") == "download_process":
-            return download_output_files(request)
-
-        key = kwargs.get("process_id")
-        try:
-            process = Process.objects.get(pk=key)
-            arg = self.create_argument(process)
-            return render(request, self.template_name, arg)
-        except Process.DoesNotExist:
-            # TODO: Make a nice 404 page
-            return HttpResponseNotFound("<h1>Page not found</h1>")
-
-    def create_argument(self, process):
-        """
-        Create argument set for rendering this page.
-
-        :param process: the process object to render this page
-        :return: an argument list containing the process, all its profiles and all the profiles' input templates
-        """
-        arg = {"process": process}
-        arg["process"].profiles = Profile.objects.select_related().filter(
-            process=arg["process"].id
-        )
-        for profile in arg["process"].profiles:
-            profile.input_templates = InputTemplate.objects.select_related().filter(
-                corresponding_profile=profile.id
-            )
-        return arg
-
-    def run_profile(self, profile_id, files):
-        """
-        Run a specified process with the given profile.
-
-        :param profile_id: the profile id to run
-        :param files: the files to be uploaded to the CLAM server
-        :return: None
-        """
-        profile = Profile.objects.get(pk=profile_id)
-        argument_files = list()
-        for input_template in InputTemplate.objects.select_related().filter(
-            corresponding_profile=profile
-        ):
-            # TODO: This is now writing to the main directory, replace this with files from the uploaded files
-            with open(
-                files["template_id_{}".format(input_template.id)].name, "wb",
-            ) as file:
-                for chunk in files["template_id_{}".format(input_template.id)]:
-                    file.write(chunk)
-
-            argument_files.append(
-                (
-                    files["template_id_{}".format(input_template.id)].name,
-                    input_template.template_id,
-                )
-            )
-
-        start_clam_server(profile, argument_files)
-
-
 class JsonProcess(TemplateView):
     """View for representing Processes as JSON."""
 
@@ -187,6 +94,13 @@ class ForcedAlignmentProjectDetails(TemplateView):
     template_name = "fa-project-details.html"
 
     def get(self, request, **kwargs):
+        """
+        GET request for the forced alignment project details page.
+
+        :param request: the request
+        :param kwargs: the keyword arguments
+        :return: a 404 if the project is not found, a fa-project-details page otherwise
+        """
         process = Process.objects.get(id=kwargs.get("process"))
         if process is not None:
             profiles = Profile.objects.filter(process=process)
@@ -209,18 +123,19 @@ class ForcedAlignmentProjectDetails(TemplateView):
 
         profile = Profile.objects.get(pk=profile_id)
 
-        if self.run_profile(profile, request.FILES):
+        if ForcedAlignmentProjectDetails.run_profile(profile, request.FILES):
             return redirect(
                 "scripts:fa_project", process=profile.process.id
             )
         else:
             raise Http404("Something went wrong with processing the files.")
 
-    def run_profile(self, profile, files):
+    @staticmethod
+    def run_profile(profile, files):
         """
         Run a specified process with the given profile.
 
-        :param profile_id: the profile id to run
+        :param profile: the profile to run
         :param files: the files to be uploaded to the CLAM server
         :return: None
         """
