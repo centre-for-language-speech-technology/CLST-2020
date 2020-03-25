@@ -1,0 +1,51 @@
+{% extends 'progbase.html' %}
+{% load static %}
+
+{% block navbaritems %}
+{% include "header.html" with active="forced" %}
+{% endblock %}
+{% block body %}
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-7" id="entry-list">
+      
+      <h5>Process {{ process.name }}</h5>
+      <div>
+      	{% include "profile_inputs.html" %}
+      </div>
+    </div>
+    <div class="col-md-5 lighter shadow padding rounded">
+      <h5>Console Output</h5>
+      <p class="clock"></p>
+      <p>Showing file: <code id="file_to_load">{{ process.name }}/{{ process.output_path }}</code></p>
+      <div class="shadow padding" style="height: 90%">
+	<div id="console_output" ></div>
+	<!-- {% if not script_run %} -->
+	<!-- <p> -->
+	  <!--     <\!-- I wanted to print the output of the command here live (for transparency/debugging by the user), but we probably need a websocket or AJAX for that -\-> -->
+	    <!-- </p> -->
+	<!-- {% else %} -->
+	<!-- <p>Running script with name <code>{{ script_run }}</code>...</p> -->
+	<!-- <p>This is passed via the backend btw, not js</p> -->
+	<!-- <p>Look at the ./manage.py runserver output in your console</p> -->
+	<!-- <p>Done. Script ran <span style="color: green">successfully</span>!</p> -->
+	<!-- {% endif %} -->
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  CSRF_TOKEN = "{{ csrf_token }}";
+  PROCESS_LIST = [
+      [{{ process.id }}, "{% url 'script_runner:process_details' process_id=process.id %}"]
+  ];
+</script>
+<script src="{% static 'fancybar/js/search.js' %}"></script>
+<script src="{% static 'fancybar/js/dropdown.js' %}"></script>
+<script src="{% static 'fancybar/js/clock.js' %}"></script>
+<script src="{% static 'script_runner/js/process_reload.js' %}"></script>
+<script src="{% static 'fancybar/js/validate.js' %}"></script>
+{% endblock %}
