@@ -4,6 +4,9 @@ on:
     branches: [CI/*]
   pull_request:
     branches: [ master ]
+    
+env:
+  CODECOV_TOKEN: "7fbdd375-f7ee-4229-abee-f281d33082b3"
 
 jobs:
   build:
