@@ -65,14 +65,14 @@ class RestrictedTemplate(GenericTemplate):
         if not request.user.is_authenticated:
             return redirect("%s?next=%s" % (settings.LOGIN_URL, request.path))
         else:
-            return super().get()
+            return super().get(request)
 
     def post(self, request):
         """Respond to post request."""
         if not request.user.is_authenticated:
             return redirect("%s?next=%s" % (settings.LOGIN_URL, request.path))
         else:
-            return super().get()
+            return super().get(request)
 
 
 class WelcomePage(GenericTemplate):
