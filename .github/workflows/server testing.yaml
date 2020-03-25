@@ -27,11 +27,6 @@ jobs:
         python -m pip install --upgrade pip
         pip install poetry
         poetry install
-        
-    - name: Test server GET index
-      run: |
-        nohup poetry run python3 equestria/manage.py runserver & 
-        nohup poetry run python3 CI_testing/test.py
 
     - name: Check server
       run: |

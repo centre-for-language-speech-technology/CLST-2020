@@ -38,14 +38,10 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "scripts",
-    "fancybar",
     "upload",
     "crispy_forms",
-    "script_runner",
     "accounts",
-    "forcedAlign",
-    # "magic",
-    # "libmagic",
+    "equestria",
     "colorfield",
 ]
 
@@ -66,10 +62,7 @@ ROOT_URLCONF = "equestria.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [
-            os.path.join(BASE_DIR, "templates"),
-            os.path.join(BASE_DIR, "outputs"),
-        ],
+        "DIRS": [os.path.join(BASE_DIR, "templates"),],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -81,8 +74,6 @@ TEMPLATES = [
         },
     },
 ]
-
-TEMPLATE_DIRS = (os.path.join(BASE_DIR, "templates"),)
 
 
 WSGI_APPLICATION = "equestria.wsgi.application"

@@ -1,0 +1,223 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" class="full-height">
+
+  <head>
+    <!-- Required meta tags always come first -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <link rel="stylesheet" href="{% static 'equestria/css/main.css' %}">
+    <style type="text/css" media="screen">
+      {% if profile.background_color %}
+      :root {
+	  --background-color: {{ profile.background_color }};
+	  --background-lighter: {{ profile.background_lighter }};
+	  --accent-color: {{ profile.accent_color }};
+	  --accent-darker: {{ profile.accent_darker }};
+	  --text-color: {{ profile.text_color }};
+      }
+      {% else %}
+      :root {
+	  --background-color: #292929;
+	  --background-lighter: #373737;
+	  --accent-color: #18bc9c;
+	  --accent-darker: #1c613f;
+	  --text-color: #ffeeee;
+      }
+      {% endif %}
+
+      .lighter {
+	  background-color: var(--background-lighter) !important;
+	  color: var(--text-color) !important;
+      }
+
+      .accent {
+	  background-color: var(--accent-color) !important;
+      }
+
+      .accent-darker {
+	  background-color: var(--accent-darker) !important;
+      }
+
+      .accent-border {
+	  border: 1px solid var(--accent-color);
+      }
+
+      .bg-border {
+	  border: 1px solid var(--background-color);
+      }
+
+      body {
+	  background-color: var(--background-color) !important;
+	  color: var(--text-color) !important;
+      }
+
+      button:not(.hamburger):not(.navbar-toggler) {
+	  background-color: var(--background-color) !important;
+	  color: var(--text-color) !important;
+      }
+
+      a {
+	  color: var(--text-color) !important;
+      }
+
+      a:hover {
+	  color: var(--accent-color) !important;
+      }
+
+      .list-element a {
+	  color: var(--text-color) !important;
+      }
+
+      .list-element :hover {
+	  color: var(--accent-color) !important;
+	  text-shadow: var(--background-color);
+      }
+
+      .text-secondary {
+	  color: var(--text-color) !important;
+      }
+
+      hr {
+	  border-color: var(--text-color) !important;
+      }
+
+      iframe {
+	  width: 100%;
+      }
+
+      .btn-accent {
+	  background-color: var(--accent-color);
+      }
+
+      .btn-accent:hover {
+	  background-color: var(--accent-darker);
+      }
+
+      .panel-body {
+	  background-color: var(--background-lighter);
+      }
+
+      .list-item:hover {
+	  color: var(--accent-color);
+      }
+
+      .list-item-current {
+	  background-color: var(--background-lighter) !important;
+      }
+      ul.chevronbar li:after {
+	  border-left-color: var(--background-lighter) !important; /* front */
+
+      }
+      ul.chevronbar li {
+	  border: 1px solid var(--background-lighter);
+	  background:var(--background-lighter);
+      }
+      ul.chevronbar li:before {
+	  border-top-color: var(--background-lighter) !important; /* upper left */
+	  border-bottom-color: var(--background-lighter) !important; /* lower left */
+	  border-right-color: var(--background-lighter) !important; /* left middle */
+      }
+      li.nav-item.active  {
+	  background: var(--accent-darker) !important;
+      }
+      li.nav-item.active:after {
+	  border-left-color: var(--accent-darker) !important; /* front */
+      }
+      li.nav-item.active:before {
+	  border-top-color: var(--accent-darker) !important; /* upper left */
+	  border-bottom-color: var(--accent-darker) !important; /* lower left */
+	  border-right-color: var(--accent-darker) !important; /* left middle */
+      }
+
+      input {
+	  background-color: var(--background-color) !important;
+	  color: var(--text-color) !important;
+      }
+
+      .fab-circle {
+    	  background-color: var(--accent-darker);
+	  color: var(--text-color);
+	  box-shadow: 2px 2px 3px var(--background-lighter);
+      }
+
+      .fab {
+	  background-color: var(--accent-darker);
+	  color: var(--text-color);
+	  box-shadow: 2px 2px 3px var(--background-lighter);
+      }
+
+      .fab-inactive {
+	  background-color: var(--background-lighter);
+	  color: var(--background);
+	  box-shadow: 2px 2px 3px var(--background-lighter);
+      }
+
+    </style>
+
+    <meta name="description" content="">
+    <meta name="author" content="GipHouse">
+
+    <link rel="icon" type="image/png" sizes="64x64" href="{% static 'equestria/favicon/favicon-64x64.png' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'equestria/favicon/favicon-32x32.png' %}">
+
+    <!-- scripts are above body, so that they can be used within other templates within the body -->
+    <!-- JQuery (dependency of bootstrap) -->
+    <script type="text/javascript" src="{% static 'equestria/js/jquery.min.js' %}"></script>
+    <!-- Bootstrap tooltips -->
+    <script type="text/javascript" src="{% static 'equestria/js/popper.min.js' %}"></script>
+    <!-- Bootstrap core JavaScript -->
+    <script type="text/javascript" src="{% static 'equestria/js/bootstrap.min.js' %}"></script>
+    <!-- MDB core JavaScript -->
+    <script type="text/javascript" src="{% static 'equestria/js/mdb.min.js' %}"></script>
+    <!-- Main script -->
+    <script type="text/javascript" src="{% static 'equestria/js/main.js' %}"></script>
+
+    <title>
+      {% block title %}
+      Title
+      {% endblock %}
+    </title>
+    
+    {% block head %}
+    {% include "header.html" %}
+    {% endblock %}
+
+    <!-- Font Awesome (for symbols and glyphs) -->
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+
+    <!-- Google Fonts (so the website handles weird unicode characters nicely) -->
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400&amp;subset=cyrillic,cyrillic-ext,greek,greek-ext,latin-ext,vietnamese"
+          rel="stylesheet">
+
+    <!-- Bootstrap core CSS -->
+    <link href="{% static 'equestria/css/bootstrap.min.css' %}" rel="stylesheet">
+
+    <!-- Material Design Bootstrap -->
+    <link href="{% static 'equestria/css/mdb.min.css' %}" rel="stylesheet">
+
+    {% block style %}
+    {% endblock %}
+  </head>
+
+  <body id="page-top">
+    {% block prebody %}
+    {% endblock %}
+
+    {% block sidebar %}
+    {% endblock %}
+
+    {% block progress %}
+    {% endblock %}
+
+    {% block fab %}
+    {% endblock %}
+
+    {% block body %}
+    {% endblock %}
+
+    {% block scripts %}
+    {% endblock %}
+  </body>
+</html>

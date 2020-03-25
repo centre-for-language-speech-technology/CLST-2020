@@ -301,3 +301,83 @@ JavaScript error: http://localhost:38303/static/fancybar/js/main.js, line 2: Typ
 1584799707473	Marionette	WARN	TLS certificate errors will be ignored for this session
 JavaScript error: http://localhost:38303/static/fancybar/js/main.js, line 2: TypeError: $(...).materialSelect is not a function
 1584799709027	Marionette	INFO	Stopped listening on port 40375
+1585150363353	mozrunner::runner	INFO	Running command: "/Applications/Firefox.app/Contents/MacOS/firefox-bin" "-marionette" "-foreground" "-no-remote" "-profile" "/var/folders/wh/wtlg969d58g34vlh4tr95wg40000gn/T/rust_mozprofileEWe5Dn"
+1585150364121	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid extension permission: mozillaAddons
+1585150364121	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid extension permission: resource://pdf.js/
+1585150364121	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid extension permission: about:reader*
+1585150365790	Marionette	INFO	Listening on port 61028
+1585150365845	Marionette	WARN	TLS certificate errors will be ignored for this session
+JavaScript error: http://localhost:61018/static/equestria/js/main.js, line 2: TypeError: $(...).materialSelect is not a function
+1585150367005	Marionette	INFO	Stopped listening on port 61028
+1585150368595	mozrunner::runner	INFO	Running command: "/Applications/Firefox.app/Contents/MacOS/firefox-bin" "-marionette" "-foreground" "-no-remote" "-profile" "/var/folders/wh/wtlg969d58g34vlh4tr95wg40000gn/T/rust_mozprofilejBYHvO"
+1585150369073	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid extension permission: mozillaAddons
+1585150369073	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid extension permission: resource://pdf.js/
+1585150369073	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid extension permission: about:reader*
+1585150370521	Marionette	INFO	Listening on port 61083
+1585150370571	Marionette	WARN	TLS certificate errors will be ignored for this session
+JavaScript error: http://localhost:61018/static/equestria/js/main.js, line 2: TypeError: $(...).materialSelect is not a function
+1585150371286	Marionette	INFO	Stopped listening on port 61083
+1585150550117	mozrunner::runner	INFO	Running command: "/Applications/Firefox.app/Contents/MacOS/firefox-bin" "-marionette" "-foreground" "-no-remote" "-profile" "/var/folders/wh/wtlg969d58g34vlh4tr95wg40000gn/T/rust_mozprofilexuoSsk"
+1585150550600	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid extension permission: mozillaAddons
+1585150550600	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid extension permission: resource://pdf.js/
+1585150550600	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid extension permission: about:reader*
+1585150552074	Marionette	INFO	Listening on port 61950
+1585150552081	Marionette	WARN	TLS certificate errors will be ignored for this session
+JavaScript error: http://localhost:61940/static/equestria/js/main.js, line 2: TypeError: $(...).materialSelect is not a function
+1585150553265	Marionette	INFO	Stopped listening on port 61950
+1585150554744	mozrunner::runner	INFO	Running command: "/Applications/Firefox.app/Contents/MacOS/firefox-bin" "-marionette" "-foreground" "-no-remote" "-profile" "/var/folders/wh/wtlg969d58g34vlh4tr95wg40000gn/T/rust_mozprofileA77Tmu"
+1585150555234	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid extension permission: mozillaAddons
+1585150555234	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid extension permission: resource://pdf.js/
+1585150555234	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid extension permission: about:reader*
+1585150556707	Marionette	INFO	Listening on port 62042
+1585150556808	Marionette	WARN	TLS certificate errors will be ignored for this session
+JavaScript error: http://localhost:61940/static/equestria/js/main.js, line 2: TypeError: $(...).materialSelect is not a function
+1585150557584	Marionette	INFO	Stopped listening on port 62042
+1585150614082	mozrunner::runner	INFO	Running command: "/Applications/Firefox.app/Contents/MacOS/firefox-bin" "-marionette" "-foreground" "-no-remote" "-profile" "/var/folders/wh/wtlg969d58g34vlh4tr95wg40000gn/T/rust_mozprofileIljO9i"
+1585150614553	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid extension permission: mozillaAddons
+1585150614553	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid extension permission: resource://pdf.js/
+1585150614553	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid extension permission: about:reader*
+1585150616011	Marionette	INFO	Listening on port 62194
+1585150616048	Marionette	WARN	TLS certificate errors will be ignored for this session
+JavaScript error: http://localhost:62186/static/equestria/js/main.js, line 2: TypeError: $(...).materialSelect is not a function
+1585150617052	Marionette	INFO	Stopped listening on port 62194
+1585150618551	mozrunner::runner	INFO	Running command: "/Applications/Firefox.app/Contents/MacOS/firefox-bin" "-marionette" "-foreground" "-no-remote" "-profile" "/var/folders/wh/wtlg969d58g34vlh4tr95wg40000gn/T/rust_mozprofilek1nnQW"
+1585150619036	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid extension permission: mozillaAddons
+1585150619037	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid extension permission: resource://pdf.js/
+1585150619037	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid extension permission: about:reader*
+1585150620523	Marionette	INFO	Listening on port 62242
+1585150620620	Marionette	WARN	TLS certificate errors will be ignored for this session
+JavaScript error: http://localhost:62186/static/equestria/js/main.js, line 2: TypeError: $(...).materialSelect is not a function
+1585150621635	Marionette	INFO	Stopped listening on port 62242
+1585150665338	mozrunner::runner	INFO	Running command: "/Applications/Firefox.app/Contents/MacOS/firefox-bin" "-marionette" "-foreground" "-no-remote" "-profile" "/var/folders/wh/wtlg969d58g34vlh4tr95wg40000gn/T/rust_mozprofilebftG4i"
+1585150665827	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid extension permission: mozillaAddons
+1585150665827	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid extension permission: resource://pdf.js/
+1585150665827	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid extension permission: about:reader*
+1585150667311	Marionette	INFO	Listening on port 62462
+1585150667391	Marionette	WARN	TLS certificate errors will be ignored for this session
+JavaScript error: http://localhost:62451/static/equestria/js/main.js, line 2: TypeError: $(...).materialSelect is not a function
+1585150669442	Marionette	INFO	Stopped listening on port 62462
+1585150670944	mozrunner::runner	INFO	Running command: "/Applications/Firefox.app/Contents/MacOS/firefox-bin" "-marionette" "-foreground" "-no-remote" "-profile" "/var/folders/wh/wtlg969d58g34vlh4tr95wg40000gn/T/rust_mozprofileSaquHJ"
+1585150671438	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid extension permission: mozillaAddons
+1585150671438	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid extension permission: resource://pdf.js/
+1585150671438	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid extension permission: about:reader*
+1585150672911	Marionette	INFO	Listening on port 62531
+1585150673007	Marionette	WARN	TLS certificate errors will be ignored for this session
+JavaScript error: http://localhost:62451/static/equestria/js/main.js, line 2: TypeError: $(...).materialSelect is not a function
+1585150674731	Marionette	INFO	Stopped listening on port 62531
+1585150824802	mozrunner::runner	INFO	Running command: "/Applications/Firefox.app/Contents/MacOS/firefox-bin" "-marionette" "-foreground" "-no-remote" "-profile" "/var/folders/wh/wtlg969d58g34vlh4tr95wg40000gn/T/rust_mozprofilet6e3Nh"
+1585150825279	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid extension permission: mozillaAddons
+1585150825280	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid extension permission: resource://pdf.js/
+1585150825280	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid extension permission: about:reader*
+1585150826759	Marionette	INFO	Listening on port 62866
+1585150826766	Marionette	WARN	TLS certificate errors will be ignored for this session
+JavaScript error: http://localhost:62856/static/equestria/js/main.js, line 2: TypeError: $(...).materialSelect is not a function
+1585150827898	Marionette	INFO	Stopped listening on port 62866
+1585150829397	mozrunner::runner	INFO	Running command: "/Applications/Firefox.app/Contents/MacOS/firefox-bin" "-marionette" "-foreground" "-no-remote" "-profile" "/var/folders/wh/wtlg969d58g34vlh4tr95wg40000gn/T/rust_mozprofileP8VXEK"
+1585150829873	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid extension permission: mozillaAddons
+1585150829874	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid extension permission: resource://pdf.js/
+1585150829874	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid extension permission: about:reader*
+1585150831328	Marionette	INFO	Listening on port 62930
+1585150831366	Marionette	WARN	TLS certificate errors will be ignored for this session
+JavaScript error: http://localhost:62856/static/equestria/js/main.js, line 2: TypeError: $(...).materialSelect is not a function
+1585150832059	Marionette	INFO	Stopped listening on port 62930

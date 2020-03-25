@@ -1,0 +1,12 @@
+<li class="nav-item {% if active == "forced" %} active {% endif %}">
+  <a class="nav-link waves-effect waves-light" href="{% url 'scripts:fa_create' %}">Forced Alignment</a>
+</li>
+<li class="nav-item {% if active == "dictionary" %} active {% endif %}">
+  <a class="nav-link waves-effect waves-light" href="{% url 'update_dictionary' %}">Update Dictionary</a>
+</li>
+<li class="nav-item {% if active == "segmentation" %} active {% endif %}">
+  <a class="nav-link waves-effect waves-light" href="{% url 'auto_segmentation' %}">Automatic Segmentation</a>
+</li>
+<li class="nav-item {% if active == "praat" %} active {% endif %}">
+  <a class="nav-link waves-effect waves-light" href="{% url 'praat_scripts' %}">Praat Scripts</a>
+</li>
