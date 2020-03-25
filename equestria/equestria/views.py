@@ -28,6 +28,7 @@ from scripts.clamhelper import (
     create_templates_from_data,
     start_clam_server,
 )
+from equestria.view_helper import *
 
 
 # Create your views here.
@@ -56,33 +57,22 @@ class GenericTemplate(TemplateView):
         return render(request, self.template_name)
 
 
-class RestrictedTemplate(TemplateView):
+class RestrictedTemplate(GenericTemplate):
     """View to render a html page without any additional features that is login restricted."""
-
-    template_name = "template.html"
-
-    def __get_profile(self, request):
-        """Retrieve profile based on user in request."""
-        user_profile = (
-            UserProfile.objects.select_related()
-            .filter(user_id=request.user.id)
-            .first()
-        )
-        return user_profile
 
     def get(self, request):
         """Respond to get request."""
         if not request.user.is_authenticated:
             return redirect("%s?next=%s" % (settings.LOGIN_URL, request.path))
         else:
-            return render(request, self.template_name)
+            return super().get()
 
     def post(self, request):
         """Respond to post request."""
         if not request.user.is_authenticated:
             return redirect("%s?next=%s" % (settings.LOGIN_URL, request.path))
         else:
-            return render(request, self.template_name)
+            return super().get()
 
 
 class WelcomePage(GenericTemplate):
