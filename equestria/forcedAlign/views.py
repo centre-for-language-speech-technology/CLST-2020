@@ -5,8 +5,8 @@ from django.http import Http404
 from django.shortcuts import render
 from django.views.generic import TemplateView
 from django.shortcuts import redirect
-from script_runner.models import Script, Profile, Process, InputTemplate
-from script_runner.clamhelper import start_project, start_clam_server
+from scripts.models import Script, Profile, Process, InputTemplate
+from scripts.clamhelper import start_project, start_clam_server
 
 # Create your views here.
 

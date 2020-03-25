@@ -13,10 +13,7 @@ urlpatterns = [
         include(("forcedAlign.urls", "forced"), namespace="forcedAlign"),
     ),
     path(
-        "scripts/",
-        include(
-            ("script_runner.urls", "script_runner"), namespace="script_runner"
-        ),
+        "scripts/", include(("scripts.urls", "scripts"), namespace="scripts"),
     ),
     path(
         "accounts/",

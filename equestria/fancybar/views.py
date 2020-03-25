@@ -2,20 +2,20 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.views.generic import TemplateView
 from django.shortcuts import render, redirect
-from script_runner.models import Script, Argument
+from scripts.models import Script, Argument
 from django.core.files.storage import FileSystemStorage
 from upload import forms as uploadForms
-from script_runner.constants import *
+from scripts.constants import *
 
-# from script_runner import backend_interface
-# from script_runner.backend_interface import ClamConfiguration
+# from scripts import backend_interface
+# from scripts.backend_interface import ClamConfiguration
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
 from django.conf import settings
-from script_runner.models import Process
-from script_runner.models import Profile
-from script_runner.models import InputTemplate
+from scripts.models import Process
+from scripts.models import Profile
+from scripts.models import InputTemplate
 import clam.common.client
 import clam.common.data
 import clam.common.status
@@ -24,10 +24,9 @@ from urllib.request import urlretrieve
 from os.path import join, exists
 from os import makedirs
 from urllib.parse import urlencode
-from script_runner.clamhelper import (
+from scripts.clamhelper import (
     create_templates_from_data,
     start_clam_server,
-    download_process,
 )
 
 
@@ -207,7 +206,7 @@ class PraatScripts(TemplateView):
 
                             return render(request, self.template_name, self.arg)
             elif request.POST.get("form_handler") == "download_process":
-                return download_process(request)
+                return download_output_files(request)
 
 
 class UploadWav(GenericTemplate):
