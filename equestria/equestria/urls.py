@@ -11,9 +11,6 @@ urlpatterns = [
     url(r"^$", WelcomePage.as_view(), name="welcome"),
     url(r"^praat_scripts$", PraatScripts.as_view(), name="praat_scripts"),
     url(
-        r"forced_alignment", ForcedAlignment.as_view(), name="forced_alignment"
-    ),
-    url(
         r"update_dictionary",
         UpdateDictionary.as_view(),
         name="update_dictionary",
