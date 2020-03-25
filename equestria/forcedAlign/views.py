@@ -19,9 +19,10 @@ class FAView(TemplateView):
     template_name = "fa-project-create.html"
 
     def get(self, request, **kwargs):
-        """Handle requests to the /forced page.
+        """
+        Handle requests to the /forced page.
 
-        Get requests are handled wihtin this class while the upload
+        Get requests are handled within this class while the upload
         post requests are handled in the upload app
         with callback URLs upload/wav and upload/txt.
         """

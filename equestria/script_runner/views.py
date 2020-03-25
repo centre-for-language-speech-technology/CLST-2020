@@ -2,6 +2,7 @@ from django.http import HttpResponseNotFound
 from django.views.generic import TemplateView
 from django.shortcuts import render, redirect
 from urllib.request import urlretrieve
+import urllib
 from os import makedirs
 from os.path import exists, basename, dirname
 from django.views.static import serve
@@ -129,10 +130,18 @@ class CLAMFetch(TemplateView):
         save_file = "scripts/{}{}".format(clam_id, path)
         if not exists(dirname(save_file)):
             makedirs(dirname(save_file))
-        urlretrieve(
-            "{}/{}/output{}".format(process.script.hostname, clam_id, path),
-            save_file,
-        )
+
+        try:
+            urlretrieve(
+                "{}/{}/output{}".format(process.script.hostname, clam_id, path),
+                save_file,
+            )
+        except urllib.error.HTTPError:
+            print(
+                "\033[91m"
+                + "ERROR. NEED TO REDIRECT TO LOCAL COPY OF OUTPUT FILE"
+                + "\033[0m"
+            )  # TODO
         return redirect(
             "script_runner:clam", path="scripts/{}/{}".format(clam_id, path),
         )
