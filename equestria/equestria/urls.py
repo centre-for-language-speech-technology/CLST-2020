@@ -25,10 +25,6 @@ urlpatterns = [
     ),
     path("upload/", include(("upload.urls", "upload"), namespace="upload")),
     path(
-        "forced/",
-        include(("forcedAlign.urls", "forced"), namespace="forcedAlign"),
-    ),
-    path(
         "scripts/", include(("scripts.urls", "scripts"), namespace="scripts"),
     ),
     path(

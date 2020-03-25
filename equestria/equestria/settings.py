@@ -42,7 +42,6 @@ INSTALLED_APPS = [
     "upload",
     "crispy_forms",
     "accounts",
-    "forcedAlign",
     "equestria",
     # "magic",
     # "libmagic",

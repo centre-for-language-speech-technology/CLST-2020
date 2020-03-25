@@ -3,7 +3,7 @@ from scripts.views import *
 
 urlpatterns = [
     path("process/<int:process>", ProcessOverview.as_view(), name="process"),
-    path("fa/", FAView.as_view(), name="FA_form"),
+    path("fa/", FAView.as_view(), name="fa_create"),
     path(
         "fa/<int:process>",
         ForcedAlignmentProjectDetails.as_view(),
@@ -19,4 +19,5 @@ urlpatterns = [
         download_process_archive,
         name="process_download",
     ),
+    path("", FAView.as_view(), name="forced-alignment"),
 ]

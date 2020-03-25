@@ -1,15 +1,14 @@
-from django.http import HttpResponseNotFound
+from django.http import HttpResponseNotFound, Http404
 from django.views.generic import TemplateView
 from django.shortcuts import render, redirect
-from urllib.request import urlretrieve
-import urllib
-from os import makedirs
-from os.path import exists, basename, dirname
+from os.path import basename, dirname
 from django.views.static import serve
 from .models import Process, Profile, InputTemplate, Script
 from django.http import JsonResponse
 from scripts.clamhelper import start_clam_server, update_script, start_project
 from django.conf import settings
+import secrets
+import os
 
 
 class ProcessOverview(TemplateView):
@@ -130,7 +129,7 @@ class JsonProcess(TemplateView):
                     - errors (true or false, if errors occurred)
                     - error_message (emtpy if no errors occurred, a message otherwise)
         """
-        key = kwargs.get("process_id")
+        key = kwargs.get("process")
         process = Process.objects.get(pk=key)
         clam_info = update_script(process)
         if clam_info is None:
@@ -180,7 +179,7 @@ class FAView(TemplateView):
             return render(request, self.template_name, {"failed": True})
         else:
             process = start_project(project_name, fa_script)
-            return redirect("forcedAlign:fa_project", project=process.id)
+            return redirect("scripts:fa_project", process=process.id)
 
 
 class ForcedAlignmentProjectDetails(TemplateView):
@@ -188,7 +187,7 @@ class ForcedAlignmentProjectDetails(TemplateView):
     template_name = "fa-project-details.html"
 
     def get(self, request, **kwargs):
-        process = Process.objects.get(id=kwargs.get("project"))
+        process = Process.objects.get(id=kwargs.get("process"))
         if process is not None:
             profiles = Profile.objects.filter(process=process)
             for profile in profiles:
@@ -212,7 +211,7 @@ class ForcedAlignmentProjectDetails(TemplateView):
 
         if self.run_profile(profile, request.FILES):
             return redirect(
-                "forcedAlign:fa_project", project=profile.process.id
+                "scripts:fa_project", process=profile.process.id
             )
         else:
             raise Http404("Something went wrong with processing the files.")
@@ -239,10 +238,9 @@ class ForcedAlignmentProjectDetails(TemplateView):
         return True
 
 
-
 def download_process_archive(request, **kwargs):
     """Download the archive containing the process files."""
-    process = Process.objects.get(pk=kwargs.get("process_id"))
+    process = Process.objects.get(pk=kwargs.get("process"))
     if process.output_file is not None:
         return serve(
             request, basename(process.output_file), dirname(process.output_file)
