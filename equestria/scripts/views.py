@@ -75,6 +75,13 @@ class FAView(TemplateView):
             )
 
     def post(self, request, **kwargs):
+        """
+        POST request for the fa-project-create page.
+
+        :param request: the request
+        :param kwargs: keyword arguments
+        :return: a render of the fa-project-create page
+        """
         project_name = request.POST.get("project-name", None)
         script_id = request.POST.get("script-id", None)
         fa_script = Script.objects.filter(forced_alignment_script=True).get(
@@ -88,18 +95,19 @@ class FAView(TemplateView):
 
 
 class ForcedAlignmentProjectDetails(TemplateView):
+    """Project overview page."""
 
     template_name = "fa-project-details.html"
 
     def get(self, request, **kwargs):
         """
-        GET request for the forced alignment project details page.
+        GET request for project overview page.
 
         :param request: the request
-        :param kwargs: the keyword arguments
-        :return: a 404 if the project is not found, a fa-project-details page otherwise
+        :param kwargs: keyword arguments
+        :return: A render of 404 or fa-project-details page
         """
-        process = Process.objects.get(id=kwargs.get("process"))
+        process = Process.objects.get(id=kwargs.get("project"))
         if process is not None:
             profiles = Profile.objects.filter(process=process)
             for profile in profiles:
@@ -115,6 +123,13 @@ class ForcedAlignmentProjectDetails(TemplateView):
             raise Http404("Project not found")
 
     def post(self, request, **kwargs):
+        """
+        POST request for project overview page.
+
+        :param request: the request
+        :param kwargs: keyword arguments
+        :return: A 404 or redirecto to the fa_project page
+        """
         profile_id = request.POST.get("profile_id", None)
         if profile_id is None:
             raise Http404("Bad request")
@@ -122,9 +137,7 @@ class ForcedAlignmentProjectDetails(TemplateView):
         profile = Profile.objects.get(pk=profile_id)
 
         if ForcedAlignmentProjectDetails.run_profile(profile, request.FILES):
-            return redirect(
-                "scripts:fa_project", process=profile.process.id
-            )
+            return redirect("scripts:fa_project", process=profile.process.id)
         else:
             raise Http404("Something went wrong with processing the files.")
 
