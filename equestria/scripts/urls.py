@@ -18,5 +18,4 @@ urlpatterns = [
         download_process_archive,
         name="process_download",
     ),
-    path("", FAView.as_view(), name="forced-alignment"),
 ]
