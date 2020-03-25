@@ -56,8 +56,6 @@ class JsonProcess(TemplateView):
 class FAView(TemplateView):
     """Class to handle get requests to the forced alignment page."""
 
-    """Forced allignment view."""
-
     template_name = "fa-project-create.html"
 
     def get(self, request, **kwargs):
