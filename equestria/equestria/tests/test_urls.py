@@ -27,18 +27,12 @@ class TestUrls(SimpleTestCase):
 
     def test_forced_alignment_resolves(self):
         """Check if forced_alignment resolves."""
-        self.name_resolves_to_class(
-            "scripts:fa_create", FAView
-        )
+        self.name_resolves_to_class("scripts:fa_create", FAView)
 
     def test_update_dictionary_resolves(self):
         """Check if update_dictionary resolves."""
-        self.name_resolves_to_class(
-            "update_dictionary", UpdateDictionary
-        )
+        self.name_resolves_to_class("update_dictionary", UpdateDictionary)
 
     def test_auto_segmentation_resolves(self):
         """Check if auto_segmentation resolves."""
-        self.name_resolves_to_class(
-            "auto_segmentation", AutoSegmentation
-        )
+        self.name_resolves_to_class("auto_segmentation", AutoSegmentation)
