@@ -38,13 +38,10 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "scripts",
-    "fancybar",
     "upload",
     "crispy_forms",
     "accounts",
     "equestria",
-    # "magic",
-    # "libmagic",
     "colorfield",
 ]
 

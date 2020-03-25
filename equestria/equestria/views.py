@@ -1,10 +1,4 @@
-from scripts.models import Script
-from upload import forms as uploadForms
-from django.conf import settings
 from equestria.view_generic import *
-
-
-# Create your views here.
 
 
 class WelcomePage(GenericTemplate):

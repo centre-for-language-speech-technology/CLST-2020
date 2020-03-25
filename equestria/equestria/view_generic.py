@@ -1,6 +1,7 @@
 from django.views.generic import TemplateView
-from django.urls import reverse
 from django.shortcuts import render, redirect
+from accounts.models import UserProfile
+from django.conf import settings
 
 
 class GenericTemplate(TemplateView):

@@ -1,22 +1,20 @@
 from django.contrib import admin
 from django.urls import include, path
-from . import settings
 from django.contrib.staticfiles.urls import static
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
-from django.conf.urls import url
 from equestria.views import *
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    url(r"^$", WelcomePage.as_view(), name="welcome"),
-    url(r"^praat_scripts$", PraatScripts.as_view(), name="praat_scripts"),
-    url(
-        r"update_dictionary",
+    path("", WelcomePage.as_view(), name="welcome"),
+    path("praat_scripts/", PraatScripts.as_view(), name="praat_scripts"),
+    path(
+        "update_dictionary/",
         UpdateDictionary.as_view(),
         name="update_dictionary",
     ),
-    url(
-        r"auto_segmentation",
+    path(
+        "auto_segmentation/",
         AutoSegmentation.as_view(),
         name="auto_segmentation",
     ),
