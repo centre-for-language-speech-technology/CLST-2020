@@ -41,7 +41,6 @@ INSTALLED_APPS = [
     "fancybar",
     "upload",
     "crispy_forms",
-    "script_runner",
     "accounts",
     "forcedAlign",
     # "magic",
