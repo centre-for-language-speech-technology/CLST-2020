@@ -1,0 +1,30 @@
+{% extends 'progbase.html' %}
+{% load static %}
+
+{% block title %}
+Forced Alignment
+{% endblock %}
+
+{% block navbaritems %}
+{% include "header.html" %}
+{% endblock %}
+
+{% block body %}
+{% for script in fa_scripts %}
+<div class="rounded shadow lighter padding">
+  <h3>Before starting the FA process, you first have to create a new project.</h3>
+  <form class="md-form" method="POST">
+    {% csrf_token %}
+    <div class="input-group mb-3">
+      <label for="project-name">Project name</label>
+      <input type="text" id="project-name" name="project-name"/>
+      <input type="hidden" id="script-id" name="script-id" value="{{ script.id }}"/>
+      <input type="submit" value="Create" class="btn btn-primary"/>
+    </div>
+  </form>
+</div>
+{% endfor %}
+{% endblock %}
+
+{% block scripts %}
+{% endblock %}
