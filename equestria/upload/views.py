@@ -7,7 +7,6 @@ from .forms import UploadTXTForm, UploadWAVForm
 from django.core.files.storage import FileSystemStorage
 from django.http import HttpResponseRedirect
 from django.contrib.auth.models import User
-from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
 import mimetypes
 
