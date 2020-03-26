@@ -27,3 +27,6 @@ jobs:
 
     - name: "Run PyDocStyle"
       run: "poetry run pydocstyle --explain --add-ignore=D100,D104 --match-dir='(?!migrations).*' equestria"
+
+    - name: "Check for dead code"
+      run: "poetry run vulture --min-confidence=90 equestria"

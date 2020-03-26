@@ -3,7 +3,6 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import login, logout
 from equestria.views import GenericTemplate
 from django.views.generic import TemplateView
-from django.http import HttpResponse
 from django.contrib import messages
 from accounts.models import UserProfile
 

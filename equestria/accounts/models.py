@@ -27,7 +27,7 @@ class UserProfile(models.Model):
         return "{}'s profile".format(self.user)
 
 
-def create_user_profile(sender, instance, created, **kwargs):
+def create_user_profile(instance, created, **kwargs):
     """Create user profile if user is created."""
     if created:
         profile, created = UserProfile.objects.get_or_create(user=instance)
