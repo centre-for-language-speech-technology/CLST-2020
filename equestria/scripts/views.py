@@ -70,8 +70,13 @@ class FAView(TemplateView):
             return redirect("%s?next=%s" % (settings.LOGIN_URL, request.path))
         else:
             fa_scripts = Script.objects.filter(forced_alignment_script=True)
+            fa_projects = Process.objects.filter(script__in=fa_scripts)
+            for project in fa_projects:
+                project.status_msg = project.get_status()
             return render(
-                request, self.template_name, {"fa_scripts": fa_scripts}
+                request,
+                self.template_name,
+                {"fa_scripts": fa_scripts, "processes": fa_projects},
             )
 
     def post(self, request, **kwargs):
