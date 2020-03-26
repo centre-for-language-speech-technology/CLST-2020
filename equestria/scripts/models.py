@@ -79,6 +79,25 @@ class Process(Model):
         """Use name of process in admin display."""
         return self.name
 
+    def get_status(self):
+        """
+        Get the status of this project in string format.
+
+        :return: a string format of self.status
+        """
+        if self.status == 0:
+            return "Ready to start"
+        elif self.status == 1:
+            return "Running"
+        elif self.status == 2:
+            return "Downloading results from CLAM server"
+        elif self.status == 3:
+            return "Done"
+        elif self.status == -1:
+            return "An error occurred"
+        else:
+            return "Unknown"
+
     class Meta:
         """
         Display configuration for admin pane.
