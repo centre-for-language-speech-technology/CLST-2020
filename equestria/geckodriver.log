@@ -381,3 +381,63 @@ JavaScript error: http://localhost:62856/static/equestria/js/main.js, line 2: Ty
 1585150831366	Marionette	WARN	TLS certificate errors will be ignored for this session
 JavaScript error: http://localhost:62856/static/equestria/js/main.js, line 2: TypeError: $(...).materialSelect is not a function
 1585150832059	Marionette	INFO	Stopped listening on port 62930
+1585214884651	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "-marionette" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofileMASefQ"
+1585214884953	addons.webextension.doh-rollout@mozilla.org	WARN	Loading extension 'doh-rollout@mozilla.org': Reading manifest: Invalid extension permission: networkStatus
+1585214885239	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid extension permission: mozillaAddons
+1585214885240	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid extension permission: telemetry
+1585214885240	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid extension permission: resource://pdf.js/
+1585214885240	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid extension permission: about:reader*
+1585214887384	Marionette	INFO	Listening on port 42733
+1585214887457	Marionette	WARN	TLS certificate errors will be ignored for this session
+JavaScript error: http://localhost:38363/static/equestria/js/main.js, line 2: TypeError: $(...).materialSelect is not a function
+1585214888278	Marionette	INFO	Stopped listening on port 42733
+1585214889211	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "-marionette" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofilekJ1eF3"
+1585214889524	addons.webextension.doh-rollout@mozilla.org	WARN	Loading extension 'doh-rollout@mozilla.org': Reading manifest: Invalid extension permission: networkStatus
+1585214889764	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid extension permission: mozillaAddons
+1585214889764	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid extension permission: telemetry
+1585214889764	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid extension permission: resource://pdf.js/
+1585214889764	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid extension permission: about:reader*
+1585214891825	Marionette	INFO	Listening on port 35635
+1585214891918	Marionette	WARN	TLS certificate errors will be ignored for this session
+JavaScript error: http://localhost:38363/static/equestria/js/main.js, line 2: TypeError: $(...).materialSelect is not a function
+1585214893046	Marionette	INFO	Stopped listening on port 35635
+1585214966285	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "-marionette" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofileCLuWUJ"
+1585214966583	addons.webextension.doh-rollout@mozilla.org	WARN	Loading extension 'doh-rollout@mozilla.org': Reading manifest: Invalid extension permission: networkStatus
+1585214966903	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid extension permission: mozillaAddons
+1585214966904	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid extension permission: telemetry
+1585214966904	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid extension permission: resource://pdf.js/
+1585214966904	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid extension permission: about:reader*
+1585214968995	Marionette	INFO	Listening on port 42627
+1585214969091	Marionette	WARN	TLS certificate errors will be ignored for this session
+JavaScript error: http://localhost:33729/static/equestria/js/main.js, line 2: TypeError: $(...).materialSelect is not a function
+1585214970901	Marionette	INFO	Stopped listening on port 42627
+1585214971870	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "-marionette" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofileHz7xCm"
+1585214972156	addons.webextension.doh-rollout@mozilla.org	WARN	Loading extension 'doh-rollout@mozilla.org': Reading manifest: Invalid extension permission: networkStatus
+1585214972457	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid extension permission: mozillaAddons
+1585214972457	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid extension permission: telemetry
+1585214972457	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid extension permission: resource://pdf.js/
+1585214972457	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid extension permission: about:reader*
+1585214974672	Marionette	INFO	Listening on port 36891
+1585214974688	Marionette	WARN	TLS certificate errors will be ignored for this session
+JavaScript error: http://localhost:33729/static/equestria/js/main.js, line 2: TypeError: $(...).materialSelect is not a function
+1585214975353	Marionette	INFO	Stopped listening on port 36891
+1585215476593	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "-marionette" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofiledxwJRM"
+1585215477007	addons.webextension.doh-rollout@mozilla.org	WARN	Loading extension 'doh-rollout@mozilla.org': Reading manifest: Invalid extension permission: networkStatus
+1585215477422	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid extension permission: mozillaAddons
+1585215477423	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid extension permission: telemetry
+1585215477423	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid extension permission: resource://pdf.js/
+1585215477423	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid extension permission: about:reader*
+1585215480464	Marionette	INFO	Listening on port 39655
+1585215480532	Marionette	WARN	TLS certificate errors will be ignored for this session
+JavaScript error: http://localhost:53197/static/equestria/js/main.js, line 2: TypeError: $(...).materialSelect is not a function
+1585215481969	Marionette	INFO	Stopped listening on port 39655
+1585215483032	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "-marionette" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofileaRGXtc"
+1585215483424	addons.webextension.doh-rollout@mozilla.org	WARN	Loading extension 'doh-rollout@mozilla.org': Reading manifest: Invalid extension permission: networkStatus
+1585215483787	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid extension permission: mozillaAddons
+1585215483787	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid extension permission: telemetry
+1585215483787	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid extension permission: resource://pdf.js/
+1585215483787	addons.webextension.screenshots@mozilla.org	WARN	Loading extension 'screenshots@mozilla.org': Reading manifest: Invalid extension permission: about:reader*
+1585215486867	Marionette	INFO	Listening on port 44483
+1585215486963	Marionette	WARN	TLS certificate errors will be ignored for this session
+JavaScript error: http://localhost:53197/static/equestria/js/main.js, line 2: TypeError: $(...).materialSelect is not a function
+1585215487986	Marionette	INFO	Stopped listening on port 44483

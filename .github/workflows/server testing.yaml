@@ -35,5 +35,8 @@ jobs:
     - name: Perform tests
       run: |
         MOZ_HEADLESS=1 poetry run python3 equestria/manage.py test equestria
-
-
+        
+    - name: Run Codecov.io
+      run: |
+        poetry run codecov -t "7fbdd375-f7ee-4229-abee-f281d33082b3"
+        poetry run bash <(curl -s https://codecov.io/bash) -t 7fbdd375-f7ee-4229-abee-f281d33082b3 -y .codecov.yml

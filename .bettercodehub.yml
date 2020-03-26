@@ -20,3 +20,5 @@ exclude:
 - .*/static/admin/.*
 - .*/jscolor.js
 - .*/migrations/.*
+- coverage.xml
+- .*/cover/.*

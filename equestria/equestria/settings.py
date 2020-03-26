@@ -43,7 +43,18 @@ INSTALLED_APPS = [
     "accounts",
     "equestria",
     "colorfield",
+    "django_nose",
 ]
+
+# Use nose to run all tests
+TEST_RUNNER = "django_nose.NoseTestSuiteRunner"
+
+NOSE_ARGS = [
+    "--with-coverage",
+    "--cover-package=equestria,accounts,scripts,upload",
+    "--cover-html",
+]
+
 
 CRISPY_TEMPLATE_PACK = "bootstrap4"
 
