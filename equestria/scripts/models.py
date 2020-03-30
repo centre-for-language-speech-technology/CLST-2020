@@ -62,6 +62,11 @@ class Script(Model):
         verbose_name_plural = "Scripts"
 
     def get_clam_server(self):
+        """
+        Get a CLAM server for handling this script.
+
+        :return: a CLAMClient
+        """
         if self.username != "" and self.password != "":
             return clam.common.client.CLAMClient(self.hostname, self.username, self.password, basicauth=True)
         else:
