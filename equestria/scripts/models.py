@@ -1,4 +1,7 @@
 from django.db.models import *
+import clam.common.client
+import clam.common.data
+import clam.common.status
 
 # Create your models here.
 
@@ -40,6 +43,9 @@ class Script(Model):
 
     forced_alignment_script = BooleanField(default=True)
 
+    username = CharField(max_length=200, blank=True)
+    password = CharField(max_length=200, blank=True)
+
     def __str__(self):
         """Use name of script in admin display."""
         return self.name
@@ -54,6 +60,12 @@ class Script(Model):
 
         ordering = ["name"]
         verbose_name_plural = "Scripts"
+
+    def get_clam_server(self):
+        if self.username != "" and self.password != "":
+            return clam.common.client.CLAMClient(self.hostname, self.username, self.password, basicauth=True)
+        else:
+            return clam.common.client.CLAMClient(self.hostname)
 
 
 class Process(Model):
