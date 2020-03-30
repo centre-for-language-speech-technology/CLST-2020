@@ -68,7 +68,9 @@ class Script(Model):
         :return: a CLAMClient
         """
         if self.username != "" and self.password != "":
-            return clam.common.client.CLAMClient(self.hostname, self.username, self.password, basicauth=True)
+            return clam.common.client.CLAMClient(
+                self.hostname, self.username, self.password, basicauth=True
+            )
         else:
             return clam.common.client.CLAMClient(self.hostname)
 
