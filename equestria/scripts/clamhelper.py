@@ -27,7 +27,7 @@ def start_project(project_name, script):
     :return: the process
     """
     random_token = secrets.token_hex(32)
-    clamclient = clam.common.client.CLAMClient(script.hostname)
+    clamclient = script.get_clam_server()
     clamclient.create(random_token)
     data = clamclient.get(random_token)
     process = Process.objects.create(
@@ -59,7 +59,7 @@ def start_clam_server(profile, argument_files):
     """Add inputs and start a clam server."""
     process_to_run = Process.objects.get(pk=profile.process.id)
     clam_server = Script.objects.get(pk=process_to_run.script.id)
-    clamclient = clam.common.client.CLAMClient(clam_server.hostname)
+    clamclient = clam_server.get_clam_server()
     for (file, template) in argument_files:
         clamclient.addinputfile(process_to_run.clam_id, template, file)
 
@@ -77,7 +77,7 @@ def update_script(process):
     """
     if process.status == STATUS_RUNNING:
         associated_script = process.script
-        clamclient = clam.common.client.CLAMClient(associated_script.hostname)
+        clamclient = associated_script.get_clam_server()
         try:
             data = clamclient.get(process.clam_id)
         except Exception as e:
@@ -114,7 +114,7 @@ def download_output_files(process, format="zip"):
     """
     try:
         associated_script = process.script
-        clamclient = clam.common.client.CLAMClient(associated_script.hostname)
+        clamclient = associated_script.get_clam_server()
         downloaded_archive = os.path.join(
             settings.DOWNLOAD_DIR, process.clam_id + ".{}".format(format)
         )
