@@ -5,10 +5,10 @@ from os.path import basename, dirname
 from django.views.static import serve
 from .models import Process, Profile, InputTemplate, Script
 from django.http import JsonResponse
-from scripts.clamhelper import start_clam_server, update_script, start_project
 from django.conf import settings
 import secrets
 import os
+from .tasks import update_script
 
 
 class JsonProcess(TemplateView):
@@ -38,19 +38,26 @@ class JsonProcess(TemplateView):
         """
         key = kwargs.get("process")
         process = Process.objects.get(pk=key)
-        clam_info = update_script(process)
-        if clam_info is None:
-            return JsonResponse({"django_status": process.status,})
-        else:
-            return JsonResponse(
-                {
-                    "clam_status": clam_info.status,
-                    "status_message": clam_info.statusmessage,
-                    "django_status": process.status,
-                    "errors": clam_info.errors,
-                    "error_message": clam_info.errormsg,
-                }
+        clam_status = process.get_status()
+        clam_msg = process.get_status_messages()
+        log_messages = JsonProcess.construct_clam_log_format(clam_msg)
+        return JsonResponse({"status": clam_status, "log": log_messages})
+
+    @staticmethod
+    def construct_clam_log_format(clam_msg):
+        """
+        Construct a JSON compatible format for CLAM log messages.
+
+        :param clam_msg: a list of LogMessage objects
+        :return: a list of dictionaries, each containing a 'time' and 'message' key with the time and message of the
+        LogMessage object
+        """
+        log_messages = []
+        for item in clam_msg:
+            log_messages.append(
+                {"time": item.time.__str__(), "message": item.message}
             )
+        return log_messages
 
 
 class FAView(TemplateView):
@@ -95,7 +102,7 @@ class FAView(TemplateView):
         if project_name is None or fa_script is None:
             return render(request, self.template_name, {"failed": True})
         else:
-            process = start_project(project_name, fa_script)
+            process = Process.create_project(project_name, fa_script)
             return redirect("scripts:fa_project", process=process.id)
 
 
@@ -165,7 +172,8 @@ class ForcedAlignmentProjectDetails(TemplateView):
                 for chunk in files[str(input_template.id)]:
                     file.write(chunk)
             argument_files.append((file_name, input_template.template_id,))
-        start_clam_server(profile, argument_files)
+        profile.process.start(argument_files)
+        update_script(profile.process.id)
         return True
 
 

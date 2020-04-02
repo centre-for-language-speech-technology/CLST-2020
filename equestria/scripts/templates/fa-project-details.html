@@ -45,10 +45,4 @@ Forced Alignment: Project
 <script src="{% static "scripts/js/process-update.js" %}"></script>
 <script src="{% static "scripts/js/validate.js" %}"></script>
 <script src="{% static "scripts/js/clock.js" %}"></script>
-<script defer>
-  $( document ).ready(function() {
-      $("#file_to_load").text("{{ process.clam_id }}" + "/{{ process.output_path }}");
-      update_console_output();
-  });
-</script>
 {% endblock %}

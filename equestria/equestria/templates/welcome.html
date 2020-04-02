@@ -12,16 +12,16 @@ Home Page
 {% endblock %}
 
 {% block navbaritems %}
-    {% include "header.html" with active="wav" %}
+{% include "header.html" with active="none" %}
 {% endblock %}
 
 {% block body %}
 <div class="rounded shadow lighter padding">
-    <h1>Welcome to Equestria!</h1>
-    <h4>With this tool you will be able to perform forced alignment and analyse the result using Praat scripts. </h4>
-    <a href="{% url 'upload:uploadwav_form' %}">
-        <span class="btn btn-dark" id="inputGroupFileAddon02">Start your adventure!</span>
-    </a>
+  <h1>Welcome to Equestria!</h1>
+  <h4>With this tool you will be able to perform forced alignment and analyse the result using Praat scripts. </h4>
+  <a href="{% url 'scripts:fa_create' %}">
+    <span class="btn btn-dark" id="inputGroupFileAddon02">Start your adventure!</span>
+  </a>
 </div>
 {% endblock %}
 

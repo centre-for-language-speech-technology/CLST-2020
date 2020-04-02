@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "scripts",
     "upload",
     "crispy_forms",
+    "background_task",
     "accounts",
     "equestria",
     "colorfield",
@@ -133,6 +134,11 @@ USE_L10N = True
 
 USE_TZ = True
 
+
+# Background task settings
+MAX_ATTEMPTS = 10
+MAX_RUN_TIME = 600
+BACKGROUND_TASK_RUN_ASYNC = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
