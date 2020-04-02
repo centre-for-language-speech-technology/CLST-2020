@@ -24,7 +24,7 @@ class Signup(GenericTemplate):
             user = form.save()
             #  log in the user
             login(request, user)
-            return redirect("fancybar:fancybar")
+            return redirect("welcome")
         else:
             # implement error handling here
             messages.info(
@@ -54,7 +54,7 @@ class Login(GenericTemplate):
             if "next" in request.POST:
                 return redirect(request.POST.get("next"))
             else:
-                return redirect("fancybar:fancybar")
+                return redirect("welcome")
         else:
             # implement error handling here
             messages.info(request, "Invalid username or password")
@@ -67,7 +67,7 @@ class Logout(TemplateView):
     def post(self, request):
         """Logout user, redirect."""
         logout(request)
-        return redirect("fancybar:fancybar")
+        return redirect("welcome")
 
 
 class Settings(GenericTemplate):
