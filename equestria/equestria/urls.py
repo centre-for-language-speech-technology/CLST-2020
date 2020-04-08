@@ -1,7 +1,5 @@
 from django.contrib import admin
 from django.urls import include, path
-from django.contrib.staticfiles.urls import static
-from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from equestria.views import *
 
 urlpatterns = [
@@ -27,6 +25,3 @@ urlpatterns = [
         include(("accounts.urls", "accounts"), namespace="accounts"),
     ),
 ]
-
-urlpatterns += staticfiles_urlpatterns()
-urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

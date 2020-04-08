@@ -1,18 +1,12 @@
-{% extends 'progbase.html' %}
+{% extends 'base.html' %}
 {% load static %}
 
 {% block title %}
-Home Page
-{% endblock %}
-
-{% block style %}
-{% endblock %}
-
-{% block prebody %}
+Equestria: Home
 {% endblock %}
 
 {% block navbaritems %}
-{% include "header.html" with active="none" %}
+{% include "pipeline.html" with active="none" %}
 {% endblock %}
 
 {% block body %}
@@ -23,7 +17,4 @@ Home Page
     <span class="btn btn-dark" id="inputGroupFileAddon02">Start your adventure!</span>
   </a>
 </div>
-{% endblock %}
-
-{% block scripts %}
 {% endblock %}

@@ -6,7 +6,7 @@ from django.urls import reverse
 class GenericViewTest(TestCase):
     """Defines utility methods for testing views."""
 
-    default_templates = ["progbase.html", "base.html", "header.html"]
+    default_templates = ["progbase.html", "base.html", "pipeline.html"]
     name = ""  # name of url as defined in urls.py
 
     def setUp(self):
@@ -90,16 +90,6 @@ class TestLoginSystem(RestrictedViewTest):
         # self.login()
         # self.response = self.client.get(reverse(self.name))
         # self.assertTrue(self.response.user.is_authenticated())
-
-
-class TestFancybar(GenericViewTest):
-    """Test the Fancybar view."""
-
-    name = "welcome"
-
-    def test_get(self):
-        """Test a get request."""
-        self.get_uses_template_and_defaults("welcome.html",)
 
 
 class TestPraatScripts(RestrictedViewTest):

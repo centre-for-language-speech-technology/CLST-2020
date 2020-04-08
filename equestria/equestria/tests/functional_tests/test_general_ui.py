@@ -69,21 +69,10 @@ class TestUI(GenericFuncTest):
     def test_welcome_test(self):
         """Test if user is greeted by welcome text."""
         self.get_page()
-        text = self.get("/html/body/div[2]/h1")
-        subtext = self.get("/html/body/div[2]/h4")
+        text = self.get("/html/body/div/h1")
+        subtext = self.get("/html/body/div/h4")
         self.assertEquals(text.text, "Welcome to Equestria!")
         self.assertEquals(
             subtext.text,
             "With this tool you will be able to perform forced alignment and analyse the result using Praat scripts.",
         )
-
-    def test_page_goes_dark_when_sidebar_is_opened(self):
-        """Test if the page goes dark when the sidebar is open."""
-        self.get_page()
-        hamburger_button = self.get("/html/body/div[1]/div[3]/button")
-        dark_overlay = self.get_id("overlay")
-        self.has_class(hamburger_button, "is-closed")
-        self.not_has_class(dark_overlay, "overlay")
-        hamburger_button.click()
-        self.has_class(hamburger_button, "is-open")
-        self.has_class(dark_overlay, "overlay")

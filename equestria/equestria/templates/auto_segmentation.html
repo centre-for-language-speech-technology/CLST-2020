@@ -1,19 +1,12 @@
 {% extends 'progbase.html' %}
-
 {% load static %}
 
 {% block title %}
-Automatic Segmentation
-{% endblock %}
-
-{% block style %}
+Equestria: Automatic Segmentation
 {% endblock %}
 
 {% block prebody %}
-{% endblock %}
-
-{% block navbaritems %}
-    {% include "header.html" with active="segmentation" %}
+    {% include "pipeline.html" with active="segmentation" %}
 {% endblock %}
 
 {% block body %}
@@ -22,7 +15,4 @@ Automatic Segmentation
     <span class="btn btn-dark">Yes</span>
     <span class="btn btn-dark">No</span>
 </div>
-{% endblock %}
-
-{% block scripts %}
 {% endblock %}

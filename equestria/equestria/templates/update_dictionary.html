@@ -6,14 +6,8 @@
 Update Dictionary
 {% endblock %}
 
-{% block style %}
-{% endblock %}
-
 {% block prebody %}
-{% endblock %}
-
-{% block navbaritems %}
-    {% include "header.html" with active="dictionary" %}
+    {% include "pipeline.html" with active="dictionary" %}
 {% endblock %}
 
 {% block body %}
@@ -21,7 +15,4 @@ Update Dictionary
     <!-- TODO: which words are not in the dictionary? -> proceed accordingly -->
     <span class="btn btn-dark">Update dictionary</span>
 </div>
-{% endblock %}
-
-{% block scripts %}
 {% endblock %}

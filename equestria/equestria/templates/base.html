@@ -170,7 +170,7 @@
     <!-- Bootstrap core JavaScript -->
     <script type="text/javascript" src="{% static 'equestria/js/bootstrap.min.js' %}"></script>
     <!-- MDB core JavaScript -->
-    <script type="text/javascript" src="{% static 'equestria/js/mdb.min.js' %}"></script>
+
     <!-- Main script -->
     <script type="text/javascript" src="{% static 'equestria/js/main.js' %}"></script>
 
@@ -179,13 +179,9 @@
       Title
       {% endblock %}
     </title>
-    
-    {% block head %}
-    {% include "header.html" %}
-    {% endblock %}
 
     <!-- Font Awesome (for symbols and glyphs) -->
-    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+    <script src="{% static 'equestria/fontawesome/js/all.min.js' %}" crossorigin="anonymous"></script>
 
     <!-- Google Fonts (so the website handles weird unicode characters nicely) -->
     <link href="https://fonts.googleapis.com/css?family=Roboto:300,400&amp;subset=cyrillic,cyrillic-ext,greek,greek-ext,latin-ext,vietnamese"
@@ -200,18 +196,11 @@
     {% block style %}
     {% endblock %}
   </head>
-
   <body id="page-top">
+  {% block header %}
+    {% include 'header.html' %}
+  {% endblock %}
     {% block prebody %}
-    {% endblock %}
-
-    {% block sidebar %}
-    {% endblock %}
-
-    {% block progress %}
-    {% endblock %}
-
-    {% block fab %}
     {% endblock %}
 
     {% block body %}

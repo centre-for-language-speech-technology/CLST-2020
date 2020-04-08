@@ -8,3 +8,4 @@ db.sqlite3
 geckodriver.log
 outputs/
 tmp/
+geckodriver.log

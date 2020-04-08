@@ -22,3 +22,4 @@ exclude:
 - .*/migrations/.*
 - coverage.xml
 - .*/cover/.*
+- /equestria/equestria/static/equestria/fontawesome/.*
