@@ -10,23 +10,18 @@ Forced Alignment
 {% endblock %}
 
 {% block body %}
-    {% if fa_scripts %}
+    {% if fa_form %}
         <div class="rounded shadow lighter padding mb-3">
             <h3>Forced Alignment scripts</h3>
-            {% for script in fa_scripts %}
-                <div class="rounded shadow lighter padding mb-3">
-                  <h3>{{ script.name }}</h3>
-                  <form class="md-form" method="POST">
-                    {% csrf_token %}
-                    <div class="input-group mb-3">
-                      <label for="project-name">Project name</label>
-                      <input type="text" id="project-name" name="project-name"/>
-                      <input type="hidden" id="script-id" name="script-id" value="{{ script.id }}"/>
-                      <input type="submit" value="Create" class="btn btn-primary"/>
-                    </div>
-                  </form>
+            <div class="rounded shadow lighter padding mb-3">
+              <form class="md-form" method="POST">
+                {% csrf_token %}
+                <div class="input-group mb-3">
+                  {{ fa_form }}
+                  <input type="submit" value="Create" class="btn btn-primary"/>
                 </div>
-            {% endfor %}
+              </form>
+            </div>
         </div>
     {% endif %}
     {% if processes %}

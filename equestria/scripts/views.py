@@ -8,6 +8,7 @@ from django.http import JsonResponse
 from django.conf import settings
 import secrets
 import os
+from .forms import ProjectCreateForm
 from .tasks import update_script
 
 
@@ -77,13 +78,14 @@ class FAView(TemplateView):
             return redirect("%s?next=%s" % (settings.LOGIN_URL, request.path))
         else:
             fa_scripts = Script.objects.filter(forced_alignment_script=True)
+            form = ProjectCreateForm(None, scripts=fa_scripts)
             fa_projects = Process.objects.filter(script__in=fa_scripts)
             for project in fa_projects:
                 project.status_msg = project.get_status()
             return render(
                 request,
                 self.template_name,
-                {"fa_scripts": fa_scripts, "processes": fa_projects},
+                {"fa_form": form, "processes": fa_projects},
             )
 
     def post(self, request, **kwargs):
@@ -94,16 +96,24 @@ class FAView(TemplateView):
         :param kwargs: keyword arguments
         :return: a render of the fa-project-create page
         """
-        project_name = request.POST.get("project-name", None)
-        script_id = request.POST.get("script-id", None)
-        fa_script = Script.objects.filter(forced_alignment_script=True).get(
-            id=script_id
-        )
-        if project_name is None or fa_script is None:
-            return render(request, self.template_name, {"failed": True})
-        else:
+        fa_scripts = Script.objects.filter(forced_alignment_script=True)
+        form = ProjectCreateForm(request.POST, scripts=fa_scripts)
+        fa_projects = Process.objects.filter(script__in=fa_scripts)
+        for project in fa_projects:
+            project.status_msg = project.get_status()
+        if form.is_valid():
+            script_id = form.cleaned_data.get("script")
+            project_name = form.cleaned_data.get("project_name")
+            fa_script = Script.objects.filter(forced_alignment_script=True).get(
+                id=script_id
+            )
             process = Process.create_project(project_name, fa_script)
             return redirect("scripts:fa_project", process=process.id)
+        return render(
+            request,
+            self.template_name,
+            {"fa_form": form, "processes": fa_projects},
+        )
 
 
 class ForcedAlignmentProjectDetails(TemplateView):
