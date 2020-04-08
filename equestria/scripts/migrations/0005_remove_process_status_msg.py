@@ -6,12 +6,9 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('scripts', '0004_logmessage'),
+        ("scripts", "0004_logmessage"),
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='process',
-            name='status_msg',
-        ),
+        migrations.RemoveField(model_name="process", name="status_msg",),
     ]

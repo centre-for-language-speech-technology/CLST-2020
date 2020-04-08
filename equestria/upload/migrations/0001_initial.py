@@ -7,21 +7,31 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='File',
+            name="File",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('owner', models.CharField(max_length=30)),
-                ('timestamp', models.DateTimeField(auto_now_add=True)),
-                ('path', models.FilePathField(path='/Users/lars/Documents/GitHub/CLST-2020/equestria/media/')),
-                ('filetype', models.CharField(max_length=30)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("owner", models.CharField(max_length=30)),
+                ("timestamp", models.DateTimeField(auto_now_add=True)),
+                (
+                    "path",
+                    models.FilePathField(
+                        path="/Users/lars/Documents/GitHub/CLST-2020/equestria/media/"
+                    ),
+                ),
+                ("filetype", models.CharField(max_length=30)),
             ],
-            options={
-                'verbose_name_plural': 'Files',
-            },
+            options={"verbose_name_plural": "Files",},
         ),
     ]

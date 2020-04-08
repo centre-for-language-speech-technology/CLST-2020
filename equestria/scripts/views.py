@@ -6,6 +6,7 @@ from django.views.static import serve
 from .models import Process, Profile, InputTemplate, Script
 from django.http import JsonResponse
 from django.conf import settings
+from django.contrib.auth.mixins import LoginRequiredMixin
 import secrets
 import os
 from .forms import ProjectCreateForm
@@ -61,8 +62,11 @@ class JsonProcess(TemplateView):
         return log_messages
 
 
-class FAView(TemplateView):
+class FAView(LoginRequiredMixin, TemplateView):
     """Class to handle get requests to the forced alignment page."""
+
+    login_url = "/accounts/login/"
+    redirect_field_name = "redirect_to"
 
     template_name = "fa-project-create.html"
 
@@ -74,19 +78,16 @@ class FAView(TemplateView):
         post requests are handled in the upload app
         with callback URLs upload/wav and upload/txt.
         """
-        if not request.user.is_authenticated:
-            return redirect("%s?next=%s" % (settings.LOGIN_URL, request.path))
-        else:
-            fa_scripts = Script.objects.filter(forced_alignment_script=True)
-            form = ProjectCreateForm(None, scripts=fa_scripts)
-            fa_projects = Process.objects.filter(script__in=fa_scripts)
-            for project in fa_projects:
-                project.status_msg = project.get_status()
-            return render(
-                request,
-                self.template_name,
-                {"fa_form": form, "processes": fa_projects},
-            )
+        fa_scripts = Script.objects.filter(forced_alignment_script=True)
+        form = ProjectCreateForm(None, scripts=fa_scripts)
+        fa_projects = Process.objects.filter(script__in=fa_scripts)
+        for project in fa_projects:
+            project.status_msg = project.get_status()
+        return render(
+            request,
+            self.template_name,
+            {"fa_form": form, "processes": fa_projects},
+        )
 
     def post(self, request, **kwargs):
         """

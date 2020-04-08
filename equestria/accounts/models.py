@@ -3,6 +3,8 @@ from django.db.models.signals import post_save
 from django.contrib.auth.models import User
 from colorfield.fields import ColorField
 
+"""Module containing models used in accounts app."""
+
 
 class UserProfile(models.Model):
     """Store information about users."""

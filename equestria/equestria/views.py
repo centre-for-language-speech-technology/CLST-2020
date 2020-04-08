@@ -1,4 +1,5 @@
 from equestria.view_generic import *
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 
 class WelcomePage(GenericTemplate):

@@ -6,13 +6,11 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('scripts', '0002_auto_20200330_1500'),
+        ("scripts", "0002_auto_20200330_1500"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='process',
-            name='status_msg',
-            field=models.TextField(blank=True),
+            model_name="process", name="status_msg", field=models.TextField(blank=True),
         ),
     ]

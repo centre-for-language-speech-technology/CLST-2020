@@ -16,6 +16,7 @@ class File(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
     path = models.FilePathField(path=os.path.join(BASE_DIR, "media/"))
     filetype = models.CharField(max_length=30)
+    usage = models.CharField(max_length=30)
 
     def __str__(self):
         """Use name of script in admin display."""

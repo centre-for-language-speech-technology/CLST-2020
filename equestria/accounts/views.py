@@ -5,6 +5,13 @@ from equestria.views import GenericTemplate
 from django.views.generic import TemplateView
 from django.contrib import messages
 from accounts.models import UserProfile
+from upload.models import File
+from upload.forms import UploadTXTForm, UploadWAVForm
+from .forms import AudioSelectForm
+from django.core.files.storage import FileSystemStorage
+from django.contrib.auth.mixins import LoginRequiredMixin
+
+"""Module serving responses to user upon request."""
 
 
 class Signup(GenericTemplate):
@@ -70,8 +77,11 @@ class Logout(TemplateView):
         return redirect("welcome")
 
 
-class Settings(GenericTemplate):
+class Settings(LoginRequiredMixin, GenericTemplate):
     """Page to configure user settings."""
+
+    login_url = "/accounts/login/"
+    redirect_field_name = "redirect_to"
 
     template = "accounts/settings.html"
 
@@ -116,3 +126,26 @@ class Settings(GenericTemplate):
 
         arg = {"profile": user_profile}
         return render(request, self.template, arg)
+
+
+class Overview(LoginRequiredMixin, GenericTemplate):
+    """Page to display user files and stuff."""
+
+    login_url = "/accounts/login/"
+    redirect_field_name = "redirect_to"
+
+    template = "accounts/overview.html"
+
+    def get(self, request):
+        """Display files."""
+        files = File.objects.all().filter(owner=request.user.username)
+        audioSelectForm = AudioSelectForm(user=request.user)
+        wavForm = UploadWAVForm()
+        txtForm = UploadTXTForm()
+        context = {
+            "files": files,
+            "WAVform": wavForm,
+            "TXTform": txtForm,
+            "audioSelect": audioSelectForm,
+        }
+        return render(request, self.template, context)

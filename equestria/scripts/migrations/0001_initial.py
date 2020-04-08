@@ -8,85 +8,154 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Process',
+            name="Process",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=512)),
-                ('clam_id', models.CharField(blank=True, max_length=256)),
-                ('output_path', models.CharField(default='output/error.log', max_length=512)),
-                ('status', models.IntegerField(default=0)),
-                ('output_file', models.CharField(blank=True, default=None, max_length=512, null=True)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=512)),
+                ("clam_id", models.CharField(blank=True, max_length=256)),
+                (
+                    "output_path",
+                    models.CharField(default="output/error.log", max_length=512),
+                ),
+                ("status", models.IntegerField(default=0)),
+                (
+                    "output_file",
+                    models.CharField(
+                        blank=True, default=None, max_length=512, null=True
+                    ),
+                ),
             ],
-            options={
-                'verbose_name_plural': 'Processes',
-                'ordering': ['name'],
-            },
+            options={"verbose_name_plural": "Processes", "ordering": ["name"],},
         ),
         migrations.CreateModel(
-            name='Script',
+            name="Script",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=512)),
-                ('hostname', models.URLField()),
-                ('img', models.ImageField(blank=True, help_text='Thumbnail to symbolize script', upload_to='script_img')),
-                ('description', models.TextField(blank=True, max_length=32768)),
-                ('forced_alignment_script', models.BooleanField(default=True)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=512)),
+                ("hostname", models.URLField()),
+                (
+                    "img",
+                    models.ImageField(
+                        blank=True,
+                        help_text="Thumbnail to symbolize script",
+                        upload_to="script_img",
+                    ),
+                ),
+                ("description", models.TextField(blank=True, max_length=32768)),
+                ("forced_alignment_script", models.BooleanField(default=True)),
             ],
-            options={
-                'verbose_name_plural': 'Scripts',
-                'ordering': ['name'],
-            },
+            options={"verbose_name_plural": "Scripts", "ordering": ["name"],},
         ),
         migrations.CreateModel(
-            name='Profile',
+            name="Profile",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('process', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='scripts.Process')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "process",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="scripts.Process",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Profile',
-                'verbose_name_plural': 'Profiles',
-                'ordering': ['id'],
+                "verbose_name": "Profile",
+                "verbose_name_plural": "Profiles",
+                "ordering": ["id"],
             },
         ),
         migrations.AddField(
-            model_name='process',
-            name='script',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='scripts.Script'),
+            model_name="process",
+            name="script",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="scripts.Script",
+            ),
         ),
         migrations.CreateModel(
-            name='InputTemplate',
+            name="InputTemplate",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('template_id', models.CharField(max_length=1024)),
-                ('format', models.CharField(max_length=1024)),
-                ('label', models.CharField(max_length=1024)),
-                ('mime', models.CharField(default='text/plain', max_length=1024)),
-                ('extension', models.CharField(max_length=32)),
-                ('optional', models.BooleanField()),
-                ('unique', models.BooleanField()),
-                ('accept_archive', models.BooleanField()),
-                ('corresponding_profile', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='scripts.Profile')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("template_id", models.CharField(max_length=1024)),
+                ("format", models.CharField(max_length=1024)),
+                ("label", models.CharField(max_length=1024)),
+                ("mime", models.CharField(default="text/plain", max_length=1024)),
+                ("extension", models.CharField(max_length=32)),
+                ("optional", models.BooleanField()),
+                ("unique", models.BooleanField()),
+                ("accept_archive", models.BooleanField()),
+                (
+                    "corresponding_profile",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="scripts.Profile",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Input template',
-                'verbose_name_plural': 'Input templates',
-                'ordering': ['id'],
+                "verbose_name": "Input template",
+                "verbose_name_plural": "Input templates",
+                "ordering": ["id"],
             },
         ),
         migrations.CreateModel(
-            name='InputFile',
+            name="InputFile",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=512)),
-                ('input_file', models.FilePathField(path='uploads/')),
-                ('description', models.TextField(max_length=32768)),
-                ('associated_process', models.ManyToManyField(default=None, to='scripts.Process')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=512)),
+                ("input_file", models.FilePathField(path="uploads/")),
+                ("description", models.TextField(max_length=32768)),
+                (
+                    "associated_process",
+                    models.ManyToManyField(default=None, to="scripts.Process"),
+                ),
             ],
         ),
     ]

@@ -16,17 +16,60 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='UserProfile',
+            name="UserProfile",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('favorite_pony', models.CharField(default='Tree Hugger', max_length=1024)),
-                ('theme', models.IntegerField(choices=[(1, 'Princess Luna'), (2, 'King Sombra'), (3, 'Shining Armor'), (4, 'Pinkie Pie')], default=1)),
-                ('background_color', colorfield.fields.ColorField(default='#292929', max_length=18)),
-                ('background_lighter', colorfield.fields.ColorField(default='#373737', max_length=18)),
-                ('accent_color', colorfield.fields.ColorField(default='#18bc9c', max_length=18)),
-                ('accent_darker', colorfield.fields.ColorField(default='#1c613f', max_length=18)),
-                ('text_color', colorfield.fields.ColorField(default='#ffeeee', max_length=18)),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "favorite_pony",
+                    models.CharField(default="Tree Hugger", max_length=1024),
+                ),
+                (
+                    "theme",
+                    models.IntegerField(
+                        choices=[
+                            (1, "Princess Luna"),
+                            (2, "King Sombra"),
+                            (3, "Shining Armor"),
+                            (4, "Pinkie Pie"),
+                        ],
+                        default=1,
+                    ),
+                ),
+                (
+                    "background_color",
+                    colorfield.fields.ColorField(default="#292929", max_length=18),
+                ),
+                (
+                    "background_lighter",
+                    colorfield.fields.ColorField(default="#373737", max_length=18),
+                ),
+                (
+                    "accent_color",
+                    colorfield.fields.ColorField(default="#18bc9c", max_length=18),
+                ),
+                (
+                    "accent_darker",
+                    colorfield.fields.ColorField(default="#1c613f", max_length=18),
+                ),
+                (
+                    "text_color",
+                    colorfield.fields.ColorField(default="#ffeeee", max_length=18),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
     ]

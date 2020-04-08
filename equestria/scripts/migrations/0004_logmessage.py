@@ -7,18 +7,32 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('scripts', '0003_process_status_msg'),
+        ("scripts", "0003_process_status_msg"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='LogMessage',
+            name="LogMessage",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('time', models.DateTimeField()),
-                ('message', models.CharField(max_length=16384)),
-                ('index', models.PositiveIntegerField()),
-                ('process', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='scripts.Process')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("time", models.DateTimeField()),
+                ("message", models.CharField(max_length=16384)),
+                ("index", models.PositiveIntegerField()),
+                (
+                    "process",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="scripts.Process",
+                    ),
+                ),
             ],
         ),
     ]

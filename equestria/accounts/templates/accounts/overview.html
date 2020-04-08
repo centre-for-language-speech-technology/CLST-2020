@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+
+{% load crispy_forms_tags %}
+
+{% load static %}
+
+{% block title %}
+Settings
+{% endblock %}
+
+{% block style %}
+{% endblock %}
+
+{% block prebody %}
+
+
+<script>function uploadWav(event) {
+    event.preventDefault(); // prevent page reload
+
+    var data = new FormData($('WAVform').get(0));
+    
+    $.ajax({
+        url: $(this).attr('action'),
+        type: $(this).attr('method'),
+        data: data,
+        cache: false,
+        processData: false,
+        contentType: false,
+        success: function(data) {
+            alert('success');
+        }
+    }).fail(function(err){
+        alert("not nice")
+    });
+    return false;
+    }
+    
+    $(function() {
+        $('WAVform').submit(uploadWav);
+    });</script>
+
+<script>function uploadTXT(event) {
+    event.preventDefault();
+    var data = new FormData($('TXTform').get(0));
+    $.ajax({
+        url: $(this).attr('action'),
+        type: $(this).attr('method'),
+        data: data,
+        cache: false,
+        processData: false,
+        contentType: false,
+        success: function(data) {
+            alert('success');
+        }
+    });
+    return false;
+    }
+    
+    $(function() {
+        $('TXTform').submit(uploadTXT);
+    });</script>
+{% endblock %}
+{% block navbaritems %}
+{% endblock %}
+
+{% block body %}
+{% if user.is_authenticated %}
+<h1>{{ user.username }}'s Overview Page</h1>
+<br />
+
+<div class="rounded shadow lighter padding">
+    <h3>Upload an audio (.wav) file:</h3>
+    <form class="md-form" action="/upload/wav" method="post" enctype="multipart/form-data">
+        <div class="input-group mb-3">
+            <div class="custom-file">
+                {% crispy WAVform %}
+                {%csrf_token%}
+                <input type="submit" name="WAVform" value="Submit" class="btn btn-primary" id="upload-wav-btn">
+            </div>
+        </div>
+    </form>
+</div>
+
+<div class="rounded shadow lighter padding">
+    <h3>Upload a transcript (.txt/.tg) file:</h3>
+    <form class="md-form" action="/upload/txt" method="post" enctype="multipart/form-data">
+        <div class="input-group mb-3">
+            <div class="custom-file">
+                {% crispy TXTform %}
+                {%csrf_token%}
+                <input type="submit" name="TXTform" value="Submit" class="btn btn-primary" id="upload-txt-btn">
+            </div>
+        </div>
+    </form>
+</div>
+
+<div class="rounded shadow lighter padding">
+    <h3>Your transscript Files:</h3>
+    <form class="md-form" action="{% url 'accounts:overview' %}" method="post" enctype="multipart/form-data">
+        <div class="input-group mb-3">
+            {{ audioSelect }}
+            {%csrf_token%}
+            <input type="submit" name="TXTform" value="Submit" class="btn btn-primary" id="upload-txt-btn">
+        </div>
+    </form>
+</div>
+
+
+
+{% for file in  files %}
+       <p> {{ file }} </p>
+  {% endfor %}
+
+{% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'fancybar/js/jscolor.js' %}"></script>
+{% endblock %}
