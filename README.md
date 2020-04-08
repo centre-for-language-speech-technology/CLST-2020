@@ -22,7 +22,7 @@ Starting the Django server
 7. `./manage.py loaddata clam` to load the test CLAM server into the database
 8. `./manage.py createsuperuser` to create the first user
 9. `./manage.py runserver` to run a testing server
-
+10 `./manage.py process_tasks`to run the background tasks (glue between django and CLAM, for update status etc).
 Starting the CLAM test server
 
 1. In another shell, execute `cd fa-clam`.
