@@ -8,7 +8,32 @@ authors = ["GiPHouse <unknown@unknown.com>"]
 python = "^3.7"
 django = "^3.0.3"
 pillow = "^7.0.0"
+django-crispy-forms = "^1.9.0"
+requests = "^2.23.0"
+django-colorfield = "^0.2.1"
+black = "^19.10b0"
+clam = "^3.0.11"
+coverage = "^5.0.4"
+selenium = "^3.141.0"
+vulture = "^1.3"
+django-nose = "^1.4.6"
+codecov = "^2.0.22"
+django-background-tasks = "^1.2.5"
 
+
+[tool.poetry.dev-dependencies]
+pydocstyle = "^5.0"
+black = {version = "^19.10b0"}
+
+[tool.black]
+line-length = 80
+target-version = ["py37"]
+exclude = '''
+/(
+  migrations
+)/
+'''
 [build-system]
 requires = ["poetry>=0.12"]
 build-backend = "poetry.masonry.api"
+

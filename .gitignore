@@ -4,4 +4,8 @@
 venv/
 *.egg-info/
 equestria.egg-info/
-
+db.sqlite3
+geckodriver.log
+outputs/
+tmp/
+geckodriver.log

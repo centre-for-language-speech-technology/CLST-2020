@@ -1,17 +1,36 @@
+{% extends 'base.html' %}
 {% load static %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Sign Up</title>
-</head>
-<body>
-    <h1>Signup</h1>
-    <form class="site-form" action="{% url 'accounts:signup' %}" method="post">
-        {% csrf_token %}
-        {{ form }}
-        <input type="submit" value="Signup">
-    </form>
-</body>
-</html>
+{% block title %}
+    Equestria: Sign up
+{% endblock %}
+{% block style %}
+    <link rel="stylesheet" href="{% static 'accounts/css/centered-container.css' %}">
+{% endblock %}
+{% block header %}
+    {% include 'accounts/authentication-header.html' %}
+{% endblock %}
+{% block body %}
+    <div class="container-sm flex-container">
+        <div class="container-centered shadow padding">
+            <h1>Signup</h1>
+            {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+            <form class="site-form centered-form" action="{% url 'accounts:signup' %}" method="post">
+                {% csrf_token %}
+                {{ form }}
+                <input type="submit" value="Signup" class="btn btn-primary">
+            </form>
+            <div class="container-fluid mb-3">
+                    <a class="text-center" href="{% url "accounts:login" %}">Log in</a> |
+                    <a class="text-center" href="#">Forgotten password</a>
+                </div>
+                <a href="{% url 'welcome' %}"> ← Back to Equestria</a>
+            </div>
+    </div>
+{% endblock %}

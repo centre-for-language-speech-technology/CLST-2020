@@ -1,0 +1,12 @@
+[
+  {
+    "model": "scripts.Script",
+    "pk": 1,
+    "fields": {
+      "name": "Test scipt on port 8080",
+      "hostname": "http://localhost:8080",
+      "img": "",
+      "description": "Test script for a running CLAM server on port 8080"
+    }
+  }
+]

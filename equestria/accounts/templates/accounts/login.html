@@ -1,21 +1,39 @@
+{% extends 'base.html' %}
 {% load static %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Log In</title>
-</head>
-<body>
-    <h1>Log in</h1>
-    <form class="site-form" action="{% url 'accounts:login' %}" method="post">
-        {% csrf_token %}
-        {{ form }}
-        {% if request.GET.next %}
-            <input type="hidden" name="next" value="{{ request.GET.next }}" />
-        {% endif %}
-        <input type="submit" value="Login" />
-    </form>
-    <p>Not got an account? <a href="{% url 'accounts:signup' %}">Sign Up</a></p>
-</body>
-</html>
+{% block title %}
+    Equestria: Log in
+{% endblock %}
+{% block style %}
+    <link rel="stylesheet" href="{% static 'accounts/css/centered-container.css' %}">
+{% endblock %}
+{% block header %}
+    {% include 'accounts/authentication-header.html' %}
+{% endblock %}
+{% block body %}
+    <div class="container-sm flex-container">
+        <div class="container-centered shadow padding">
+            <h1>Log in</h1>
+            {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+            <form class="site-form centered-form" action="{% url 'accounts:login' %}" method="post">
+                {% csrf_token %}
+                {{ form }}
+                {% if request.GET.next %}
+                    <input type="hidden" name="next" value="{{ request.GET.next }}" />
+                {% endif %}
+                <input type="submit" value="Login" class="btn btn-primary" />
+            </form>
+            <div class="container-fluid mb-3">
+                <a class="text-center" href="{% url "accounts:signup" %}">Sign up</a> |
+                <a class="text-center" href="#">Forgotten password</a>
+            </div>
+            <a href="{% url 'welcome' %}"> ← Back to Equestria</a>
+        </div>
+    </div>
+{% endblock %}

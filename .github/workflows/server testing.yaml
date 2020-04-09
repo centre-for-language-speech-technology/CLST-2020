@@ -1,0 +1,42 @@
+name: "Server testing"
+on:
+  push:
+    branches: [CI/*]
+  pull_request:
+    branches: [ master ]
+    
+env:
+  CODECOV_TOKEN: "7fbdd375-f7ee-4229-abee-f281d33082b3"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.7]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python-version }}
+  
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install poetry
+        poetry install
+
+    - name: Check server
+      run: |
+        poetry run python3 equestria/manage.py check
+
+    - name: Perform tests
+      run: |
+        MOZ_HEADLESS=1 poetry run python3 equestria/manage.py test equestria
+        
+    - name: Run Codecov.io
+      run: |
+        poetry run codecov -t "7fbdd375-f7ee-4229-abee-f281d33082b3"
+        poetry run bash <(curl -s https://codecov.io/bash) -t 7fbdd375-f7ee-4229-abee-f281d33082b3 -y .codecov.yml
