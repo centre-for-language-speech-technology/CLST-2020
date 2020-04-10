@@ -71,10 +71,26 @@ class Login(GenericTemplate):
 class Logout(TemplateView):
     """Page to logout."""
 
-    def post(self, request):
-        """Logout user, redirect."""
-        logout(request)
-        return redirect("welcome")
+    template_name = "accounts/logout.html"
+
+    def get(self, request, *args, **kwargs):
+        """
+        GET request for logout view.
+
+        :param request: the request
+        :param kwargs: keyword arguments
+        :return: a render of the logout page or a redirect to the next parameter or home page
+        """
+        next_page = request.GET.get("next")
+        if request.user.is_authenticated:
+            logout(request)
+            if next_page:
+                return redirect(next_page)
+            return render(request, self.template_name)
+        else:
+            if next_page:
+                return redirect(next_page)
+            return redirect("/")
 
 
 class Settings(LoginRequiredMixin, GenericTemplate):

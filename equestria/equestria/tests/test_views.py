@@ -107,13 +107,13 @@ class TestPraatScripts(RestrictedViewTest):
 class TestForcedAlignment(RestrictedViewTest):
     """Test the ForcedAlignment view."""
 
-    name = "scripts:fa_create"
+    name = "scripts:projects"
 
     def test_get(self):
         """Test a get request."""
         self.redirects_to_login()
         self.login()
-        self.get_uses_template_and_defaults("fa-project-create.html")
+        self.get_uses_template_and_defaults("project-overview.html")
 
 
 class TestUpdateDictionary(RestrictedViewTest):

@@ -1,6 +1,11 @@
 from django import forms
 from django.contrib.auth import get_user_model
-from .models import Process, Script
+from .models import Project, Pipeline
+from django.core.validators import RegexValidator
+
+alphanumeric = RegexValidator(
+    r"^[0-9a-zA-Z]*$", "Only alphanumeric characters are allowed."
+)
 
 User = get_user_model()
 
@@ -8,23 +13,26 @@ User = get_user_model()
 class ProjectCreateForm(forms.Form):
     """Form for project creation."""
 
-    project_name = forms.CharField(label="Project name", required=True)
-    script = forms.ChoiceField(choices=[])
+    project_name = forms.CharField(
+        label="Project name", required=True, validators=[alphanumeric]
+    )
+    pipeline = forms.ChoiceField(choices=[])
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, user, *args, **kwargs):
         """
         Initialise method for ProjectCreateForm.
 
         :param args: argument
         :param kwargs: keyword arguments containing a scripts variable with Script objects
         """
-        scripts = kwargs.pop("scripts", None)
+        self.user = user
+        pipelines = kwargs.pop("pipelines", None)
         super(ProjectCreateForm, self).__init__(*args, **kwargs)
         choices = []
-        if scripts is not None:
-            for script in scripts:
-                choices.append((script.id, script.name))
-            self.fields["script"].choices = choices
+        if pipelines is not None:
+            for pipeline in pipelines:
+                choices.append((pipeline.id, pipeline.name))
+            self.fields["pipeline"].choices = choices
 
     def clean_project_name(self):
         """
@@ -34,21 +42,21 @@ class ProjectCreateForm(forms.Form):
         """
         project_name = self.cleaned_data.get("project_name")
 
-        project_qs = Process.objects.filter(name=project_name)
+        project_qs = Project.objects.filter(name=project_name, user=self.user)
         if project_qs.exists():
             raise forms.ValidationError("This project does already exist")
 
         return project_name
 
-    def clean_script(self):
+    def clean_pipeline(self):
         """
         Clean the script variable in this form.
 
         :return: the cleaned script variable
         """
-        script = self.cleaned_data.get("script")
-        script_qs = Script.objects.filter(id=script)
-        if not script_qs.exists():
-            raise forms.ValidationError("This script does not exist")
+        pipeline = self.cleaned_data.get("pipeline")
+        pipeline_qs = Pipeline.objects.filter(id=pipeline)
+        if not pipeline_qs.exists():
+            raise forms.ValidationError("This pipeline does not exist")
 
-        return script
+        return pipeline

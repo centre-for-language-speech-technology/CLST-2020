@@ -3,10 +3,31 @@
     "model": "scripts.Script",
     "pk": 1,
     "fields": {
-      "name": "Test scipt on port 8080",
-      "hostname": "http://localhost:8080",
-      "img": "",
-      "description": "Test script for a running CLAM server on port 8080"
+      "name": "Dutch Forced Alignment",
+      "hostname": "https://webservices-lst.science.ru.nl/forcedalignment",
+      "description": "Dutch Forced Alignment",
+      "username": "clst",
+      "password": ""
+    }
+  },
+  {
+    "model": "scripts.Script",
+    "pk": 2,
+    "fields": {
+      "name": "Dutch G2P service",
+      "hostname": "https://webservices-lst.science.ru.nl/g2pservice",
+      "description": "Dutch G2P service",
+      "username": "clst",
+      "password": ""
+    }
+  },
+  {
+    "model": "scripts.Pipeline",
+    "pk": 1,
+    "fields": {
+      "name": "Dutch Forced Alignment pipeline",
+      "fa_script": 1,
+      "g2p_script": 2
     }
   }
 ]

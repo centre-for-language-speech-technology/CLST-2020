@@ -9,6 +9,7 @@ import logging
 from django.conf import settings
 import os
 import secrets
+from django.contrib.auth import get_user_model
 
 # Create your models here.
 
@@ -18,6 +19,8 @@ STATUS_DOWNLOAD = 2
 STATUS_DOWNLOADING = 3
 STATUS_FINISHED = 4
 STATUS_ERROR = -1
+
+User = get_user_model()
 
 
 class Script(Model):
@@ -40,16 +43,7 @@ class Script(Model):
 
     hostname = URLField(blank=False, null=False)
 
-    img = ImageField(
-        upload_to="script_img",
-        blank=True,
-        help_text="Thumbnail to symbolize script",
-    )
-    # If no image is provided, the icon is used instead
-
     description = TextField(max_length=32768, blank=True)
-
-    forced_alignment_script = BooleanField(default=True)
 
     username = CharField(max_length=200, blank=True)
     password = CharField(max_length=200, blank=True)
@@ -94,20 +88,15 @@ class Process(Model):
         output_path                   Path to the primary output file (e.g. output/error.log)
     """
 
-    name = CharField(max_length=512, blank=False)
     script = ForeignKey(Script, on_delete=SET_NULL, blank=False, null=True)
     clam_id = CharField(max_length=256, blank=True)
-    output_path = CharField(max_length=512, default="output/error.log")
     status = IntegerField(default=STATUS_CREATED)
-    # TODO: Change this to a field of our user's files
-    output_file = CharField(max_length=512, default=None, null=True, blank=True)
 
     @staticmethod
-    def create_project(project_name, script):
+    def create_process(script):
         """
         Start a project.
 
-        :param project_name: the project name
         :param script: the script
         :return: the process
         """
@@ -116,9 +105,7 @@ class Process(Model):
         clamclient.create(random_token)
         data = clamclient.get(random_token)
         process = Process.objects.create(
-            name=project_name,
-            script=Script.objects.get(pk=script.id),
-            clam_id=random_token,
+            script=Script.objects.get(pk=script.id), clam_id=random_token,
         )
         Profile.create_templates_from_data(process, data.inputtemplates())
         return process
@@ -163,7 +150,6 @@ class Process(Model):
         :return: None
         """
         clamclient = self.script.get_clam_server()
-        # TODO: Check if files are already on the CLAM server before uploading, otherwise this will throw an error
         for (file, template) in argument_files:
             clamclient.addinputfile(self.clam_id, template, file)
 
@@ -258,10 +244,6 @@ class Process(Model):
             settings.DOWNLOAD_DIR, self.clam_id + ".{}".format(extension)
         )
 
-    def __str__(self):
-        """Use name of process in admin display."""
-        return self.name
-
     def get_status_string(self):
         """
         Get the status of this project in string format.
@@ -273,7 +255,9 @@ class Process(Model):
         elif self.status == STATUS_RUNNING:
             return "Running"
         elif self.status == STATUS_DOWNLOAD:
-            return "Downloading results from CLAM server"
+            return "CLAM Done, waiting for download"
+        elif self.status == STATUS_DOWNLOADING:
+            return "Downloading files from CLAM"
         elif self.status == STATUS_FINISHED:
             return "Done"
         elif self.status == STATUS_ERROR:
@@ -289,6 +273,17 @@ class Process(Model):
         """
         return self.status
 
+    def remove_corresponding_profiles(self):
+        """
+        Remove all profiles corresponding to this process.
+
+        :return: None
+        """
+        profiles = Profile.objects.filter(process=self)
+        for profile in profiles:
+            profile.remove_corresponding_templates()
+            profile.delete()
+
     class Meta:
         """
         Display configuration for admin pane.
@@ -297,7 +292,6 @@ class Process(Model):
         Display plural correctly.
         """
 
-        ordering = ["name"]
         verbose_name_plural = "Processes"
 
 
@@ -357,6 +351,54 @@ class Profile(Model):
         """
         return str(self.id)
 
+    def remove_corresponding_templates(self):
+        """
+        Remove the templates corresponding to this profile object.
+
+        :return: None
+        """
+        input_templates = InputTemplate.objects.filter(
+            corresponding_profile=self
+        )
+        for template in input_templates:
+            template.delete()
+
+    def is_valid(self, folder):
+        """
+        Check if a profile is valid for a given folder (check if all input templates are valid for a given folder).
+
+        :param folder: the folder to check
+        :return: True if all InputTemplates corresponding to this profile are valid for the folder, False otherwise
+        """
+        templates = InputTemplate.objects.filter(corresponding_profile=self)
+        for template in templates:
+            if not template.is_valid(folder):
+                return False
+        return True
+
+    def get_valid_files(self, folder):
+        """
+        Get a dictionary of valid files for all input templates corresponding to this profile.
+
+        :param folder: the folder to search for the files
+        :return: a dictionary of the form:
+        dict(
+            template.id -> [relative_path_to_valid_file, relative_path_to_valid_file, ...],
+            template.id -> [...],
+            ...
+        )
+        containing for each template corresponding to this profile, a set of files corresponding to that template
+        """
+        templates = InputTemplate.objects.filter(corresponding_profile=self)
+        valid_for = dict()
+        for template in templates:
+            valid_files = template.is_valid_for(folder)
+            if valid_files:
+                valid_for[template.id] = valid_files
+            else:
+                valid_for[template.id] = []
+        return valid_for
+
 
 class InputTemplate(Model):
     """
@@ -386,6 +428,36 @@ class InputTemplate(Model):
     accept_archive = BooleanField()
     corresponding_profile = ForeignKey(Profile, on_delete=SET_NULL, null=True)
 
+    def is_valid(self, folder):
+        """
+        Check if a file with the extension of this object is present in the folder.
+
+        :param folder: the folder to search for the file
+        :return: True if at least one file is found with the extension from this object, False otherwise
+        """
+        for file in os.listdir(folder):
+            if file.endswith(self.extension):
+                return True
+        return False
+
+    def is_valid_for(self, folder):
+        """
+        Get all the files corresponding to this input template from a folder.
+
+        :param folder: the folder to search for the files with specific extension
+        :return: a list relative paths to with the extension of this object in the folder,
+        if no files are found False is returned
+        """
+        valid_files = list()
+        for file in os.listdir(folder):
+            if file.endswith(self.extension):
+                valid_files.append(file)
+
+        if len(valid_files) == 0:
+            return False
+        else:
+            return valid_files
+
     class Meta:
         """
         Display configuration for admin pane.
@@ -399,23 +471,81 @@ class InputTemplate(Model):
         verbose_name_plural = "Input templates"
 
 
-class InputFile(Model):
-    """
-    Database model for files used as inputs of scripts.
-
-    Attributes:
-        name                          Name of the file. 
-                                      Used for identification only, can be anything.
-        input_file                    Input file on disk.
-        description                   Documentation of the purpose/content of the file.
-        associated_process            Process object the file belongs to.
-    """
+class Pipeline(Model):
+    """Pipeline model class."""
 
     name = CharField(max_length=512)
-    input_file = FilePathField(path="uploads/")  # TODO change this
-    description = TextField(max_length=32768)
-    associated_process = ManyToManyField(Process, default=None)
+    fa_script = ForeignKey(
+        Script,
+        on_delete=CASCADE,
+        blank=False,
+        null=False,
+        related_name="fa_script",
+    )
+    g2p_script = ForeignKey(
+        Script,
+        on_delete=CASCADE,
+        blank=False,
+        null=False,
+        related_name="g2p_script",
+    )
 
     def __str__(self):
-        """Use name of input file in admin display."""
+        """
+        Convert this object to a string.
+
+        :return: the name property of this object
+        """
         return self.name
+
+
+class Project(Model):
+    """Project model class."""
+
+    name = CharField(max_length=512)
+    folder = FilePathField(
+        allow_folders=True, allow_files=False, path=settings.USER_DATA_FOLDER
+    )
+    pipeline = ForeignKey(Pipeline, on_delete=CASCADE, blank=False, null=False)
+    user = ForeignKey(User, on_delete=SET_NULL, null=True)
+    current_process = ForeignKey(
+        Process, on_delete=SET_NULL, null=True, blank=True
+    )
+
+    @staticmethod
+    def create_project(name, pipeline, user):
+        """
+        Create a project, also create a directory for storing the files of the created project.
+
+        :param name: the name of the project, per user there can only be one unique project per name
+        :param pipeline: the pipeline for which to create the project
+        :param user: the user for which to create the project
+        :return: a ValueError if either the project name or directory already exists, otherwise a new Project object
+        """
+        project_qs = Project.objects.filter(name=name, user=user)
+        if project_qs.exists():
+            raise ValueError(
+                "Failed to create project, project called {} from {} does already exist.".format(
+                    name, user
+                )
+            )
+        else:
+            folder = os.path.join(
+                os.path.join(settings.USER_DATA_FOLDER, user.username), name
+            )
+            if os.path.exists(folder):
+                raise ValueError(
+                    "Failed to create project, folder {} does already exist.".format(
+                        folder
+                    )
+                )
+            else:
+                os.makedirs(folder)
+                return Project.objects.create(
+                    name=name, folder=folder, pipeline=pipeline, user=user
+                )
+
+    class Meta:
+        """Meta class for Project model."""
+
+        unique_together = ("name", "user")

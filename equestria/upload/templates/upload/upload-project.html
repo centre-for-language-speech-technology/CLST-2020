@@ -1,0 +1,19 @@
+{% extends 'progbase.html' %}
+{% load static %}
+
+{% block title %}
+Equestria: Upload
+{% endblock %}
+
+{% block prebody %}
+{% include "pipeline.html" with active="upload" %}
+{% endblock %}
+
+{% block body %}
+    <form class="md-form" method="POST" action="{% url 'scripts:fa_start' project_id=project_id %}">
+        {% csrf_token %}
+        <div class="input-group mb-3">
+            <input type="submit" value="Run Forced Alignment" class="btn btn-primary"/>
+        </div>
+    </form>
+{% endblock %}

@@ -40,4 +40,7 @@ class ProfileAdmin(admin.ModelAdmin):
 
 admin.site.register(models.Script)
 admin.site.register(models.Process, ProcessAdmin)
+admin.site.register(models.Project)
+admin.site.register(models.Pipeline)
+admin.site.register(models.InputTemplate)
 admin.site.register(models.Profile, ProfileAdmin)

@@ -152,6 +152,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 TMP_DIR = os.path.join(BASE_DIR, "tmp")
 DOWNLOAD_DIR = os.path.join(BASE_DIR, "outputs")
+USER_DATA_FOLDER = os.path.join(BASE_DIR, "userdata")
 
 
 if not os.path.exists(TMP_DIR):
@@ -159,3 +160,6 @@ if not os.path.exists(TMP_DIR):
 
 if not os.path.exists(DOWNLOAD_DIR):
     os.makedirs(DOWNLOAD_DIR)
+
+if not os.path.exists(USER_DATA_FOLDER):
+    os.makedirs(USER_DATA_FOLDER)

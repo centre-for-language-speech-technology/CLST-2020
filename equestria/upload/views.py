@@ -6,12 +6,16 @@ from .models import File
 from .forms import UploadTXTForm, UploadWAVForm
 from django.core.files.storage import FileSystemStorage
 from django.http import HttpResponseRedirect
-from django.contrib.auth.models import User
-from django.shortcuts import redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
 import mimetypes
 
 """Module to handle uploading files."""
+
+
+class UploadProjectView(TemplateView):
+    """View for initial upload of files to a project."""
+
+    template_name = "upload/upload-project.html"
 
 
 def getFileType(path):

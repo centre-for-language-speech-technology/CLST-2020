@@ -6,32 +6,31 @@ Forced Alignment
 {% endblock %}
 
 {% block prebody %}
-{% include "pipeline.html" with active="forced" %}
+{% include "pipeline.html" with active="project" %}
 {% endblock %}
 
 {% block body %}
-    {% if fa_form %}
+    {% if form %}
         <div class="rounded shadow lighter padding mb-3">
             <h3>Forced Alignment scripts</h3>
             <div class="rounded shadow lighter padding mb-3">
               <form class="md-form" method="POST">
                 {% csrf_token %}
                 <div class="input-group mb-3">
-                  {{ fa_form }}
+                  {{ form }}
                   <input type="submit" value="Create" class="btn btn-primary"/>
                 </div>
               </form>
             </div>
         </div>
     {% endif %}
-    {% if processes %}
+    {% if projects %}
         <div class="rounded shadow lighter padding mb-3">
             <h3>My projects</h3>
-            {% for process in processes %}
+            {% for project in projects %}
                 <div class="rounded shadow darker padding mb-3">
-                    <h4>Name: {{ process.name }}</h4>
-                    <p>Project status: {{ process.status_msg }}</p>
-                    <a class="btn btn-primary" href="{% url "scripts:fa_project" process=process.id %}">Go to project</a>
+                    <h4>Name: {{ project.name }}</h4>
+                    <a class="btn btn-primary" href="{% url 'upload:upload_project' project_id=project.id %}">Go to project</a>
                 </div>
             {% endfor %}
         </div>

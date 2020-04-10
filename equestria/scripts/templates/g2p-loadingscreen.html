@@ -1,0 +1,15 @@
+{% extends 'progbase.html' %}
+{% load static %}
+
+{% block title %}
+Loading...
+{% endblock %}
+
+{% block prebody %}
+{% include "pipeline.html" with active="forced" %}
+{% endblock %}
+
+{% block body %}
+<h1>Loading screen g2p</h1>
+{% endblock %}
+
