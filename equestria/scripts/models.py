@@ -700,7 +700,9 @@ class Project(Model):
         for file_name in os.listdir(self.folder):
             full_file_path = os.path.join(self.folder, file_name)
             if os.path.isfile(full_file_path):
-                if file_name.endswith(tuple(extensions)):  # a python tuple can be of any size btw.
+                if file_name.endswith(
+                    tuple(extensions)
+                ):  # a python tuple can be of any size btw.
                     if os.stat(full_file_path).st_size != 0:
                         return True
 
