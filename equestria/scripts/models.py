@@ -689,14 +689,13 @@ class Project(Model):
 
     def has_non_empty_extension_file(self, extensions):
         """
-        Check if a file ends with some element of extensnions is located in the directory of this project and
-        if it is not 0 bytes big.
-        :param extensions a list of extensions that are valid.
+        Check if a file ends with some extension.
+
+        :param extensions: a list of extensions that are valid.
         :return: True if an .extension file is present with some text, False otherwise. Note: we may have multiple
         files, but as long as one is non empty we return true. (e.g. we have a.ext and b.ext, a is empty but b is not
         thus we return true).
         """
-
         for file_name in os.listdir(self.folder):
             full_file_path = os.path.join(self.folder, file_name)
             if os.path.isfile(full_file_path):

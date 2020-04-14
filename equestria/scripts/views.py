@@ -34,6 +34,14 @@ class FARedirect(LoginRequiredMixin, TemplateView):
     template_name = ""
 
     def get(self, request, **kwargs):
+        """
+        GET method for the redirecting. This only redirects.
+
+        :param request: the request
+        :param kwargs: the keyword arguments
+        :return: a redirect to another page, a 404 if the project does not exist and a nice state error if some
+        things fail.
+        """
         project_id = kwargs.get("project_id")
 
         try:
