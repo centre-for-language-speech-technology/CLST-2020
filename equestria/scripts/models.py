@@ -687,13 +687,24 @@ class Project(Model):
                     name=name, folder=folder, pipeline=pipeline, user=user
                 )
 
-    def check_for_unfinished_fa(self):
+    def has_non_empty_extension_file(self, extensions):
         """
-        Check if a .oov file is located in the directory of this project and if it contains any text.
+        Check if a file ends with some element of extensnions is located in the directory of this project and
+        if it is not 0 bytes big.
+        :param extensions a list of extensions that are valid.
+        :return: True if an .extension file is present with some text, False otherwise. Note: we may have multiple
+        files, but as long as one is non empty we return true. (e.g. we have a.ext and b.ext, a is empty but b is not
+        thus we return true).
+        """
 
-        :return: True if an .oov file is present, False otherwise
-        """
-        pass
+        for file_name in os.listdir(self.folder):
+            full_file_path = os.path.join(self.folder, file_name)
+            if os.path.isfile(full_file_path):
+                if file_name.endswith(tuple(extensions)):  # a python tuple can be of any size btw.
+                    if os.stat(full_file_path).st_size != 0:
+                        return True
+
+        return False
 
     class StateException(Exception):
         """Exception to be throwed when the project has an incorrect state."""

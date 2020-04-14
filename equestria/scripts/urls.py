@@ -6,6 +6,7 @@ urlpatterns = [
     path(
         "fa/status/<int:project_id>", FALoadScreen.as_view(), name="fa_loading",
     ),
+    path("redirect/<int:project_id>", FARedirect.as_view(), name="fa_redirect", ),
     path("fa/<int:project_id>", FAOverview.as_view(), name="fa_overview",),
     path(
         "g2p/status/<int:project_id>",
