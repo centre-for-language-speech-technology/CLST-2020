@@ -10,15 +10,31 @@ from django.conf import settings
 import os
 import secrets
 from django.contrib.auth import get_user_model
+import zipfile
 
 # Create your models here.
 
 STATUS_CREATED = 0
-STATUS_RUNNING = 1
-STATUS_DOWNLOAD = 2
-STATUS_DOWNLOADING = 3
-STATUS_FINISHED = 4
+STATUS_UPLOADING = 1
+STATUS_RUNNING = 2
+STATUS_WAITING = 3
+STATUS_DOWNLOADING = 4
+STATUS_FINISHED = 5
 STATUS_ERROR = -1
+STATUS_ERROR_DOWNLOAD = -2
+
+STATUS = (
+    (STATUS_CREATED, "Created"),
+    (STATUS_UPLOADING, "Uploading files to CLAM"),
+    (STATUS_RUNNING, "Running"),
+    (STATUS_WAITING, "Waiting for download from CLAM"),
+    (STATUS_DOWNLOADING, "Downloading files from CLAM"),
+    (STATUS_FINISHED, "Finished"),
+    (STATUS_ERROR, "Error"),
+    (STATUS_ERROR_DOWNLOAD, "Error while downloading files from CLAM"),
+)
+
+User = get_user_model()
 
 User = get_user_model()
 
@@ -89,23 +105,44 @@ class Process(Model):
     """
 
     script = ForeignKey(Script, on_delete=SET_NULL, blank=False, null=True)
-    clam_id = CharField(max_length=256, blank=True)
-    status = IntegerField(default=STATUS_CREATED)
+    clam_id = CharField(max_length=256, null=True)
+    status = IntegerField(choices=STATUS, default=0)
+    folder = FilePathField(
+        allow_folders=True, allow_files=False, path=settings.USER_DATA_FOLDER
+    )
 
     @staticmethod
-    def create_process(script):
+    def get_random_clam_id():
+        """
+        Get a random 32 bit string.
+
+        :return: a random 32 bit string
+        """
+        return secrets.token_hex(32)
+
+    @staticmethod
+    def create_process(script, folder):
         """
         Start a project.
 
         :param script: the script
+        :param folder: the upload/download folder for the clam server, the folder must contain at least all the required
+        files in one of the linked input templates before starting this process
         :return: the process
         """
-        random_token = secrets.token_hex(32)
-        clamclient = script.get_clam_server()
-        clamclient.create(random_token)
-        data = clamclient.get(random_token)
+        random_token = Process.get_random_clam_id()
+        try:
+            clamclient = script.get_clam_server()
+            clamclient.create(random_token)
+            data = clamclient.get(random_token)
+            clamclient.delete(random_token)
+        except Exception as e:
+            logging.error(e)
+            return False
         process = Process.objects.create(
-            script=Script.objects.get(pk=script.id), clam_id=random_token,
+            script=Script.objects.get(pk=script.id),
+            clam_id=None,
+            folder=folder,
         )
         Profile.create_templates_from_data(process, data.inputtemplates())
         return process
@@ -123,12 +160,7 @@ class Process(Model):
             for index, item in enumerate(
                 reversed(list(xml.find("status").iter("log")))
             ):
-                tz = pytz.timezone(settings.TIME_ZONE)
-                time = tz.localize(
-                    datetime.datetime.strptime(
-                        item.attrib["time"], "%d/%b/%Y %H:%M:%S"
-                    )
-                )
+                time = Process.parse_time_string(item.attrib["time"])
                 if not LogMessage.objects.filter(
                     time=time, message=item.text, process=self, index=index
                 ).exists():
@@ -142,84 +174,179 @@ class Process(Model):
                 )
             )
 
-    def start(self, argument_files):
+    @staticmethod
+    def parse_time_string(time):
+        """
+        Parse the time string that CLAM passes.
+
+        :param time: the time string from CLAM
+        :return: a timezone aware datetime object, None when a ValueError was encountered
+        """
+        try:
+            tz = pytz.timezone(settings.TIME_ZONE)
+            return tz.localize(
+                datetime.datetime.strptime(time, "%d/%b/%Y %H:%M:%S")
+            )
+        except ValueError:
+            return None
+
+    def set_status(self, status):
+        """
+        Set the status for this process and save it to the Database.
+
+        :param status: the status to set for this process
+        :return: None
+        """
+        self.status = status
+        self.save()
+
+    def set_clam_id(self, clam_id):
+        """
+        Set the CLAM id for this process and save it to the Database.
+
+        :param clam_id: the CLAM id to set for this process
+        :return: None
+        """
+        self.clam_id = clam_id
+        self.save()
+
+    def start_safe(self, profile):
+        """
+        Start uploading files to CLAM and start the CLAM server in a safe way.
+
+        Actually only executes the start() method and runs the cleanup() method when an exception is raised.
+        :param profile: the profile to start this process with
+        :return: True when the process was started, False otherwise, raises a ValueError if there was an error with the
+        input templates, raises an Exception if there was an error when uploading files to CLAM or when starting the
+        CLAM server
+        """
+        try:
+            return self.start(profile)
+        except ValueError as e:
+            # Input template error
+            self.cleanup()
+            raise e
+        except Exception as e:
+            # CLAM error
+            self.cleanup()
+            raise e
+
+    def start(self, profile):
         """
         Add inputs to clam server and starts it.
 
-        :param argument_files: the argument files to add
+        :param profile: the profile to run the process with
+        :return: the status of this project, or a ValueError when an error is encountered with the uploaded files and
+        selected profile, or an Exception for CLAM errors
+        """
+        if self.status == STATUS_CREATED:
+            self.set_status(STATUS_UPLOADING)
+            self.set_clam_id(Process.get_random_clam_id())
+            clamclient = self.script.get_clam_server()
+            clamclient.create(self.clam_id)
+            templates = InputTemplate.objects.filter(
+                corresponding_profile=profile
+            )
+
+            for template in templates:
+                files = template.is_valid_for(self.folder)
+                if not files and not template.optional:
+                    raise ValueError(
+                        "No file specified for template {}".format(template)
+                    )
+                if files:
+                    if len(files) > 1 and template.unique:
+                        raise ValueError(
+                            "More than one file specified for unique template {}".format(
+                                template
+                            )
+                        )
+                    for file in files:
+                        full_file_path = os.path.join(self.folder, file)
+                        clamclient.addinputfile(
+                            self.clam_id, template.template_id, full_file_path
+                        )
+            clamclient.startsafe(self.clam_id)
+            self.set_status(STATUS_RUNNING)
+            return True
+        else:
+            return False
+
+    def cleanup(self, status=STATUS_CREATED):
+        """
+        Reset a project on the CLAM server by deleting it and resetting the clam id and status on Django.
+
+        :param status: the status to set the process to after this function has been ran, default=STATUS_CREATED
         :return: None
         """
-        clamclient = self.script.get_clam_server()
-        for (file, template) in argument_files:
-            clamclient.addinputfile(self.clam_id, template, file)
-
-        clamclient.startsafe(self.clam_id)
-        self.status = STATUS_RUNNING
+        if self.clam_id is not None:
+            try:
+                clamclient = self.script.get_clam_server()
+                clamclient.delete(self.clam_id)
+            except Exception as e:
+                logging.error(e)
+        self.clam_id = None
+        self.status = status
         self.save()
 
     def clam_update(self):
         """
         Update a process.
 
-        :return: this process' status
+        :return: True when the status was successfully updated (this means the status of this process could also be left
+        unchanged), False otherwise
         """
         if self.status == STATUS_RUNNING:
-            clamclient = self.script.get_clam_server()
-            data = clamclient.get(self.clam_id)
+            try:
+                clamclient = self.script.get_clam_server()
+                data = clamclient.get(self.clam_id)
+            except Exception as e:
+                logging.error(e)
+                return False
             self.update_log_messages_from_xml(data.xml)
             if data.status == clam.common.status.DONE:
-                self.status = STATUS_DOWNLOAD
-                self.save()
-        elif self.status == STATUS_DOWNLOAD:
-            self.status = STATUS_DOWNLOADING
-            self.save()
-            archive = self.download_archive_and_delete()
-            if archive:
-                self.status = STATUS_FINISHED
-                self.output_file = archive
-                self.save()
-        return self.status
+                self.set_status(STATUS_WAITING)
+            return True
+        else:
+            return False
 
-    def download_archive(self, extension="zip"):
+    def download_and_delete(self):
+        """
+        Download all files from a process, decompress them and delete the project from CLAM.
+
+        :return: True if downloading the files and extracting them succeeded, False otherwise
+        """
+        if (
+            self.status == STATUS_WAITING
+            or self.status == STATUS_ERROR_DOWNLOAD
+        ):
+            self.set_status(STATUS_DOWNLOADING)
+            if self.download_archive_and_decompress():
+                self.cleanup(status=STATUS_FINISHED)
+                return True
+            else:
+                self.set_status(STATUS_ERROR_DOWNLOAD)
+                return False
+        else:
+            return False
+
+    def download_archive_and_decompress(self):
         """
         Download the output archive from the CLAM server.
 
-        :param extension: the extension to use for downloading
         :return: the location of the downloaded archive on success, False on failure
         """
         try:
             clamclient = self.script.get_clam_server()
-            downloaded_archive = self.get_output_file_name(extension)
-            clamclient.downloadarchive(
-                self.clam_id, downloaded_archive, extension
-            )
-            return downloaded_archive
+            downloaded_archive = self.get_output_file_name()
+            clamclient.downloadarchive(self.clam_id, downloaded_archive, "zip")
+            with zipfile.ZipFile(downloaded_archive, "r") as zip_ref:
+                zip_ref.extractall(self.folder)
+            os.remove(downloaded_archive)
+            return True
         except Exception as e:
-            logging.error(
-                "An exception occurred while downloading files from CLAM. Exception: {}".format(
-                    e
-                )
-            )
-            return False
-
-    def download_archive_and_delete(self, extension="zip"):
-        """
-        Download the output archive from the CLAM server and then delete the project on the CLAM server.
-
-        :param extension: the extension to use for downloading
-        :return: the location of the downloaded archive on success, False on failure
-        """
-        try:
-            clamclient = self.script.get_clam_server()
-            downloaded_archive = self.get_output_file_name(extension)
-            clamclient.downloadarchive(
-                self.clam_id, downloaded_archive, extension
-            )
-            clamclient.delete(self.clam_id)
-            return downloaded_archive
-        except Exception as e:
-            logging.error(
-                "An exception occurred while downloading files from CLAM. Exception: {}".format(
+            print(
+                "An error occurred while downloading and decompressing files from CLAM. Error: {}".format(
                     e
                 )
             )
@@ -233,16 +360,13 @@ class Process(Model):
         """
         return LogMessage.objects.filter(process=self)
 
-    def get_output_file_name(self, extension):
+    def get_output_file_name(self, extension=".zip"):
         """
         Get a name of an not existing file to store data to.
 
         :return: a path to a non existing file
         """
-        # TODO: Implement this method
-        return os.path.join(
-            settings.DOWNLOAD_DIR, self.clam_id + ".{}".format(extension)
-        )
+        return os.path.join(self.folder, self.clam_id + ".{}".format(extension))
 
     def get_status_string(self):
         """
@@ -254,7 +378,7 @@ class Process(Model):
             return "Ready to start"
         elif self.status == STATUS_RUNNING:
             return "Running"
-        elif self.status == STATUS_DOWNLOAD:
+        elif self.status == STATUS_WAITING:
             return "CLAM Done, waiting for download"
         elif self.status == STATUS_DOWNLOADING:
             return "Downloading files from CLAM"
@@ -298,7 +422,7 @@ class Process(Model):
 class LogMessage(Model):
     """Class for saving CLAM log messages."""
 
-    time = DateTimeField()
+    time = DateTimeField(null=True)
     message = CharField(max_length=16384)
     process = ForeignKey(Process, on_delete=CASCADE)
     index = PositiveIntegerField()
@@ -458,6 +582,24 @@ class InputTemplate(Model):
         else:
             return valid_files
 
+    def __str__(self):
+        """
+        Cast this object to a string.
+
+        :return: this object formatted in string format
+        """
+        unique = "Unique" if self.unique else ""
+        if unique:
+            optional = " optional" if self.optional else ""
+        else:
+            optional = "Optional" if self.optional else ""
+        if self.unique or self.optional:
+            return "{}{} file with extension {}".format(
+                unique, optional, self.extension
+            )
+        else:
+            return "File with extension {}".format(self.extension)
+
     class Meta:
         """
         Display configuration for admin pane.
@@ -544,6 +686,19 @@ class Project(Model):
                 return Project.objects.create(
                     name=name, folder=folder, pipeline=pipeline, user=user
                 )
+
+    def check_for_unfinished_fa(self):
+        """
+        Check if a .oov file is located in the directory of this project and if it contains any text.
+
+        :return: True if an .oov file is present, False otherwise
+        """
+        pass
+
+    class StateException(Exception):
+        """Exception to be throwed when the project has an incorrect state."""
+
+        pass
 
     class Meta:
         """Meta class for Project model."""

@@ -10,10 +10,19 @@ Equestria: Upload
 {% endblock %}
 
 {% block body %}
-    <form class="md-form" method="POST" action="{% url 'scripts:fa_start' project_id=project_id %}">
-        {% csrf_token %}
-        <div class="input-group mb-3">
-            <input type="submit" value="Run Forced Alignment" class="btn btn-primary"/>
+    <div class="container-fluid">
+        <div class="rounded shadow lighter padding mb-3">
+            <p>
+                This page is actually not doing anything yet, to run a project, place all the needed files in the project
+                directory under /userdata/[project_name] and go to /scripts/fa/[project_id]/start/[profile_id] for the profile
+                that you want to run the project with.
+            </p>
+            <form class="md-form" method="POST" action="">
+                {% csrf_token %}
+                <div class="input-group mb-3">
+                    <input type="submit" value="Run Forced Alignment" class="btn btn-primary"/>
+                </div>
+            </form>
         </div>
-    </form>
+    </div>
 {% endblock %}

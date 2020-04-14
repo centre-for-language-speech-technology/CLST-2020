@@ -1,15 +1,35 @@
-{% extends 'progbase.html' %}
+{% extends 'base.html' %}
 {% load static %}
 
 {% block title %}
-Loading...
-{% endblock %}
-
-{% block prebody %}
-{% include "pipeline.html" with active="forced" %}
+Equestria: Forced Alignment status
 {% endblock %}
 
 {% block body %}
-<h1>this is an example</h1>
+<div class="container-fluid">
+  <div class="row">
+        <div class="col-md-7 rounded shadow lighter padding">
+            <h3>Forced alignment is running</h3>
+            <p class="">Status:</p>
+            <strong><p id="process-django-status"></p></strong>
+            <a href="{% url "scripts:fa_overview" project_id=project.id %}" style="display: none;" class="btn btn-primary" id="process-continue-button">Continue</a>
+        </div>
+        <div class="col-md-1">
+        </div>
+        <div class="col-md-4 rounded shadow lighter padding">
+            {% include "console_output.html" %}
+        </div>
+  </div>
+</div>
+
 {% endblock %}
 
+{% block scripts %}
+    <script>
+        var CSRF_TOKEN = "{{ csrf_token }}";
+        var PROCESS_STATUS_URL = "{% url 'scripts:process_details' process=process.id %}";
+    </script>
+    <script src="{% static "scripts/js/process-update.js" %}"></script>
+    <script src="{% static "scripts/js/validate.js" %}"></script>
+    <script src="{% static "scripts/js/clock.js" %}"></script>
+{% endblock %}

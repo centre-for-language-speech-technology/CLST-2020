@@ -1,6 +1,6 @@
 PROCESS_PROFILES = document.getElementById("process-profiles");
 PROCESS_DJANGO_STATUS = document.getElementById("process-django-status");
-PROCESS_DOWNLOAD = document.getElementById("process-download-button");
+PROCESS_CONTINUE = document.getElementById("process-continue-button");
 CONSOLE_OUTPUT = document.getElementById("console_output");
 
 function get_status(callback /*, args */) {
@@ -21,24 +21,16 @@ function get_status(callback /*, args */) {
     });
 }
 
-function disable_process_start() {
-    PROCESS_PROFILES.style.display = "none";
-}
-
-function enable_process_start() {
-    PROCESS_PROFILES.style.display = "";
-}
-
 function set_status_message(message) {
     PROCESS_DJANGO_STATUS.innerText = message;
 }
 
-function disable_download() {
-    PROCESS_DOWNLOAD.style.display = "none";
+function disable_continue() {
+    PROCESS_CONTINUE.style.display = "none";
 }
 
-function enable_download() {
-    PROCESS_DOWNLOAD.style.display = "";
+function enable_continue() {
+    PROCESS_CONTINUE.style.display = "";
 }
 
 function update_console_output(messages) {
@@ -53,37 +45,38 @@ function update_console_output(messages) {
 
 function update_page(returned_data) {
     if (returned_data.status == 0) {
-        enable_process_start();
-        disable_download();
+        disable_continue();
         set_status_message("Ready to start");
     }
     else if (returned_data.status == 1) {
-        disable_process_start();
-        disable_download();
-        set_status_message("Running");
+        disable_continue();
+        set_status_message("Uploading");
     }
     else if (returned_data.status == 2) {
-        disable_process_start();
-        disable_download();
-        set_status_message("CLAM server finished running");
+        disable_continue();
+        set_status_message("Running");
     }
     else if (returned_data.status == 3) {
-        disable_process_start();
-        disable_download()
-        set_status_message("Downloading files from CLAM server");
+        disable_continue()
+        set_status_message("Waiting for download from CLAM");
     }
     else if (returned_data.status == 4) {
-        disable_process_start();
-        enable_download();
+        disable_continue();
+        set_status_message("Downloading from CLAM");
+    }
+    else if (returned_data.status == 5) {
+        enable_continue();
         set_status_message("Done");
     }
     else if (returned_data.status == -1) {
-        disable_process_start();
-        disable_download();
+        disable_continue();
         set_status_message("An error occurred, please try again later");
     }
+    else if (returned_data.status == -2) {
+        disable_continue();
+        set_status_message("An error occured while downloading files from CLAM, please try again");
+    }
     else {
-        disable_process_start();
         set_status_message("Webserver request returned unknown status code.");
     }
     update_console_output(returned_data.log);

@@ -3,7 +3,19 @@ from django.views.generic import TemplateView
 from django.shortcuts import render, redirect
 from os.path import basename, dirname
 from django.views.static import serve
-from .models import Project, Profile, InputTemplate, Script, Pipeline, Process
+from .models import (
+    Project,
+    Profile,
+    InputTemplate,
+    Pipeline,
+    Process,
+    STATUS_UPLOADING,
+    STATUS_RUNNING,
+    STATUS_WAITING,
+    STATUS_DOWNLOADING,
+    STATUS_FINISHED,
+    STATUS_ERROR,
+)
 from django.http import JsonResponse
 from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -11,6 +23,7 @@ import secrets
 import os
 from .forms import ProjectCreateForm
 from .tasks import update_script
+import logging
 
 
 class FAStartView(LoginRequiredMixin, TemplateView):
@@ -18,38 +31,77 @@ class FAStartView(LoginRequiredMixin, TemplateView):
 
     login_url = "/accounts/login/"
 
-    def post(self, request, **kwargs):
+    template_name = "fa-start.html"
+
+    def get(self, request, **kwargs):
         """
-        Post method for start view.
+        GET method for start view.
 
         :param request: the request
         :param kwargs: the keyword arguments
         :return: a JSON response indicating whether the CLAM server started
         """
         project_id = kwargs.get("project_id")
+        profile_id = kwargs.get("profile_id")
         try:
             project = Project.objects.filter(user=request.user.id).get(
                 id=project_id
             )
-        except Project.DoesNotExist:
-            return JsonResponse(
-                {"status": "error", "error": "Project does not exist"}
-            )
-        if project.current_process is None:
-            project.current_process = Process.create_process(
-                project.pipeline.fa_script
-            )
-            project.save()
-            project.current_process.remove_corresponding_profiles()
-            project.delete()
-            return JsonResponse({"status": "succes"})
-        else:
-            return JsonResponse(
+            profile = Profile.objects.get(id=profile_id)
+        except Project.DoesNotExist or Profile.DoesNotExist:
+            return render(
+                request,
+                self.template_name,
                 {
-                    "status": "error",
-                    "error": "There is already a running process for this project",
-                }
+                    "project": project_id,
+                    "error": "Either the profile or project does not exist",
+                },
             )
+        process = project.current_process
+        if process.script != project.pipeline.fa_script:
+            return render(
+                request,
+                self.template_name,
+                {
+                    "project": project_id,
+                    "error": "Current process is not a Forced Alignment process",
+                },
+            )
+        if profile.process != process:
+            return render(
+                request,
+                self.template_name,
+                {
+                    "project": project_id,
+                    "error": "Invalid profile for the specified process",
+                },
+            )
+
+        try:
+            process.start_safe(profile)
+        except ValueError as e:
+            logging.error(e)
+            return render(
+                request,
+                self.template_name,
+                {
+                    "project": project_id,
+                    "error": "Error while starting the process, make sure all input"
+                    " files are specified",
+                },
+            )
+        except Exception as e:
+            logging.error(e)
+            return render(
+                request,
+                self.template_name,
+                {
+                    "project": project_id,
+                    "error": "Error while uploading files to CLAM, please try again later",
+                },
+            )
+        update_script(process.id)
+        return redirect("scripts:fa_loading", project_id=project_id)
 
 
 class FALoadScreen(LoginRequiredMixin, TemplateView):
@@ -73,7 +125,24 @@ class FALoadScreen(LoginRequiredMixin, TemplateView):
         :param kwargs: keyword arguments
         :return: a render of the fa loading screen
         """
-        return render(request, self.template_name, {},)
+        project_id = kwargs.get("project_id")
+        try:
+            project = Project.objects.filter(user=request.user.id).get(
+                id=project_id
+            )
+        except Project.DoesNotExist:
+            return Http404("Project does not exist")
+
+        if project.current_process.script != project.pipeline.fa_script:
+            raise Project.StateException(
+                "Current project script is no forced alignment script"
+            )
+
+        return render(
+            request,
+            self.template_name,
+            {"process": project.current_process, "project": project},
+        )
 
 
 class FAOverview(LoginRequiredMixin, TemplateView):
@@ -218,11 +287,11 @@ class ProjectOverview(LoginRequiredMixin, TemplateView):
             pipeline_id = form.cleaned_data.get("pipeline")
             project_name = form.cleaned_data.get("project_name")
             pipeline = Pipeline.objects.get(id=pipeline_id)
-            process = Process.create_process(pipeline.fa_script)
 
             project = Project.create_project(
                 project_name, pipeline, request.user
             )
+            process = Process.create_process(pipeline.fa_script, project.folder)
             project.current_process = process
             project.save()
             return redirect("upload:upload_project", project_id=project.id)
@@ -259,7 +328,7 @@ class ForcedAlignmentProjectDetails(TemplateView):
         else:
             raise Http404("Project not found")
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request, **kwargs):
         """
         POST request for project overview page.
 

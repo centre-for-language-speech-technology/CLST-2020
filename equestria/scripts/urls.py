@@ -27,5 +27,9 @@ urlpatterns = [
         download_process_archive,
         name="process_download",
     ),
-    path("fa/<int:project_id>/start", FAStartView.as_view(), name="fa_start",),
+    path(
+        "fa/<int:project_id>/start/<int:profile_id>",
+        FAStartView.as_view(),
+        name="fa_start",
+    ),
 ]
