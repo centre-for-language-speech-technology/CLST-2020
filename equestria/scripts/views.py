@@ -258,8 +258,15 @@ class CheckDictionaryScreen(LoginRequiredMixin, TemplateView):
 
             file.close()
 
-        return render(request, self.template_name, {"project_id": project_id, "textInput": output_str,
-                                                    "can_upload": can_upload},)
+        return render(
+            request,
+            self.template_name,
+            {
+                "project_id": project_id,
+                "textInput": output_str,
+                "can_upload": can_upload,
+            },
+        )
 
     def post(self, request, **kwargs):
         """
@@ -281,13 +288,17 @@ class CheckDictionaryScreen(LoginRequiredMixin, TemplateView):
             file.close()
 
         # save to the file...
-        new_process = Process.create_process(project.pipeline.fa_script, project.folder)
+        new_process = Process.create_process(
+            project.pipeline.fa_script, project.folder
+        )
         project.current_process = new_process
         project.save()
         profiles = Profile.objects.filter(process=new_process)
 
         # TODO select correct profile
-        return redirect("scripts:fa_start", project_id=project_id, profile_id=profiles[0])
+        return redirect(
+            "scripts:fa_start", project_id=project_id, profile_id=profiles[0]
+        )
 
 
 class JsonProcess(TemplateView):
