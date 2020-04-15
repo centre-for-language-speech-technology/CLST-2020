@@ -6,10 +6,20 @@ Loading...
 {% endblock %}
 
 {% block prebody %}
-{% include "pipeline.html" with active="forced" %}
+{% include "pipeline.html" with active="dictionary" %}
 {% endblock %}
 
 {% block body %}
 <h1>Super fancy check dictionary</h1>
+
+<form action="../cd/{{ project_id }}" method = "post">{% csrf_token %}
+  <textarea name="checkDict" rows="10" cols="80">{{ textInput }}</textarea>
+  {% if can_upload %}
+  <input type="submit" class="btn btn-primary" value="Update dictionary and rerun check">
+  {% else %}
+  <a class="btn btn-primary" href="{% url 'scripts:fa_overview' project_id=project_id %}">Move to FA</a>
+  {% endif %}
+</form>
+
 {% endblock %}
 

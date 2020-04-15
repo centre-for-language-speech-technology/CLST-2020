@@ -687,6 +687,17 @@ class Project(Model):
                     name=name, folder=folder, pipeline=pipeline, user=user
                 )
 
+    def get_oov_dict_file_path(self):
+        """
+        Returns the full path to the .oov.dict file, or non if it does not exist.
+        """
+        for file_name in os.listdir(self.folder):
+            full_file_path = os.path.join(self.folder, file_name)
+            if os.path.isfile(full_file_path):
+                if file_name.endswith(".oov.dict"):
+                    return full_file_path
+        return None
+
     def has_non_empty_extension_file(self, extensions):
         """
         Check if a file ends with some extension.

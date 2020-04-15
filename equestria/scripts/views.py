@@ -236,7 +236,49 @@ class CheckDictionaryScreen(LoginRequiredMixin, TemplateView):
         :param kwargs: keyword arguments
         :return: a render of the check dictionary page
         """
-        return render(request, self.template_name, {},)
+        project_id = kwargs.get("project_id")
+        try:
+            project = Project.objects.filter(user=request.user.id).get(
+                id=project_id
+            )
+        except Project.DoesNotExist:
+            return Http404("Project does not exist")
+
+        # Read content of file.
+        path = project.get_oov_dict_file_path()
+        output_str = "Dictionary up to date."
+        can_upload = False
+        if path is not None:
+            file = open(path, "r")
+            output_str = file.read()
+            can_upload = True
+            file.close()
+        return render(request, self.template_name, {"project_id": project_id, "textInput": output_str,
+                                                    "can_upload": can_upload},)
+
+    def post(self, request, **kwargs):
+        """
+        Handles the change of the textfield etc.
+        """
+        project_id = kwargs.get("project_id")
+        try:
+            project = Project.objects.filter(user=request.user.id).get(
+                id=project_id
+            )
+        except Project.DoesNotExist:
+            return Http404("Project does not exist")
+
+        input_data = request.POST.get("checkDict")
+        path = project.get_oov_dict_file_path()
+        if path is not None:
+            file = open(path, "w")
+            file.write(input_data)  # TODO this should probably be verified...
+            file.close()
+
+        # save to the file...
+
+        # TODO: we should redirect somewhere else once we are done! loading FA again or something.
+        return redirect("scripts:cd_screen", project_id=project_id)
 
 
 class JsonProcess(TemplateView):
