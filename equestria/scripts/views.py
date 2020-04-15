@@ -252,8 +252,12 @@ class CheckDictionaryScreen(LoginRequiredMixin, TemplateView):
             file = open(path, "r")
             output_str = file.read()
             can_upload = True
+            if len(output_str) == 0:
+                can_upload = False
+                output_str = "Dictionary file is empty."
+
             file.close()
-            # TODO! we must remove the old FA stuff and re run everything.
+
         return render(request, self.template_name, {"project_id": project_id, "textInput": output_str,
                                                     "can_upload": can_upload},)
 
@@ -273,13 +277,17 @@ class CheckDictionaryScreen(LoginRequiredMixin, TemplateView):
         path = project.get_oov_dict_file_path()
         if path is not None:
             file = open(path, "w")
-            file.write(input_data)  # TODO this should probably be verified...
+            file.write(input_data)
             file.close()
 
         # save to the file...
+        new_process = Process.create_process(project.pipeline.fa_script, project.folder)
+        project.current_process = new_process
+        project.save()
+        profiles = Profile.objects.filter(process=new_process)
 
-        # TODO: we should redirect somewhere else once we are done! loading FA again or something.
-        return redirect("scripts:cd_screen", project_id=project_id)
+        # TODO select correct profile
+        return redirect("scripts:fa_start", project_id=project_id, profile_id=profiles[0])
 
 
 class JsonProcess(TemplateView):
