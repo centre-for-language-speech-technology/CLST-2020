@@ -9,4 +9,5 @@ urlpatterns = [
     url("logout", Logout.as_view(), name="logout"),
     url("settings", Settings.as_view(), name="settings"),
     url("overview", Overview.as_view(), name="overview"),
+    url("forgot", Forgot.as_view(), name="forgot"),
 ]

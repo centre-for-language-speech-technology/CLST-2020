@@ -134,6 +134,8 @@ USE_L10N = True
 
 USE_TZ = True
 
+ADMIN_EMAIL = "change@change.com"
+
 
 # Background task settings
 MAX_ATTEMPTS = 10
