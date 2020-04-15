@@ -26,6 +26,46 @@ from .tasks import update_script
 import logging
 
 
+class FARedirect(LoginRequiredMixin, TemplateView):
+    """Start view for Forced Alignment."""
+
+    login_url = "/accounts/login/"
+
+    template_name = ""
+
+    def get(self, request, **kwargs):
+        """
+        GET method for the redirecting. This only redirects.
+
+        :param request: the request
+        :param kwargs: the keyword arguments
+        :return: a redirect to another page, a 404 if the project does not exist and a nice state error if some
+        things fail.
+        """
+        project_id = kwargs.get("project_id")
+
+        try:
+            project = Project.objects.filter(user=request.user.id).get(
+                id=project_id
+            )
+        except Project.DoesNotExist:
+            return Http404("Project does not exist")
+
+        # Check if the FA has some .oov files
+        if project.has_non_empty_extension_file([".oov"]):
+            return redirect("scripts:g2p_loading", project_id=project_id)
+
+        # We should never arrive in the loading screen when we do not load the FA...
+        if project.current_process.script != project.pipeline.fa_script:
+            raise Project.StateException
+
+        # Only redirect on successful status.
+        if project.current_process.get_status() == STATUS_FINISHED:
+            return redirect("scripts:cd_screen", project_id=project_id)
+        # Stay on loading page.
+        return redirect("scripts:fa_loading", project_id=project_id)
+
+
 class FAStartView(LoginRequiredMixin, TemplateView):
     """Start view for Forced Alignment."""
 
