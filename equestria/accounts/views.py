@@ -8,7 +8,7 @@ from accounts.models import UserProfile
 from upload.models import File
 from upload.forms import UploadTXTForm, UploadWAVForm
 from .forms import AudioSelectForm
-from django.core.files.storage import FileSystemStorage
+from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 """Module serving responses to user upon request."""
@@ -66,6 +66,24 @@ class Login(GenericTemplate):
             # implement error handling here
             messages.info(request, "Invalid username or password")
             return redirect("accounts:login")
+
+
+class Forgot(TemplateView):
+    """Forgot password page."""
+
+    template_name = "accounts/forgot.html"
+
+    def get(self, request, **kwargs):
+        """
+        GET request for forgot password view.
+
+        :param request: the request
+        :param kwargs: keyword arguments
+        :return: a render of the forgot password page
+        """
+        print(settings.ADMIN_EMAIL)
+        context = {"admin_email": settings.ADMIN_EMAIL}
+        return render(request, self.template_name, context)
 
 
 class Logout(TemplateView):
