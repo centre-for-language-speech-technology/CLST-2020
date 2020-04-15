@@ -253,6 +253,7 @@ class CheckDictionaryScreen(LoginRequiredMixin, TemplateView):
             output_str = file.read()
             can_upload = True
             file.close()
+            # TODO! we must remove the old FA stuff and re run everything.
         return render(request, self.template_name, {"project_id": project_id, "textInput": output_str,
                                                     "can_upload": can_upload},)
 

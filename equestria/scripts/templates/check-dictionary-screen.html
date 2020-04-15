@@ -13,7 +13,7 @@ Loading...
 <h1>Super fancy check dictionary</h1>
 
 <form action="../cd/{{ project_id }}" method = "post">{% csrf_token %}
-  <textarea name="checkDict" rows="10" cols="80">{{ textInput }}</textarea>
+  <textarea name="checkDict" rows="10" cols="80" {% if not can_upload %} disabled {% endif %} >{{ textInput }}</textarea>
   {% if can_upload %}
   <input type="submit" class="btn btn-primary" value="Update dictionary and rerun check">
   {% else %}
