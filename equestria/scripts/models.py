@@ -741,6 +741,8 @@ class Project(Model):
         files, but as long as one is non empty we return true. (e.g. we have a.ext and b.ext, a is empty but b is not
         thus we return true).
         """
+        if type(extensions) is not list:
+            raise TypeError("Extensions must be a list type")
         for file_name in os.listdir(self.folder):
             full_file_path = os.path.join(self.folder, file_name)
             if os.path.isfile(full_file_path):
@@ -758,7 +760,7 @@ class Project(Model):
 
         :return: True if a .ctm file is present in the project directory, False otherwise
         """
-        return self.has_non_empty_extension_file("ctm")
+        return self.has_non_empty_extension_file(["ctm"])
 
     def create_downloadable_archive(self):
         """
