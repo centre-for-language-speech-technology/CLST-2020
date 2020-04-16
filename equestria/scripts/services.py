@@ -18,11 +18,14 @@ def zip_dir(zip_directory, zip_to, ignore=None):
         ignore = list()
     ignore.append(zip_to)
 
-    ziph = zipfile.ZipFile(zip_to, 'w', zipfile.ZIP_DEFLATED)
+    ziph = zipfile.ZipFile(zip_to, "w", zipfile.ZIP_DEFLATED)
     for root, _, files in os.walk(zip_directory):
         for file in files:
             if not (os.path.join(root, file) in ignore or file in ignore):
-                ziph.write(os.path.join(root, file), os.path.join(os.path.relpath(root, zip_directory), file))
+                ziph.write(
+                    os.path.join(root, file),
+                    os.path.join(os.path.relpath(root, zip_directory), file),
+                )
     ziph.close()
 
     return ziph.filename

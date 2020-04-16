@@ -204,9 +204,17 @@ class FAOverview(LoginRequiredMixin, TemplateView):
             return Http404("Project does not exist")
 
         if project.finished_fa():
-            return render(request, self.template_name, {'success': True, 'project_id': project.id})
+            return render(
+                request,
+                self.template_name,
+                {"success": True, "project_id": project.id},
+            )
         else:
-            return render(request, self.template_name, {'success': False, 'project_id': project.id})
+            return render(
+                request,
+                self.template_name,
+                {"success": False, "project_id": project.id},
+            )
 
 
 class G2PLoadScreen(LoginRequiredMixin, TemplateView):

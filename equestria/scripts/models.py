@@ -758,7 +758,7 @@ class Project(Model):
 
         :return: True if a .ctm file is present in the project directory, False otherwise
         """
-        return self.has_non_empty_extension_file('ctm')
+        return self.has_non_empty_extension_file("ctm")
 
     def create_downloadable_archive(self):
         """
@@ -767,8 +767,11 @@ class Project(Model):
         :return: the filename of the downloadable archive
         """
         _, zip_filename = os.path.split(self.folder)
-        zip_filename = zip_filename + '.zip'
-        return os.path.join(self.folder, zip_dir(self.folder, os.path.join(self.folder, zip_filename)))
+        zip_filename = zip_filename + ".zip"
+        return os.path.join(
+            self.folder,
+            zip_dir(self.folder, os.path.join(self.folder, zip_filename)),
+        )
 
     class StateException(Exception):
         """Exception to be throwed when the project has an incorrect state."""
