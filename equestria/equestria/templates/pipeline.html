@@ -8,31 +8,51 @@
             <i class="fas fa-arrow-right"></i>
         </li>
         <li class="nav-item icon-centered {% if active == "upload" %} active {% endif %}">
-            <a class="nav-link waves-effect waves-light" href="#">Upload files</a>
+            {% if project_id %}
+                <a class="nav-link waves-effect waves-light" href="{% url 'upload:upload_project' project_id=project_id %}">Upload files</a>
+            {% else %}
+                <p class="non-link">Upload files</p>
+            {% endif %}
         </li>
         <li class="icon-centered">
             <i class="fas fa-arrow-right"></i>
         </li>
         <li class="nav-item icon-centered {% if active == "dictionary" %} active {% endif %}">
-            <a class="nav-link waves-effect waves-light" href="#">Check dictionary</a>
+            {% if project_id %}
+                <a class="nav-link waves-effect waves-light" href="{% url 'scripts:cd_screen' project_id=project_id %}">Check dictionary</a>
+            {% else %}
+                <p class="non-link">Check dictionary</p>
+            {% endif %}
         </li>
         <li class="icon-centered">
             <i class="fas fa-arrow-right"></i>
         </li>
         <li class="nav-item icon-centered {% if active == "forced" %} active {% endif %}">
-            <a class="nav-link waves-effect waves-light" href="#">Forced Alignment</a>
+            {% if project_id %}
+                <a class="nav-link waves-effect waves-light" href="{% url 'scripts:fa_overview' project_id=project_id %}">Forced Alignment</a>
+            {% else %}
+                <p class="non-link">Forced Alignment</p>
+            {% endif %}
         </li>
         <li class="icon-centered">
             <i class="fas fa-arrow-right"></i>
         </li>
         <li class="nav-item icon-centered {% if active == "segmentation" %} active {% endif %}">
-            <a class="nav-link waves-effect waves-light" href="#">Automatic Segmentation</a>
+            {% if project_id %}
+                <a class="nav-link waves-effect waves-light" href="{% url 'auto_segmentation' %}">Automatic Segmentation</a>
+            {% else %}
+                <p class="non-link">Automatic Segmentation</p>
+            {% endif %}
         </li>
         <li class="icon-centered">
             <i class="fas fa-arrow-right"></i>
         </li>
         <li class="nav-item icon-centered {% if active == "analysis" %} active {% endif %}">
-            <a class="nav-link waves-effect waves-light" href="#">Analysis</a>
+            {% if project_id %}
+                <a class="nav-link waves-effect waves-light" href="#">Analysis</a>
+            {% else %}
+                <p class="non-link">Analysis</p>
+            {% endif %}
         </li>
     </ul>
 </nav>
