@@ -195,7 +195,18 @@ class FAOverview(LoginRequiredMixin, TemplateView):
         :param kwargs: keyword arguments
         :return: a render of the FA overview page
         """
-        return render(request, self.template_name, {},)
+        project_id = kwargs.get("project_id")
+        try:
+            project = Project.objects.filter(user=request.user.id).get(
+                id=project_id
+            )
+        except Project.DoesNotExist:
+            return Http404("Project does not exist")
+
+        if project.finished_fa():
+            return render(request, self.template_name, {'success': True, 'project_id': project.id})
+        else:
+            return render(request, self.template_name, {'success': False, 'project_id': project.id})
 
 
 class G2PLoadScreen(LoginRequiredMixin, TemplateView):
@@ -463,12 +474,15 @@ class ForcedAlignmentProjectDetails(TemplateView):
         return True
 
 
-def download_process_archive(request, **kwargs):
+def download_project_archive(request, **kwargs):
     """Download the archive containing the process files."""
-    process = Process.objects.get(pk=kwargs.get("process"))
-    if process.output_file is not None:
-        return serve(
-            request, basename(process.output_file), dirname(process.output_file)
+    project_id = kwargs.get("project_id")
+    try:
+        project = Project.objects.filter(user=request.user.id).get(
+            id=project_id
         )
-    else:
-        return HttpResponseNotFound("Downloaded archive not found")
+    except Project.DoesNotExist:
+        return Http404("Project does not exist")
+
+    zip_filename = project.create_downloadable_archive()
+    return serve(request, basename(zip_filename), dirname(zip_filename))
