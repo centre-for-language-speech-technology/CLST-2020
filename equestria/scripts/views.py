@@ -9,19 +9,14 @@ from .models import (
     InputTemplate,
     Pipeline,
     Process,
-    STATUS_UPLOADING,
-    STATUS_RUNNING,
-    STATUS_WAITING,
-    STATUS_DOWNLOADING,
     STATUS_FINISHED,
-    STATUS_ERROR,
 )
 from django.http import JsonResponse
 from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
 import secrets
 import os
-from .forms import ProjectCreateForm
+from .forms import ProjectCreateForm, AlterDictionaryForm
 from .tasks import update_script
 import logging
 
@@ -245,32 +240,23 @@ class CheckDictionaryScreen(LoginRequiredMixin, TemplateView):
             return Http404("Project does not exist")
 
         # Read content of file.
-        path = project.get_oov_dict_file_path()
-        output_str = "Dictionary up to date."
-        can_upload = False
-        if path is not None:
-            file = open(path, "r")
-            output_str = file.read()
-            can_upload = True
-            if len(output_str) == 0:
-                can_upload = False
-                output_str = "Dictionary file is empty."
-
-            file.close()
+        content = project.get_oov_dict_file_contents()
+        form = AlterDictionaryForm(initial={"dictionary": content})
 
         return render(
             request,
             self.template_name,
-            {
-                "project_id": project_id,
-                "textInput": output_str,
-                "can_upload": can_upload,
-            },
+            {"form": form, "project_id": project.id,},
         )
 
     def post(self, request, **kwargs):
         """
-        Handles the change of the textfield etc.
+        POST request of the check dictionary page.
+
+        :param request: the request
+        :param kwargs: keyword arguments
+        :return: an Http404 response if the project_id is not found, a render of the check dictionary page if the
+        AlterDictionaryForm is not valid, a redirect to the rerun FA page if the AlterDictionaryForm is valid
         """
         project_id = kwargs.get("project_id")
         try:
@@ -280,25 +266,29 @@ class CheckDictionaryScreen(LoginRequiredMixin, TemplateView):
         except Project.DoesNotExist:
             return Http404("Project does not exist")
 
-        input_data = request.POST.get("checkDict")
-        path = project.get_oov_dict_file_path()
-        if path is not None:
-            file = open(path, "w")
-            file.write(input_data)
-            file.close()
+        form = AlterDictionaryForm(request.POST)
+        if form.is_valid():
+            dictionary_content = form.cleaned_data.get("dictionary")
+            project.write_oov_dict_file_contents(dictionary_content)
+            new_process = Process.create_process(
+                project.pipeline.fa_script, project.folder
+            )
+            project.current_process = new_process
+            project.save()
+            profiles = Profile.objects.filter(process=new_process)
 
-        # save to the file...
-        new_process = Process.create_process(
-            project.pipeline.fa_script, project.folder
-        )
-        project.current_process = new_process
-        project.save()
-        profiles = Profile.objects.filter(process=new_process)
-
-        # TODO select correct profile
-        return redirect(
-            "scripts:fa_start", project_id=project_id, profile_id=profiles[0]
-        )
+            # TODO select correct profile
+            return redirect(
+                "scripts:fa_start",
+                project_id=project_id,
+                profile_id=profiles[0],
+            )
+        else:
+            return render(
+                request,
+                self.template_name,
+                {"form": form, "project_id": project.id},
+            )
 
 
 class JsonProcess(TemplateView):

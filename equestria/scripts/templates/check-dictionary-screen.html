@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block title %}
-Loading...
+Check dictionary
 {% endblock %}
 
 {% block prebody %}
@@ -10,17 +10,16 @@ Loading...
 {% endblock %}
 
 {% block body %}
-<h1>Super fancy check dictionary</h1>
-
-<form action="../cd/{{ project_id }}" method = "post">{% csrf_token %}
-  <textarea name="checkDict" rows="10" cols="80" {%if not can_upload%} disabled {%endif%} >
-    {{ textInput }}</textarea>
-  {% if can_upload %}
-  <input type="submit" class="btn btn-primary" value="Update dictionary and rerun check">
-  {% else %}
-  <a class="btn btn-primary" href="{% url 'scripts:fa_overview' project_id=project_id %}">Move to FA</a>
-  {% endif %}
-</form>
-
+    <div class="container-fluid">
+        <div class="col rounded shadow lighter padding">
+            <h1>Check dictionary</h1>
+                <form action="" method = "post">
+                    {% csrf_token %}
+                    {{ form }}
+                    <input type="submit" class="btn btn-primary" value="Update dictionary and rerun FA">
+                </form>
+            <a class="btn btn-primary" href="{% url 'scripts:fa_overview' project_id=project_id %}">Continue to FA overview</a>
+        </div>
+    </div>
 {% endblock %}
 

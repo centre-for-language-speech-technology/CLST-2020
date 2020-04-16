@@ -687,9 +687,42 @@ class Project(Model):
                     name=name, folder=folder, pipeline=pipeline, user=user
                 )
 
+    def write_oov_dict_file_contents(self, content):
+        """
+        Write content to .oov.dict file in project folder.
+
+        :param content: the content to write to the file
+        :return: None
+        """
+        path = self.get_oov_dict_file_path()
+        if path is not None:
+            with open(path, "w") as file:
+                file.write(content)
+        else:
+            # TODO: Change the way we handle writing to a .oov.dict that does not exist
+            with open(
+                os.path.join(self.folder, "default.oov.dict"), "w"
+            ) as file:
+                file.write(content)
+
+    def get_oov_dict_file_contents(self):
+        """
+        Get the content of the .oov.dict file in the project folder.
+
+        :return: the content of the .oov.dict file, an emtpy string if such a file does not exist
+        """
+        path = self.get_oov_dict_file_path()
+        if path is not None:
+            with open(path, "r") as file:
+                return file.read()
+        else:
+            return ""
+
     def get_oov_dict_file_path(self):
         """
-        Returns the full path to the .oov.dict file, or non if it does not exist.
+        Get the file path of the .oov.dict file in the folder directory.
+
+        :return: the file path of the .oov.dict file, or None if such a file does not exist
         """
         for file_name in os.listdir(self.folder):
             full_file_path = os.path.join(self.folder, file_name)
