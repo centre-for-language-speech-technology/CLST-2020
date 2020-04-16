@@ -1,11 +1,11 @@
 ---
 
-name: "Coding style"
-on: "push"
+name: "Coding style and testing"
+on: "pull_request"
 
 jobs:
-  lint:
-    name: "Linting"
+  lint_and_test:
+    name: "Linting and testing"
     runs-on: "ubuntu-latest"
     steps:
 
@@ -30,3 +30,11 @@ jobs:
 
     - name: "Check for dead code"
       run: "poetry run vulture --min-confidence=90 equestria"
+      
+    - name: Check server
+      run: |
+        poetry run python3 equestria/manage.py check
+
+    - name: Perform tests
+      run: |
+        MOZ_HEADLESS=1 poetry run python3 equestria/manage.py test equestria
