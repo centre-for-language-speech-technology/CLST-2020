@@ -19,11 +19,12 @@ Starting the Django server
 4. Run `poetry shell`
 5. `cd equestria`
 6. `./manage.py migrate` to initialise the database
-7. `./manage.py loaddata clam` to load the test CLAM server into the database
+7. `./manage.py loaddata clam` to load the test CLAM server into the database (don't forget to set the CLAM passwords in step 11!)
 8. `./manage.py createsuperuser` to create the first user
 9. `./manage.py runserver` to run a testing server
-10 `./manage.py process_tasks`to run the background tasks (glue between django and CLAM, for update status etc).
+10. `./manage.py process_tasks`to run the background tasks (glue between django and CLAM, for update status etc).
 Starting the CLAM test server
+11. To use the website, you also need to put in the passwords for the CLAM servers that were in the fixtures in step 7. Go to the admin page of django and enter the CLAM passwords in the scripts stored under scripts/scripts on the admin page.
 
 1. In another shell, execute `cd fa-clam`.
 2. Make sure `poetry` uses your python 3 installation: `poetry env use python3`
