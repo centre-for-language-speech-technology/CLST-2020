@@ -1,3 +1,4 @@
+"""Module to define db models related to the upload app."""
 from django.db import models
 from equestria.settings import BASE_DIR
 import os
@@ -17,6 +18,7 @@ class File(models.Model):
     path = models.FilePathField(path=os.path.join(BASE_DIR, "media/"))
     filetype = models.CharField(max_length=30)
     usage = models.CharField(max_length=30)
+    project = models.CharField(max_length=10)
 
     def __str__(self):
         """Use name of script in admin display."""

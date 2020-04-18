@@ -1,3 +1,4 @@
+"""Module to parse URL and direct accordingly."""
 from django.urls import path
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.conf.urls.static import static

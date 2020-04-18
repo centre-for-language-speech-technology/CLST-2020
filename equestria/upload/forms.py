@@ -1,3 +1,4 @@
+"""Module to define forms related to the upload app."""
 from django import forms
 from django.db import models
 from .formExtension import ExtFileField

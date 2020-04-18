@@ -1,3 +1,4 @@
+"""Module to define forms related to the scripts app."""
 from django import forms
 from django.contrib.auth import get_user_model
 from .models import Project, Pipeline
@@ -8,6 +9,28 @@ alphanumeric = RegexValidator(
 )
 
 User = get_user_model()
+
+
+class ProfileSelectForm(forms.Form):
+    """Form for running a profile."""
+
+    profiles = forms.ChoiceField(choices=[])
+
+    def __init__(self, user, *args, **kwargs):
+        """
+        Initialise method for ProfileRunForm.
+
+        :param args: argument
+        :param kwargs: keyword arguments containing a scripts variable with Script objects
+        """
+        self.user = user
+        profiles = kwargs.pop("profiles", None)
+        super(ProfileSelectForm, self).__init__(*args, **kwargs)
+        choices = []
+        if profiles is not None:
+            for p in profiles:
+                choices.append((p.id, p.id))
+            self.fields["profiles"].choices = choices
 
 
 class ProjectCreateForm(forms.Form):

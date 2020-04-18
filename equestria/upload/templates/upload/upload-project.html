@@ -36,11 +36,20 @@ Equestria: Upload
 {% block body %}
         
         <div class="rounded shadow lighter padding">
-            <h3>Upload a transcript (.txt/.tg) file:</h3>
+            <h3>Upload a file (.txt .tg or .wav):</h3>
             <form class="md-form" action="" method="post" enctype="multipart/form-data">
                 <div class="input-group mb-3">
                     <div class="custom-file">
-                        {% crispy TXTform %}
+                        {% crispy UploadForm %}
+                        {%csrf_token%}
+                        <input type="submit" name="TXTform" value="Submit" class="btn btn-primary" id="upload-txt-btn">
+                    </div>
+                </div>
+            </form>
+            <form class="md-form" action="" method="post" enctype="multipart/form-data">
+                <div class="input-group mb-3">
+                    <div class="custom-file">
+                        {% crispy ProfileForm %}
                         {%csrf_token%}
                         <input type="submit" name="TXTform" value="Submit" class="btn btn-primary" id="upload-txt-btn">
                     </div>

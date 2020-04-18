@@ -1,3 +1,4 @@
+"""Module to define db models related to the upload app."""
 import pytz
 from django.db.models import *
 import clam.common.client
@@ -559,10 +560,18 @@ class InputTemplate(Model):
         :param folder: the folder to search for the file
         :return: True if at least one file is found with the extension from this object, False otherwise
         """
-        for file in os.listdir(folder):
-            if file.endswith(self.extension):
-                return True
-        return False
+        # Optional: File type not required
+        # Unique: Only one file of that type in dir
+        # Accept Archive: can upload .zip
+        if self.unique:
+            i = 0
+            for file in os.listdir(folder):
+                if file.endswith(self.extension):
+                    i += 1
+            if self.optional:
+                return i == 1 or i == 0
+            else:
+                return i == 1
 
     def is_valid_for(self, folder):
         """
