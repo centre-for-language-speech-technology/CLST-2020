@@ -1,4 +1,4 @@
-from django.http import HttpResponseNotFound, Http404
+from django.http import Http404
 from django.views.generic import TemplateView
 from django.shortcuts import render, redirect
 from os.path import basename, dirname
@@ -9,19 +9,14 @@ from .models import (
     InputTemplate,
     Pipeline,
     Process,
-    STATUS_UPLOADING,
-    STATUS_RUNNING,
-    STATUS_WAITING,
-    STATUS_DOWNLOADING,
     STATUS_FINISHED,
-    STATUS_ERROR,
 )
 from django.http import JsonResponse
 from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
 import secrets
 import os
-from .forms import ProjectCreateForm
+from .forms import ProjectCreateForm, AlterDictionaryForm
 from .tasks import update_script
 import logging
 
@@ -200,7 +195,26 @@ class FAOverview(LoginRequiredMixin, TemplateView):
         :param kwargs: keyword arguments
         :return: a render of the FA overview page
         """
-        return render(request, self.template_name, {},)
+        project_id = kwargs.get("project_id")
+        try:
+            project = Project.objects.filter(user=request.user.id).get(
+                id=project_id
+            )
+        except Project.DoesNotExist:
+            return Http404("Project does not exist")
+
+        if project.finished_fa():
+            return render(
+                request,
+                self.template_name,
+                {"success": True, "project_id": project.id},
+            )
+        else:
+            return render(
+                request,
+                self.template_name,
+                {"success": False, "project_id": project.id},
+            )
 
 
 class G2PLoadScreen(LoginRequiredMixin, TemplateView):
@@ -236,7 +250,64 @@ class CheckDictionaryScreen(LoginRequiredMixin, TemplateView):
         :param kwargs: keyword arguments
         :return: a render of the check dictionary page
         """
-        return render(request, self.template_name, {},)
+        project_id = kwargs.get("project_id")
+        try:
+            project = Project.objects.filter(user=request.user.id).get(
+                id=project_id
+            )
+        except Project.DoesNotExist:
+            return Http404("Project does not exist")
+
+        # Read content of file.
+        content = project.get_oov_dict_file_contents()
+        form = AlterDictionaryForm(initial={"dictionary": content})
+
+        return render(
+            request,
+            self.template_name,
+            {"form": form, "project_id": project.id,},
+        )
+
+    def post(self, request, **kwargs):
+        """
+        POST request of the check dictionary page.
+
+        :param request: the request
+        :param kwargs: keyword arguments
+        :return: an Http404 response if the project_id is not found, a render of the check dictionary page if the
+        AlterDictionaryForm is not valid, a redirect to the rerun FA page if the AlterDictionaryForm is valid
+        """
+        project_id = kwargs.get("project_id")
+        try:
+            project = Project.objects.filter(user=request.user.id).get(
+                id=project_id
+            )
+        except Project.DoesNotExist:
+            return Http404("Project does not exist")
+
+        form = AlterDictionaryForm(request.POST)
+        if form.is_valid():
+            dictionary_content = form.cleaned_data.get("dictionary")
+            project.write_oov_dict_file_contents(dictionary_content)
+            new_process = Process.create_process(
+                project.pipeline.fa_script, project.folder
+            )
+            project.current_process = new_process
+            project.save()
+            profiles = Profile.objects.filter(process=new_process)
+
+            # TODO select correct profile
+            return redirect(
+                "scripts:fa_start",
+                project_id=project_id,
+                profile_id=profiles[0],
+            )
+        else:
+            return render(
+                request,
+                self.template_name,
+                {"form": form, "project_id": project.id},
+            )
 
 
 class JsonProcess(TemplateView):
@@ -411,12 +482,15 @@ class ForcedAlignmentProjectDetails(TemplateView):
         return True
 
 
-def download_process_archive(request, **kwargs):
+def download_project_archive(request, **kwargs):
     """Download the archive containing the process files."""
-    process = Process.objects.get(pk=kwargs.get("process"))
-    if process.output_file is not None:
-        return serve(
-            request, basename(process.output_file), dirname(process.output_file)
+    project_id = kwargs.get("project_id")
+    try:
+        project = Project.objects.filter(user=request.user.id).get(
+            id=project_id
         )
-    else:
-        return HttpResponseNotFound("Downloaded archive not found")
+    except Project.DoesNotExist:
+        return Http404("Project does not exist")
+
+    zip_filename = project.create_downloadable_archive()
+    return serve(request, basename(zip_filename), dirname(zip_filename))

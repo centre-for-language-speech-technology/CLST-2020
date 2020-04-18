@@ -2,14 +2,24 @@
 {% load static %}
 
 {% block title %}
-Loading...
+Check dictionary
 {% endblock %}
 
 {% block prebody %}
-{% include "pipeline.html" with active="forced" %}
+{% include "pipeline.html" with active="dictionary" %}
 {% endblock %}
 
 {% block body %}
-<h1>Super fancy check dictionary</h1>
+    <div class="container-fluid">
+        <div class="col rounded shadow lighter padding">
+            <h1>Check dictionary</h1>
+                <form action="" method = "post">
+                    {% csrf_token %}
+                    {{ form }}
+                    <input type="submit" class="btn btn-primary" value="Update dictionary and rerun FA">
+                </form>
+            <a class="btn btn-primary" href="{% url 'scripts:fa_overview' project_id=project_id %}">Continue to FA overview</a>
+        </div>
+    </div>
 {% endblock %}
 

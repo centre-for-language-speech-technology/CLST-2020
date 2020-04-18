@@ -11,6 +11,7 @@ import os
 import secrets
 from django.contrib.auth import get_user_model
 import zipfile
+from .services import zip_dir
 
 # Create your models here.
 
@@ -687,6 +688,50 @@ class Project(Model):
                     name=name, folder=folder, pipeline=pipeline, user=user
                 )
 
+    def write_oov_dict_file_contents(self, content):
+        """
+        Write content to .oov.dict file in project folder.
+
+        :param content: the content to write to the file
+        :return: None
+        """
+        path = self.get_oov_dict_file_path()
+        if path is not None:
+            with open(path, "w") as file:
+                file.write(content)
+        else:
+            # TODO: Change the way we handle writing to a .oov.dict that does not exist
+            with open(
+                os.path.join(self.folder, "default.oov.dict"), "w"
+            ) as file:
+                file.write(content)
+
+    def get_oov_dict_file_contents(self):
+        """
+        Get the content of the .oov.dict file in the project folder.
+
+        :return: the content of the .oov.dict file, an emtpy string if such a file does not exist
+        """
+        path = self.get_oov_dict_file_path()
+        if path is not None:
+            with open(path, "r") as file:
+                return file.read()
+        else:
+            return ""
+
+    def get_oov_dict_file_path(self):
+        """
+        Get the file path of the .oov.dict file in the folder directory.
+
+        :return: the file path of the .oov.dict file, or None if such a file does not exist
+        """
+        for file_name in os.listdir(self.folder):
+            full_file_path = os.path.join(self.folder, file_name)
+            if os.path.isfile(full_file_path):
+                if file_name.endswith(".oov.dict"):
+                    return full_file_path
+        return None
+
     def has_non_empty_extension_file(self, extensions):
         """
         Check if a file ends with some extension.
@@ -696,6 +741,8 @@ class Project(Model):
         files, but as long as one is non empty we return true. (e.g. we have a.ext and b.ext, a is empty but b is not
         thus we return true).
         """
+        if type(extensions) is not list:
+            raise TypeError("Extensions must be a list type")
         for file_name in os.listdir(self.folder):
             full_file_path = os.path.join(self.folder, file_name)
             if os.path.isfile(full_file_path):
@@ -706,6 +753,27 @@ class Project(Model):
                         return True
 
         return False
+
+    def finished_fa(self):
+        """
+        Check if FA has finished.
+
+        :return: True if a .ctm file is present in the project directory, False otherwise
+        """
+        return self.has_non_empty_extension_file(["ctm"])
+
+    def create_downloadable_archive(self):
+        """
+        Create a downloadable archive.
+
+        :return: the filename of the downloadable archive
+        """
+        _, zip_filename = os.path.split(self.folder)
+        zip_filename = zip_filename + ".zip"
+        return os.path.join(
+            self.folder,
+            zip_dir(self.folder, os.path.join(self.folder, zip_filename)),
+        )
 
     class StateException(Exception):
         """Exception to be throwed when the project has an incorrect state."""

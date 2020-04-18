@@ -10,6 +10,16 @@ alphanumeric = RegexValidator(
 User = get_user_model()
 
 
+class AlterDictionaryForm(forms.Form):
+    """Form for altering the dictionary."""
+
+    dictionary = forms.CharField(
+        widget=forms.Textarea(attrs={"style": "width: 100%;"}),
+        required=False,
+        label=False,
+    )
+
+
 class ProjectCreateForm(forms.Form):
     """Form for project creation."""
 
