@@ -1,16 +1,15 @@
 from django import forms
+from django.db import models
 from .formExtension import ExtFileField
 
 
-class UploadTXTForm(forms.Form):
-    """Form to upload txt file."""
+class UploadForm(forms.Form):
+    """Form to upload files with file extension restriction."""
 
-    txtFile = ExtFileField(
-        ext_whitelist=(".txt", ".txt"),
+    f = ExtFileField(
+        ext_whitelist=(".txt", ".tg", ".wav"),
         widget=forms.FileInput(attrs={"class": "custom-file-input"}),
     )
-    # need duplicate in whitelist otherwise string will be treated as list and only valid filetypes are ".","t","x"
-    # which does not make sense
 
 
 class UploadWAVForm(forms.Form):

@@ -6,7 +6,7 @@ from django.views.generic import TemplateView
 from django.contrib import messages
 from accounts.models import UserProfile
 from upload.models import File
-from upload.forms import UploadTXTForm, UploadWAVForm
+from upload.forms import UploadForm, UploadWAVForm
 from .forms import AudioSelectForm
 from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -175,7 +175,7 @@ class Overview(LoginRequiredMixin, GenericTemplate):
         files = File.objects.all().filter(owner=request.user.username)
         audioSelectForm = AudioSelectForm(user=request.user)
         wavForm = UploadWAVForm()
-        txtForm = UploadTXTForm()
+        txtForm = UploadForm()
         context = {
             "files": files,
             "WAVform": wavForm,

@@ -1,4 +1,5 @@
 {% extends 'progbase.html' %}
+{% load crispy_forms_tags %}
 {% load static %}
 
 {% block title %}
@@ -7,22 +8,47 @@ Equestria: Upload
 
 {% block prebody %}
 {% include "pipeline.html" with active="upload" %}
+
+
+<script>function uploadTXT(event) {
+    event.preventDefault();
+    var Form = new FormData($('TXTform'));
+    var data = Form.get(0);
+    $.ajax({
+        url: $(this).attr('action'),
+        type: $(this).attr('method'),
+        data: data,
+        cache: false,
+        processData: false,
+        contentType: false,
+        success: function(data) {
+            alert('success');
+        }
+    });
+    return false;
+    }
+    
+    $(function() {
+        $('TXTform').submit(uploadTXT);
+    });</script>
 {% endblock %}
 
 {% block body %}
-    <div class="container-fluid">
-        <div class="rounded shadow lighter padding mb-3">
-            <p>
-                This page is actually not doing anything yet, to run a project, place all the needed files in the project
-                directory under /userdata/[project_name] and go to /scripts/fa/[project_id]/start/[profile_id] for the profile
-                that you want to run the project with.
-            </p>
-            <form class="md-form" method="POST" action="">
-                {% csrf_token %}
+        
+        <div class="rounded shadow lighter padding">
+            <h3>Upload a transcript (.txt/.tg) file:</h3>
+            <form class="md-form" action="" method="post" enctype="multipart/form-data">
                 <div class="input-group mb-3">
-                    <input type="submit" value="Run Forced Alignment" class="btn btn-primary"/>
+                    <div class="custom-file">
+                        {% crispy TXTform %}
+                        {%csrf_token%}
+                        <input type="submit" name="TXTform" value="Submit" class="btn btn-primary" id="upload-txt-btn">
+                    </div>
                 </div>
             </form>
         </div>
     </div>
+{% for file in  files %}
+    <p> {{ file }} </p>
+{% endfor %}
 {% endblock %}
