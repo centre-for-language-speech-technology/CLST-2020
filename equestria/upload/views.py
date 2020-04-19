@@ -8,7 +8,6 @@ from .models import File
 from .forms import UploadForm, UploadWAVForm
 from scripts.forms import ProfileSelectForm
 from django.core.files.storage import FileSystemStorage
-from django.http import HttpResponseRedirect
 from django.contrib.auth.mixins import LoginRequiredMixin
 import mimetypes
 
