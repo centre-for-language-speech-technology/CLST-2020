@@ -14,7 +14,8 @@ Starting the Django server
 
 0. Get at least Python 3.7 and install poetry and the requirements as per below.
 1. Clone this repository
-2. Make sure `poetry` uses your python 3 installation: `poetry env use python3`
+2. Make sure `poetry` uses your python 3 installation: `poetry env use python3`. If pycrypto fails, make sure to download:
+sudo apt-get install python3.7-dev
 3. Run `poetry install`
 4. Run `poetry shell`
 5. `cd equestria`
