@@ -2,7 +2,7 @@
 import os
 from django.conf import settings
 from scripts.models import Project, Profile, InputTemplate
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views.generic import TemplateView
 from .models import File
 from .forms import UploadForm
@@ -66,7 +66,11 @@ class UploadProjectView(LoginRequiredMixin, TemplateView):
         if form.is_valid():
             safeFile(request, form, p_id)
         else:
-            print(form.errors)
+            prof_id = request.POST.get("profiles")
+
+            return redirect(
+                "scripts:fa_start", project_id=p_id, profile_id=prof_id
+            )
 
         files = File.objects.filter(owner=request.user.username, project=p_id)
 
