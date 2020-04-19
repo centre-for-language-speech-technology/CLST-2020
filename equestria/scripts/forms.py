@@ -32,6 +32,15 @@ class ProfileSelectForm(forms.Form):
                 choices.append((p.id, p.id))
             self.fields["profiles"].choices = choices
 
+class AlterDictionaryForm(forms.Form):
+    """Form for altering the dictionary."""
+
+    dictionary = forms.CharField(
+        widget=forms.Textarea(attrs={"style": "width: 100%;"}),
+        required=False,
+        label=False,
+    )
+
 
 class ProjectCreateForm(forms.Form):
     """Form for project creation."""

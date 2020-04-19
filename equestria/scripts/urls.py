@@ -27,9 +27,9 @@ urlpatterns = [
         name="process_details",
     ),
     path(
-        "process/<int:process>/download",
-        download_process_archive,
-        name="process_download",
+        "project/<int:project_id>/download",
+        download_project_archive,
+        name="project_download",
     ),
     path(
         "fa/<int:project_id>/start/<int:profile_id>",

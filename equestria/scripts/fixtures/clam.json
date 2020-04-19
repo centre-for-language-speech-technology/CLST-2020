@@ -22,11 +22,31 @@
     }
   },
   {
+    "model": "scripts.Script",
+    "pk": 3,
+    "fields": {
+      "name": "Frisian Forced Alignment",
+      "hostname": "https://webservices-lst.science.ru.nl/frisianalign",
+      "description": "Frisian Forced Alignment",
+      "username": "clst",
+      "password": ""
+    }
+  },
+  {
     "model": "scripts.Pipeline",
     "pk": 1,
     "fields": {
       "name": "Dutch Forced Alignment pipeline",
       "fa_script": 1,
+      "g2p_script": 2
+    }
+  },
+  {
+    "model": "scripts.Pipeline",
+    "pk": 2,
+    "fields": {
+      "name": "Frisian Forced Alignment pipeline",
+      "fa_script": 3,
       "g2p_script": 2
     }
   }
