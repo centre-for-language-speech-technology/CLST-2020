@@ -32,6 +32,7 @@ class ProfileSelectForm(forms.Form):
                 choices.append((p.id, p.id))
             self.fields["profiles"].choices = choices
 
+
 class AlterDictionaryForm(forms.Form):
     """Form for altering the dictionary."""
 
