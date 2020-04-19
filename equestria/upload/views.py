@@ -5,7 +5,7 @@ from scripts.models import Project, Profile, InputTemplate
 from django.shortcuts import render
 from django.views.generic import TemplateView
 from .models import File
-from .forms import UploadForm, UploadWAVForm
+from .forms import UploadForm
 from scripts.forms import ProfileSelectForm
 from django.core.files.storage import FileSystemStorage
 from django.contrib.auth.mixins import LoginRequiredMixin
