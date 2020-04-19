@@ -49,7 +49,8 @@ class FARedirect(LoginRequiredMixin, TemplateView):
 
         # Check if the FA has some .oov files
         if project.has_non_empty_extension_file([".oov"]):
-            return redirect("scripts:g2p_loading", project_id=project_id)
+            profile_id = 4 # TODO: FIX THIS! @Michel
+            return redirect("scripts:g2p_start", project_id=project_id, profile_id=profile_id)
 
         # We should never arrive in the loading screen when we do not load the FA...
         if project.current_process.script != project.pipeline.fa_script:
@@ -217,6 +218,83 @@ class FAOverview(LoginRequiredMixin, TemplateView):
                 {"success": False, "project_id": project.id},
             )
 
+class G2PStartScreen(LoginRequiredMixin, TemplateView):
+    """Start screen of the g2p"""
+
+    login_url = "/accounts/login/"
+
+    template_name = "g2p-startscreen.html"
+
+    def get(self, request, **kwargs):
+        """
+        GET method for the start screen of G2P
+
+        :param request: the request
+        :param kwargs: the keyword arguments
+        :return: a JSON response indicating whether the CLAM server started
+        """
+        project_id = kwargs.get("project_id")
+        profile_id = kwargs.get("profile_id")
+        try:
+            project = Project.objects.filter(user=request.user.id).get(
+                id=project_id
+            )
+            profile = Profile.objects.get(id=profile_id)
+        except Project.DoesNotExist or Profile.DoesNotExist:
+            return render(
+                request,
+                self.template_name,
+                {
+                    "project": project_id,
+                    "error": "Either the profile or project does not exist",
+                },
+            )
+        process = project.current_process
+        if process.script != project.pipeline.g2p_script:
+            print(process.script)
+            return render(
+                request,
+                self.template_name,
+                {
+                    "project": project_id,
+                    "error": "Current process is not a G2P process",
+                },
+            )
+        if profile.process != process:
+            return render(
+                request,
+                self.template_name,
+                {
+                    "project": project_id,
+                    "error": "Invalid profile for the specified process",
+                },
+            )
+
+        try:
+            process.start_safe(profile)
+        except ValueError as e:
+            logging.error(e)
+            return render(
+                request,
+                self.template_name,
+                {
+                    "project": project_id,
+                    "error": "Error while starting the process, make sure all input"
+                    " files are specified",
+                },
+            )
+        except Exception as e:
+            logging.error(e)
+            return render(
+                request,
+                self.template_name,
+                {
+                    "project": project_id,
+                    "error": "Error while uploading files to CLAM, please try again later",
+                },
+            )
+        update_script(process.id)
+        return redirect("scripts:g2p_loading", project_id=project_id)
 
 class G2PLoadScreen(LoginRequiredMixin, TemplateView):
     """Loading screen, where the g2p is run as well."""
@@ -233,7 +311,24 @@ class G2PLoadScreen(LoginRequiredMixin, TemplateView):
         :param kwargs: keyword arguments
         :return: a render of the G2P loading screen
         """
-        return render(request, self.template_name, {},)
+        project_id = kwargs.get("project_id")
+        try:
+            project = Project.objects.filter(user=request.user.id).get(
+                id=project_id
+            )
+        except Project.DoesNotExist:
+            return Http404("Project does not exist")
+
+        if project.current_process.script != project.pipeline.g2p_script:
+            raise Project.StateException(
+                "Current project script is not a G2P script"
+            )
+
+        return render(
+            request,
+            self.template_name,
+            {"process": project.current_process, "project": project},
+        )
 
 
 class CheckDictionaryScreen(LoginRequiredMixin, TemplateView):

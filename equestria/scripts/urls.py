@@ -36,4 +36,9 @@ urlpatterns = [
         FAStartView.as_view(),
         name="fa_start",
     ),
+    path(
+        "g2p/<int:project_id>/start/<int:profile_id>",
+        G2PStartScreen.as_view(),
+        name="g2p_start",
+    ),
 ]
