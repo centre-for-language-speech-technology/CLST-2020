@@ -7,7 +7,7 @@ from .views import UploadWAVView, UploadProjectView
 
 urlpatterns = [
     path("wav", UploadWAVView.as_view(), name="uploadwav_form"),
-    #path("txt", UploadTXTView.as_view(), name="uploadtxt_form"),
+    # path("txt", UploadTXTView.as_view(), name="uploadtxt_form"),
     path(
         "<int:project_id>", UploadProjectView.as_view(), name="upload_project"
     ),
