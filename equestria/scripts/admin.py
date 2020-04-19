@@ -1,3 +1,4 @@
+"""Module to register thing to be available in admin page."""
 from django.contrib import admin
 from scripts import models
 

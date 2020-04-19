@@ -1,3 +1,4 @@
+"""Module that does things that I don't know."""
 from django.apps import AppConfig
 
 

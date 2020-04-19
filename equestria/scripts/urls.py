@@ -1,3 +1,4 @@
+"""Module to parse URL and direct accordingly."""
 from django.urls import path
 from scripts.views import *
 

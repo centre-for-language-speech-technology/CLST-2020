@@ -1,3 +1,4 @@
+"""Module to handle tasks I guess."""
 from scripts.models import STATUS_WAITING, STATUS_RUNNING, STATUS_ERROR
 from background_task import background
 from .models import Process

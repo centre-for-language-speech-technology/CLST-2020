@@ -1,3 +1,4 @@
+"""Module to extend regular file field to handle type restrictions."""
 import os
 
 from django import forms

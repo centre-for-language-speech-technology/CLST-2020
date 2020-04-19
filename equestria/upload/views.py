@@ -1,21 +1,85 @@
+"""Module to handle uploading files."""
 import os
 from django.conf import settings
+from scripts.models import Project, Profile, InputTemplate
 from django.shortcuts import render
 from django.views.generic import TemplateView
 from .models import File
-from .forms import UploadTXTForm, UploadWAVForm
+from .forms import UploadForm
+from scripts.forms import ProfileSelectForm
 from django.core.files.storage import FileSystemStorage
-from django.http import HttpResponseRedirect
 from django.contrib.auth.mixins import LoginRequiredMixin
 import mimetypes
 
-"""Module to handle uploading files."""
 
-
-class UploadProjectView(TemplateView):
+class UploadProjectView(LoginRequiredMixin, TemplateView):
     """View for initial upload of files to a project."""
 
+    login_url = "/accounts/login/"
+    redirect_field_name = "redirect_to"
     template_name = "upload/upload-project.html"
+
+    def getValidProfiles(self, request, p_id):
+        """Get profiles for which the current files meet the requirements."""
+        profiles = Profile.objects.all()
+        validProfiles = []
+
+        for p in profiles:
+            if p.is_valid(
+                os.path.join(
+                    settings.USER_DATA_FOLDER,
+                    request.user.username,
+                    Project.objects.get(id=p_id).name,
+                )
+            ):
+                validProfiles.append(p)
+        return validProfiles
+
+    def makeProfileForm(self, request, p_id):
+        """Make a profile form to be used in this class."""
+        validProfiles = self.getValidProfiles(request, p_id)
+        return ProfileSelectForm(
+            request.user, request.POST, profiles=validProfiles
+        )
+
+    def get(self, request, **kwargs):
+        """Handle GET requests file upload apge."""
+        p_id = kwargs.get("project_id")
+
+        files = File.objects.filter(owner=request.user.username, project=p_id)
+        profileForm = self.makeProfileForm(request, p_id)
+
+        uploadForm = UploadForm()
+        uploadForm.p_id = p_id
+        context = {
+            "files": files,
+            "UploadForm": uploadForm,
+            "ProfileForm": profileForm,
+        }
+        return render(request, self.template_name, context)
+
+    def post(self, request, **kwargs):
+        """Handle POST requests file upload page."""
+        form = UploadForm(request.POST, request.FILES)
+        p_id = kwargs.get("project_id")
+
+        if form.is_valid():
+            safeFile(request, form, p_id)
+        else:
+            print(form.errors)
+
+        files = File.objects.filter(owner=request.user.username, project=p_id)
+
+        profileForm = self.makeProfileForm(request, p_id)
+
+        uploadForm = UploadForm()
+        uploadForm.p_id = p_id
+        context = {
+            "files": files,
+            "UploadForm": uploadForm,
+            "ProfileForm": profileForm,
+        }
+        return render(request, self.template_name, context)
 
 
 def getFileType(path):
@@ -24,23 +88,28 @@ def getFileType(path):
     return mime[0]
 
 
-def makeDBEntry(request, path, useFor):
+def makeDBEntry(request, path, useFor, p_id):
     """Create an entry in the Database for the uploaded file."""
+    exists = File.objects.filter(path=path)
+    if len(exists) > 0:
+        exists[0].delete()
     file = File()
     file.owner = request.user.username
     file.path = path
+    file.project = p_id
     file.filetype = getFileType(path)
     file.usage = useFor
     file.save()
 
 
-def safeFile(request, form, filetype, useFor):
+def safeFile(request, form, p_id):
     """Safe uploaded file."""
     username = request.user.username
-    uploadedfile = request.FILES[filetype]
-    path = os.path.join("media", username, filetype)
+    uploadedfile = request.FILES["f"]
+    project = Project.objects.get(id=p_id).name
+    path = os.path.join("userdata", username, project)
     absolutePath = os.path.join(
-        settings.MEDIA_ROOT, username, filetype, uploadedfile.name
+        settings.USER_DATA_FOLDER, username, project, uploadedfile.name
     )
     fs = FileSystemStorage(location=path)
 
@@ -48,83 +117,11 @@ def safeFile(request, form, filetype, useFor):
         """Delete previously uploaded file with same name."""
         os.remove(absolutePath)
 
-    makeDBEntry(request, absolutePath, useFor)
+    ext = uploadedfile.name.split(".")[-1]
+    if ext == "txt" or ext == "tg":
+        useFor = "text"
+    else:
+        useFor = "audio"
+
+    makeDBEntry(request, absolutePath, useFor, p_id)
     fs.save(uploadedfile.name, uploadedfile)
-
-
-class UploadWAVView(LoginRequiredMixin, TemplateView):
-    """Handle the upload/wav page.
-
-    Also acts as callback URL for the uploads in forced alignment page.
-    """
-
-    """View for uploading wav files."""
-
-    login_url = "/accounts/login/"
-    redirect_field_name = "redirect_to"
-
-    template_name = "upload_wav2.html"
-
-    def get(self, request):
-        """Handle GET requests to upload/wav."""
-        form = UploadWAVForm()
-        return render(request, self.template_name, {"WAVform": form})
-
-    def post(self, request):
-        """Handle POST requests to upload/wav.
-
-        Also acts as callback function from forced alignment page.
-        """
-        form = UploadWAVForm(request.POST, request.FILES)
-        if form.is_valid():
-            safeFile(request, form, "wavFile", "audio")
-        else:
-            print("invalid form")
-            print(form.errors)
-            # return error to AJAX function to print
-        return HttpResponseRedirect("/accounts/overview/")
-
-
-class UploadTXTView(LoginRequiredMixin, TemplateView):
-    """Handle the upload/txt page.
-
-    Also acts as callback URL for the uploads in forced alignment page.
-    """
-
-    login_url = "/accounts/login/"
-    redirect_field_name = "redirect_to"
-
-    template_name = "upload_txt2.html"
-
-    #    def safeFile(self,request,form):
-    #        """Function to safe uploaded txt file"""
-    #        print("valid form")
-    #        txtfile = request.FILES["txtFile"]
-    #        fs = FileSystemStorage(location="media/sname/txt")
-    #        if fs.exists(txtfile.name):
-    #            os.remove(
-    #                os.path.join(
-    #                    settings.MEDIA_ROOT + "/sname/txt", txtfile.name
-    #                )
-    #            )
-    #        fs.save(txtfile.name, txtfile)
-
-    def get(self, request):
-        """Handle GET requests to upload/txt."""
-        form = UploadTXTForm()
-        return render(request, self.template_name, {"TXTform": form})
-
-    def post(self, request):
-        """Handle POST requests to upload/txt.
-
-        Also acts as callback function from forced alignment page.
-        """
-        form = UploadTXTForm(request.POST, request.FILES)
-        if form.is_valid():
-            # safe file if form is valid
-            safeFile(request, form, "txtFile", "transscript")
-        else:
-            print("invalid form")
-            print(form.errors)
-            # return error to AJAX function to print
-        return HttpResponseRedirect("/accounts/overview/")
