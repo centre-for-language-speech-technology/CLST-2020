@@ -34,27 +34,35 @@ Equestria: Upload
 {% endblock %}
 
 {% block body %}
-        
+    <div class="container-fluid">
         <div class="rounded shadow lighter padding">
-            <h3>Upload a file (.txt .tg or .wav):</h3>
-            <form class="md-form" action="" method="post" enctype="multipart/form-data">
-                <div class="input-group mb-3">
-                    <div class="custom-file">
-                        {% crispy UploadForm %}
-                        {%csrf_token%}
-                        <input type="submit" name="TXTform" value="Submit" class="btn btn-primary" id="upload-txt-btn">
+            {% if upload_form %}
+                <h3>Upload a file (.txt .tg or .wav):</h3>
+                <form class="md-form" action="" method="post" enctype="multipart/form-data">
+                    <div class="input-group mb-3">
+                        <div class="custom-file">
+                            {% crispy upload_form %}
+                            {%csrf_token%}
+                            <input type="submit" name="TXTform" value="Submit" class="btn btn-primary" id="upload-txt-btn">
+                        </div>
                     </div>
-                </div>
-            </form>
-            <form class="md-form" action="" method="post" enctype="multipart/form-data">
-                <div class="input-group mb-3">
-                    <div class="custom-file">
-                        {% crispy ProfileForm %}
-                        {%csrf_token%}
-                        <input type="submit" name="TXTform" value="Submit" class="btn btn-primary" id="upload-txt-btn">
+                </form>
+            {% endif %}
+            {% if profile_form %}
+                <form class="md-form" action="" method="post" enctype="multipart/form-data">
+                    <div class="input-group mb-3">
+                        <div class="custom-file">
+                            {% crispy profile_form %}
+                            {%csrf_token%}
+                            <input type="submit" name="TXTform" value="Submit" class="btn btn-primary" id="upload-txt-btn">
+                        </div>
                     </div>
-                </div>
-            </form>
+                </form>
+            {% else %}
+                <p style="background-color: red;">The current process is either running, not finished yet or not a
+                forced alignment process, you can not upload files yet. First wait for the current process to finish
+                and restart forced alignment.</p>
+            {% endif %}
         </div>
     </div>
 {% for file in  files %}

@@ -22,26 +22,31 @@ class UploadProjectView(LoginRequiredMixin, TemplateView):
     def get(self, request, **kwargs):
         """Handle GET requests file upload page."""
         project = kwargs.get("project")
-        if (
-            project.current_process is None
-            or project.current_process.script != project.pipeline.fa_script
-        ):
-            raise Http404("The project is currently not running FA.")
-        valid_profiles = project.current_process.get_valid_profiles()
-        profile_select_form = ProfileSelectForm(profiles=valid_profiles)
         files = File.objects.filter(
             owner=request.user.username, project=project
         )
 
         upload_form = UploadForm()
+        if (
+            project.current_process is None
+            or project.current_process.script != project.pipeline.fa_script
+        ):
+            context = {
+                "project": project,
+                "files": files
+            }
+            return render(request, self.template_name, context)
+        else:
+            valid_profiles = project.current_process.get_valid_profiles()
+            profile_select_form = ProfileSelectForm(profiles=valid_profiles)
 
-        context = {
-            "project": project,
-            "files": files,
-            "UploadForm": upload_form,
-            "ProfileForm": profile_select_form,
-        }
-        return render(request, self.template_name, context)
+            context = {
+                "project": project,
+                "files": files,
+                "upload_form": upload_form,
+                "profile_form": profile_select_form,
+            }
+            return render(request, self.template_name, context)
 
     def post(self, request, **kwargs):
         """Handle POST requests file upload page."""
@@ -76,8 +81,8 @@ class UploadProjectView(LoginRequiredMixin, TemplateView):
         context = {
             "project": project,
             "files": files,
-            "UploadForm": upload_form,
-            "ProfileForm": profile_form,
+            "upload_form": upload_form,
+            "profile_form": profile_form,
         }
         return render(request, self.template_name, context)
 
