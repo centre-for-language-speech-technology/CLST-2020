@@ -31,10 +31,7 @@ class UploadProjectView(LoginRequiredMixin, TemplateView):
             project.current_process is None
             or project.current_process.script != project.pipeline.fa_script
         ):
-            context = {
-                "project": project,
-                "files": files
-            }
+            context = {"project": project, "files": files}
             return render(request, self.template_name, context)
         else:
             valid_profiles = project.current_process.get_valid_profiles()
