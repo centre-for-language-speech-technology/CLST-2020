@@ -16,7 +16,7 @@ class UploadProjectView(LoginRequiredMixin, TemplateView):
     """View for initial upload of files to a project."""
 
     login_url = "/accounts/login/"
-    redirect_field_name = "redirect_to"
+
     template_name = "upload/upload-project.html"
 
     def getValidProfiles(self, request, p_id):
