@@ -30,7 +30,7 @@ class UploadProjectView(LoginRequiredMixin, TemplateView):
             raise Http404("The project is currently not running FA.")
         valid_profiles = project.current_process.get_valid_profiles()
         profile_select_form = ProfileSelectForm(profiles=valid_profiles)
-        files = File.objects.filter(owner=request.user.username, project=p_id)
+        files = File.objects.filter(owner=request.user.username, project=project)
 
         upload_form = UploadForm()
 
@@ -63,7 +63,7 @@ class UploadProjectView(LoginRequiredMixin, TemplateView):
         upload_form = UploadForm()
         profile_form = ProfileSelectForm(profiles=valid_profiles)
 
-        files = File.objects.filter(owner=request.user.username, project=p_id)
+        files = File.objects.filter(owner=request.user.username, project=project)
         context = {
             "files": files,
             "UploadForm": upload_form,
