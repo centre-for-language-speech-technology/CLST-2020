@@ -12,6 +12,8 @@ from .models import (
     Process,
     STATUS_FINISHED,
 )
+from django.http import HttpResponseNotFound
+
 from django.http import JsonResponse
 from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -49,9 +51,33 @@ class FARedirect(LoginRequiredMixin, TemplateView):
 
         # Check if the FA has some .oov files
         if project.has_non_empty_extension_file([".oov"]):
-            profile_id = 4 # TODO: FIX THIS! @Michel
+            # Check if we should run the G2P.
+            # The Fa must already be finished before we can run the G2P.
+            # If we are already running a g2p, we simply redirect immediately.
+
+            profiles = Profile.objects.filter(process=Project.current_process)
+            profile_id = profiles[0]  # TODO select correct profile
+
+            if project.current_process.script == project.pipeline.g2p_script:
+                return redirect("scripts:g2p_start", project_id=project_id, profile_id=profile_id)
+
+            # We can only arrive here from the G2P or FA.
+            if project.current_process.script != project.pipeline.fa_script:
+                return HttpResponseNotFound("Not from G2P or FA!")
+
+            # We are now from the FA, and we are done loading.
+            # Clean up the old process and make a new G2P one
+
+            # Project.current_process.remove_corresponding_profiles()
+            # Project.current_process.cleanup()
+
+            project.current_process = Process.create_process(
+                project.pipeline.g2p_script, project.folder
+            )
+            project.save()
             return redirect("scripts:g2p_start", project_id=project_id, profile_id=profile_id)
 
+        # TODO: fix, we could end up here after we ran g2p?
         # We should never arrive in the loading screen when we do not load the FA...
         if project.current_process.script != project.pipeline.fa_script:
             raise Project.StateException
@@ -385,6 +411,10 @@ class CheckDictionaryScreen(LoginRequiredMixin, TemplateView):
         if form.is_valid():
             dictionary_content = form.cleaned_data.get("dictionary")
             project.write_oov_dict_file_contents(dictionary_content)
+
+            Project.current_process.remove_corresponding_profiles()
+            Project.current_process.cleanup()
+
             new_process = Process.create_process(
                 project.pipeline.fa_script, project.folder
             )
