@@ -54,15 +54,17 @@ class FARedirect(LoginRequiredMixin, TemplateView):
             # Check if we should run the G2P.
             # The Fa must already be finished before we can run the G2P.
             # If we are already running a g2p, we simply redirect immediately.
-
+            print("debug")
             profiles = Profile.objects.filter(process=Project.current_process)
             profile_id = profiles[0]  # TODO select correct profile
 
             if project.current_process.script == project.pipeline.g2p_script:
+                print("g2p script")
                 return redirect("scripts:g2p_start", project_id=project_id, profile_id=profile_id)
 
             # We can only arrive here from the G2P or FA.
             if project.current_process.script != project.pipeline.fa_script:
+                print("oof")
                 return HttpResponseNotFound("Not from G2P or FA!")
 
             # We are now from the FA, and we are done loading.
