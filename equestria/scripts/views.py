@@ -345,7 +345,7 @@ class G2PLoadScreen(LoginRequiredMixin, TemplateView):
                 id=project_id
             )
         except Project.DoesNotExist:
-            return Http404("Project does not exist")
+            raise Http404("Project does not exist")
 
         if project.current_process.script != project.pipeline.g2p_script:
             raise Project.StateException(
@@ -380,7 +380,7 @@ class CheckDictionaryScreen(LoginRequiredMixin, TemplateView):
                 id=project_id
             )
         except Project.DoesNotExist:
-            return Http404("Project does not exist")
+            raise Http404("Project does not exist")
 
         # Read content of file.
         content = project.get_oov_dict_file_contents()
@@ -618,7 +618,7 @@ def download_project_archive(request, **kwargs):
             id=project_id
         )
     except Project.DoesNotExist:
-        return Http404("Project does not exist")
+        raise Http404("Project does not exist")
 
     zip_filename = project.create_downloadable_archive()
     return serve(request, basename(zip_filename), dirname(zip_filename))

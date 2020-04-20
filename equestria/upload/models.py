@@ -4,9 +4,7 @@ from equestria.settings import BASE_DIR
 import os
 from django.contrib.auth.models import User
 
-# BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# Create your models here.
 class File(models.Model):
     """Model representing user uploaded files in the database."""
 

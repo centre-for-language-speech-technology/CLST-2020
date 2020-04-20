@@ -16,14 +16,13 @@ class ProfileSelectForm(forms.Form):
 
     profile = forms.ChoiceField(choices=[])
 
-    def __init__(self, user, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         """
         Initialise method for ProfileSelectForm.
 
         :param args: argument
         :param kwargs: keyword arguments containing a scripts variable with Script objects
         """
-        self.user = user
         profiles = kwargs.pop("profiles", None)
         super(ProfileSelectForm, self).__init__(*args, **kwargs)
         choices = []
