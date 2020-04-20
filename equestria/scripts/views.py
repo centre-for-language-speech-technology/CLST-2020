@@ -70,8 +70,8 @@ class FARedirect(LoginRequiredMixin, TemplateView):
             # We are now from the FA, and we are done loading.
             # Clean up the old process and make a new G2P one
 
-            # Project.current_process.remove_corresponding_profiles()
-            # Project.current_process.cleanup()
+            project.current_process.remove_corresponding_profiles()
+            project.current_process.delete()
 
             project.current_process = Process.create_process(
                 project.pipeline.g2p_script, project.folder
@@ -416,9 +416,10 @@ class CheckDictionaryScreen(LoginRequiredMixin, TemplateView):
         if form.is_valid():
             dictionary_content = form.cleaned_data.get("dictionary")
             project.write_oov_dict_file_contents(dictionary_content)
-
-            Project.current_process.remove_corresponding_profiles()
-            Project.current_process.cleanup()
+            print(project.current_process)
+            
+            project.current_process.remove_corresponding_profiles()
+            project.current_process.delete()
 
             new_process = Process.create_process(
                 project.pipeline.fa_script, project.folder
