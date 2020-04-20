@@ -36,6 +36,7 @@ class UploadProjectView(LoginRequiredMixin, TemplateView):
         upload_form = UploadForm()
 
         context = {
+            "project": project,
             "files": files,
             "UploadForm": upload_form,
             "ProfileForm": profile_select_form,
@@ -73,6 +74,7 @@ class UploadProjectView(LoginRequiredMixin, TemplateView):
             owner=request.user.username, project=project
         )
         context = {
+            "project": project,
             "files": files,
             "UploadForm": upload_form,
             "ProfileForm": profile_form,

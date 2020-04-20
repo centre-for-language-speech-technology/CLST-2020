@@ -2,6 +2,8 @@
 from django.http import Http404
 from django.views.generic import TemplateView
 from django.shortcuts import render, redirect
+from os.path import basename, dirname
+from django.views.static import serve
 from .models import (
     Project,
     Profile,
@@ -456,3 +458,11 @@ class ProjectOverview(LoginRequiredMixin, TemplateView):
         return render(
             request, self.template_name, {"form": form, "projects": projects},
         )
+
+
+def download_project_archive(request, **kwargs):
+    """Download the archive containing the process files."""
+    project = kwargs.get("project")
+
+    zip_filename = project.create_downloadable_archive()
+    return serve(request, basename(zip_filename), dirname(zip_filename))
