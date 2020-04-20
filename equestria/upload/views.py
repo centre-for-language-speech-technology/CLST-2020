@@ -59,7 +59,9 @@ class UploadProjectView(LoginRequiredMixin, TemplateView):
         elif upload_form.is_valid():
             save_file(request, project)
 
+        valid_profiles = project.current_process.get_valid_profiles()
         upload_form = UploadForm()
+        profile_form = ProfileSelectForm(profiles=valid_profiles)
 
         files = File.objects.filter(owner=request.user.username, project=p_id)
         context = {
