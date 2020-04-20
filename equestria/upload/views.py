@@ -19,22 +19,6 @@ class UploadProjectView(LoginRequiredMixin, TemplateView):
 
     template_name = "upload/upload-project.html"
 
-    def getValidProfiles(self, request, p_id):
-        """Get profiles for which the current files meet the requirements."""
-        profiles = Profile.objects.all()
-        validProfiles = []
-
-        for p in profiles:
-            if p.is_valid(
-                os.path.join(
-                    settings.USER_DATA_FOLDER,
-                    request.user.username,
-                    Project.objects.get(id=p_id).name,
-                )
-            ):
-                validProfiles.append(p)
-        return validProfiles
-
     def makeProfileForm(self, request, p_id):
         """Make a profile form to be used in this class."""
         validProfiles = self.getValidProfiles(request, p_id)
@@ -43,7 +27,7 @@ class UploadProjectView(LoginRequiredMixin, TemplateView):
         )
 
     def get(self, request, **kwargs):
-        """Handle GET requests file upload apge."""
+        """Handle GET requests file upload page."""
         p_id = kwargs.get("project_id")
 
         files = File.objects.filter(owner=request.user.username, project=p_id)
