@@ -1,6 +1,6 @@
 """Module to handle uploading files."""
 import os
-from scripts.models import Project
+from scripts.models import Profile
 from django.shortcuts import render, redirect
 from django.views.generic import TemplateView
 from .models import File
@@ -21,11 +21,7 @@ class UploadProjectView(LoginRequiredMixin, TemplateView):
 
     def get(self, request, **kwargs):
         """Handle GET requests file upload page."""
-        p_id = kwargs.get("project_id")
-        try:
-            project = Project.objects.get(pk=p_id)
-        except Project.DoesNotExist:
-            raise Http404("That project does not exist")
+        project = kwargs.get("project")
         if (
             project.current_process is None
             or project.current_process.script != project.pipeline.fa_script
@@ -48,11 +44,7 @@ class UploadProjectView(LoginRequiredMixin, TemplateView):
 
     def post(self, request, **kwargs):
         """Handle POST requests file upload page."""
-        p_id = kwargs.get("project_id")
-        try:
-            project = Project.objects.get(pk=p_id)
-        except Project.DoesNotExist:
-            raise Http404("That project does not exist")
+        project = kwargs.get("project")
         if (
             project.current_process is None
             or project.current_process.script != project.pipeline.fa_script
@@ -65,8 +57,10 @@ class UploadProjectView(LoginRequiredMixin, TemplateView):
         if profile_form.is_valid():
             return redirect(
                 "scripts:fa_start",
-                project_id=p_id,
-                profile_id=profile_form.cleaned_data.get("profile"),
+                project=project,
+                profile=Profile.objects.get(
+                    pk=profile_form.cleaned_data.get("profile")
+                ),
             )
         elif upload_form.is_valid():
             save_file(request, project)

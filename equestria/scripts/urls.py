@@ -1,43 +1,45 @@
 """Module to parse URL and direct accordingly."""
-from django.urls import path
-from scripts.views import *
+from django.urls import path, register_converter
+from .views import *
+from .converters import ProjectConverter, ProfileConverter, ProcessConverter
+
+register_converter(ProjectConverter, "project")
+register_converter(ProfileConverter, "profile")
+register_converter(ProcessConverter, "process")
 
 urlpatterns = [
     path("projects", ProjectOverview.as_view(), name="projects"),
     path(
-        "fa/status/<int:project_id>", FALoadScreen.as_view(), name="fa_loading",
+        "fa/status/<project:project>",
+        FALoadScreen.as_view(),
+        name="fa_loading",
     ),
     path(
-        "redirect/<int:project_id>", FARedirect.as_view(), name="fa_redirect",
+        "redirect/<project:project>", FARedirect.as_view(), name="fa_redirect",
     ),
-    path("fa/<int:project_id>", FAOverview.as_view(), name="fa_overview",),
+    path("fa/<project:project>", FAOverview.as_view(), name="fa_overview",),
     path(
-        "g2p/status/<int:project_id>",
+        "g2p/status/<project:project>",
         G2PLoadScreen.as_view(),
         name="g2p_loading",
     ),
     path(
-        "cd/<int:project_id>",
+        "cd/<project:project>",
         CheckDictionaryScreen.as_view(),
         name="cd_screen",
     ),
     path(
-        "process/<int:process>/status",
+        "process/<process:process>/status",
         JsonProcess.as_view(),
         name="process_details",
     ),
     path(
-        "project/<int:project_id>/download",
-        download_project_archive,
-        name="project_download",
-    ),
-    path(
-        "fa/<int:project_id>/start/<int:profile_id>",
+        "fa/<project:project>/start/<profile:profile>",
         FAStartView.as_view(),
         name="fa_start",
     ),
     path(
-        "g2p/<int:project_id>/start/<int:profile_id>",
+        "g2p/<project:project>/start/<profile:profile>",
         G2PStartScreen.as_view(),
         name="g2p_start",
     ),

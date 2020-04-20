@@ -21,9 +21,9 @@ Equestria: Forced alignment
                     <p style="background-color: red;">Your forced alignment is not finished yet.</p>
                     <p>Please finish forced alignment before continuing.</p>
                 {% endif %}
-                <a class="btn btn-primary" href="{% url 'upload:upload_project' project_id=project_id %}">Go back to upload files</a>
-                <a class="btn btn-primary" href="{% url 'scripts:cd_screen' project_id=project_id %}">Go back to alter dictionary</a>
-                <a class="btn btn-primary" href="{% url 'scripts:project_download' project_id=project_id %}">Download project archive</a>
+                <a class="btn btn-primary" href="{% url 'upload:upload_project' project=project %}">Go back to upload files</a>
+                <a class="btn btn-primary" href="{% url 'scripts:cd_screen' project=project %}">Go back to alter dictionary</a>
+                <a class="btn btn-primary" href="{% url 'scripts:project_download' project=project %}">Download project archive</a>
                 {% if success %}
                     <a class="btn btn-green" href="{% url 'auto_segmentation' %}">Continue</a>
                 {% endif %}

@@ -40,7 +40,7 @@ class ProfileSelectForm(forms.Form):
         profile = self.cleaned_data.get("profile")
         profile_qs = Profile.objects.filter(id=profile)
         if not profile_qs.exists():
-            raise forms.ValidationError("This pipeline does not exist")
+            raise forms.ValidationError("This profile does not exist")
 
         return profile
 

@@ -2,8 +2,6 @@
 from django.http import Http404
 from django.views.generic import TemplateView
 from django.shortcuts import render, redirect
-from os.path import basename, dirname
-from django.views.static import serve
 from .models import (
     Project,
     Profile,
@@ -34,14 +32,7 @@ class FARedirect(LoginRequiredMixin, TemplateView):
         :return: a redirect to another page, a 404 if the project does not exist and a nice state error if some
         things fail.
         """
-        project_id = kwargs.get("project_id")
-
-        try:
-            project = Project.objects.filter(user=request.user.id).get(
-                id=project_id
-            )
-        except Project.DoesNotExist:
-            raise Http404("Project does not exist")
+        project = kwargs.get("project")
 
         if (
             project.current_process.script == project.pipeline.fa_script
@@ -62,12 +53,10 @@ class FARedirect(LoginRequiredMixin, TemplateView):
                 project.current_process = g2p_process
                 project.save()
                 return redirect(
-                    "scripts:g2p_start",
-                    project_id=project_id,
-                    profile_id=profile,
+                    "scripts:g2p_start", project=project, profile=profile,
                 )
             else:
-                return redirect("scripts:cd_screen", project_id=project_id)
+                return redirect("scripts:cd_screen", project=project)
         elif project.current_process.script == project.pipeline.g2p_script:
             try:
                 profile = Profile.objects.get(process=project.current_process)
@@ -75,7 +64,7 @@ class FARedirect(LoginRequiredMixin, TemplateView):
                 # TODO: Make a nice error screen
                 raise Profile.MultipleObjectsReturned
             return redirect(
-                "scripts:g2p_start", project_id=project_id, profile_id=profile
+                "scripts:g2p_start", project=project, profile=profile
             )
         else:
             raise Project.StateException
@@ -96,29 +85,16 @@ class FAStartView(LoginRequiredMixin, TemplateView):
         :param kwargs: the keyword arguments
         :return: a JSON response indicating whether the CLAM server started
         """
-        project_id = kwargs.get("project_id")
-        profile_id = kwargs.get("profile_id")
-        try:
-            project = Project.objects.filter(user=request.user.id).get(
-                id=project_id
-            )
-            profile = Profile.objects.get(id=profile_id)
-        except Project.DoesNotExist or Profile.DoesNotExist:
-            return render(
-                request,
-                self.template_name,
-                {
-                    "project": project_id,
-                    "error": "Either the profile or project does not exist",
-                },
-            )
+        project = kwargs.get("project")
+        profile = kwargs.get("profile")
+
         process = project.current_process
         if process.script != project.pipeline.fa_script:
             return render(
                 request,
                 self.template_name,
                 {
-                    "project": project_id,
+                    "project": project.id,
                     "error": "Current process is not a Forced Alignment process",
                 },
             )
@@ -127,7 +103,7 @@ class FAStartView(LoginRequiredMixin, TemplateView):
                 request,
                 self.template_name,
                 {
-                    "project": project_id,
+                    "project": project.id,
                     "error": "Invalid profile for the specified process",
                 },
             )
@@ -140,7 +116,7 @@ class FAStartView(LoginRequiredMixin, TemplateView):
                 request,
                 self.template_name,
                 {
-                    "project": project_id,
+                    "project": project.id,
                     "error": "Error while starting the process, make sure all input"
                     " files are specified",
                 },
@@ -151,12 +127,12 @@ class FAStartView(LoginRequiredMixin, TemplateView):
                 request,
                 self.template_name,
                 {
-                    "project": project_id,
+                    "project": project.id,
                     "error": "Error while uploading files to CLAM, please try again later",
                 },
             )
         update_script(process.id)
-        return redirect("scripts:fa_loading", project_id=project_id)
+        return redirect("scripts:fa_loading", project=project)
 
 
 class FALoadScreen(LoginRequiredMixin, TemplateView):
@@ -180,13 +156,7 @@ class FALoadScreen(LoginRequiredMixin, TemplateView):
         :param kwargs: keyword arguments
         :return: a render of the fa loading screen
         """
-        project_id = kwargs.get("project_id")
-        try:
-            project = Project.objects.filter(user=request.user.id).get(
-                id=project_id
-            )
-        except Project.DoesNotExist:
-            return Http404("Project does not exist")
+        project = kwargs.get("project")
 
         if project.current_process.script != project.pipeline.fa_script:
             raise Project.StateException(
@@ -215,25 +185,19 @@ class FAOverview(LoginRequiredMixin, TemplateView):
         :param kwargs: keyword arguments
         :return: a render of the FA overview page
         """
-        project_id = kwargs.get("project_id")
-        try:
-            project = Project.objects.filter(user=request.user.id).get(
-                id=project_id
-            )
-        except Project.DoesNotExist:
-            return Http404("Project does not exist")
+        project = kwargs.get("project")
 
         if project.finished_fa():
             return render(
                 request,
                 self.template_name,
-                {"success": True, "project_id": project.id},
+                {"success": True, "project": project},
             )
         else:
             return render(
                 request,
                 self.template_name,
-                {"success": False, "project_id": project.id},
+                {"success": False, "project": project},
             )
 
 
@@ -252,22 +216,9 @@ class G2PStartScreen(LoginRequiredMixin, TemplateView):
         :param kwargs: the keyword arguments
         :return: a JSON response indicating whether the CLAM server started
         """
-        project_id = kwargs.get("project_id")
-        profile_id = kwargs.get("profile_id")
-        try:
-            project = Project.objects.filter(user=request.user.id).get(
-                id=project_id
-            )
-            profile = Profile.objects.get(id=profile_id)
-        except Project.DoesNotExist or Profile.DoesNotExist:
-            return render(
-                request,
-                self.template_name,
-                {
-                    "project": project_id,
-                    "error": "Either the profile or project does not exist",
-                },
-            )
+        project = kwargs.get("project")
+        profile = kwargs.get("profile")
+
         process = project.current_process
         if process.script != project.pipeline.g2p_script:
             print(process.script)
@@ -275,7 +226,7 @@ class G2PStartScreen(LoginRequiredMixin, TemplateView):
                 request,
                 self.template_name,
                 {
-                    "project": project_id,
+                    "project": project.id,
                     "error": "Current process is not a G2P process",
                 },
             )
@@ -284,7 +235,7 @@ class G2PStartScreen(LoginRequiredMixin, TemplateView):
                 request,
                 self.template_name,
                 {
-                    "project": project_id,
+                    "project": project.id,
                     "error": "Invalid profile for the specified process",
                 },
             )
@@ -297,7 +248,7 @@ class G2PStartScreen(LoginRequiredMixin, TemplateView):
                 request,
                 self.template_name,
                 {
-                    "project": project_id,
+                    "project": project.id,
                     "error": "Error while starting the process, make sure all input"
                     " files are specified",
                 },
@@ -308,12 +259,12 @@ class G2PStartScreen(LoginRequiredMixin, TemplateView):
                 request,
                 self.template_name,
                 {
-                    "project": project_id,
+                    "project": project.id,
                     "error": "Error while uploading files to CLAM, please try again later",
                 },
             )
         update_script(process.id)
-        return redirect("scripts:g2p_loading", project_id=project_id)
+        return redirect("scripts:g2p_loading", project=project)
 
 
 class G2PLoadScreen(LoginRequiredMixin, TemplateView):
@@ -331,13 +282,7 @@ class G2PLoadScreen(LoginRequiredMixin, TemplateView):
         :param kwargs: keyword arguments
         :return: a render of the G2P loading screen
         """
-        project_id = kwargs.get("project_id")
-        try:
-            project = Project.objects.filter(user=request.user.id).get(
-                id=project_id
-            )
-        except Project.DoesNotExist:
-            raise Http404("Project does not exist")
+        project = kwargs.get("project")
 
         if project.current_process.script != project.pipeline.g2p_script:
             raise Project.StateException(
@@ -366,22 +311,14 @@ class CheckDictionaryScreen(LoginRequiredMixin, TemplateView):
         :param kwargs: keyword arguments
         :return: a render of the check dictionary page
         """
-        project_id = kwargs.get("project_id")
-        try:
-            project = Project.objects.filter(user=request.user.id).get(
-                id=project_id
-            )
-        except Project.DoesNotExist:
-            raise Http404("Project does not exist")
+        project = kwargs.get("project")
 
         # Read content of file.
         content = project.get_oov_dict_file_contents()
         form = AlterDictionaryForm(initial={"dictionary": content})
 
         return render(
-            request,
-            self.template_name,
-            {"form": form, "project_id": project.id,},
+            request, self.template_name, {"form": form, "project": project,},
         )
 
     def post(self, request, **kwargs):
@@ -393,13 +330,7 @@ class CheckDictionaryScreen(LoginRequiredMixin, TemplateView):
         :return: an Http404 response if the project_id is not found, a render of the check dictionary page if the
         AlterDictionaryForm is not valid, a redirect to the rerun FA page if the AlterDictionaryForm is valid
         """
-        project_id = kwargs.get("project_id")
-        try:
-            project = Project.objects.filter(user=request.user.id).get(
-                id=project_id
-            )
-        except Project.DoesNotExist:
-            return Http404("Project does not exist")
+        project = kwargs.get("project")
 
         form = AlterDictionaryForm(request.POST)
         if form.is_valid():
@@ -419,15 +350,11 @@ class CheckDictionaryScreen(LoginRequiredMixin, TemplateView):
 
             # TODO select correct profile
             return redirect(
-                "scripts:fa_start",
-                project_id=project_id,
-                profile_id=profiles[0],
+                "scripts:fa_start", project=project, profile=profiles[0],
             )
         else:
             return render(
-                request,
-                self.template_name,
-                {"form": form, "project_id": project.id},
+                request, self.template_name, {"form": form, "project": project},
             )
 
 
@@ -456,8 +383,7 @@ class JsonProcess(TemplateView):
                     - errors (true or false, if errors occurred)
                     - error_message (emtpy if no errors occurred, a message otherwise)
         """
-        key = kwargs.get("process")
-        process = Process.objects.get(pk=key)
+        process = kwargs.get("process")
         clam_status = process.get_status()
         clam_msg = process.get_status_messages()
         log_messages = JsonProcess.construct_clam_log_format(clam_msg)
@@ -526,21 +452,7 @@ class ProjectOverview(LoginRequiredMixin, TemplateView):
             process = Process.create_process(pipeline.fa_script, project.folder)
             project.current_process = process
             project.save()
-            return redirect("upload:upload_project", project_id=project.id)
+            return redirect("upload:upload_project", project=project)
         return render(
             request, self.template_name, {"form": form, "projects": projects},
         )
-
-
-def download_project_archive(request, **kwargs):
-    """Download the archive containing the process files."""
-    project_id = kwargs.get("project_id")
-    try:
-        project = Project.objects.filter(user=request.user.id).get(
-            id=project_id
-        )
-    except Project.DoesNotExist:
-        raise Http404("Project does not exist")
-
-    zip_filename = project.create_downloadable_archive()
-    return serve(request, basename(zip_filename), dirname(zip_filename))

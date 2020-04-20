@@ -15,7 +15,7 @@ Equestria: G2P Error
         <div class="col rounded shadow lighter padding">
             <h1>Failed to start G2P</h1>
             <p>{{ error }}</p>
-            <a class="btn btn-primary" href="{% url "upload:upload_project" project_id=project %}">Go back to uploading files</a>
+            <a class="btn btn-primary" href="{% url "upload:upload_project" project=project %}">Go back to uploading files</a>
         </div>
     </div>
 </div>

@@ -16,7 +16,7 @@ Forced Alignment: Project
       <h3>{{ process.name }}</h3>
       <p class="">Status:</p>
       <strong><p id="process-django-status"></p></strong>
-      <a href="{% url 'scripts:process_download' process=process.id %}" download class="btn btn-primary" id="process-download-button">Download results</a>
+      <a href="{% url 'scripts:process_download' process=process %}" download class="btn btn-primary" id="process-download-button">Download results</a>
     </div>
     <div id="process-profiles" style="display: none;">
       {% for profile in profiles %}

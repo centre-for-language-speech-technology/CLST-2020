@@ -1,4 +1,4 @@
-{% extends 'progbase.html' %}
+{% extends 'base.html' %}
 {% load static %}
 
 {% block title %}
@@ -7,14 +7,13 @@ Equestria: G2P status
 
 
 {% block body %}
-<h1>Loading screen g2p</h1>
 <div class="container-fluid">
   <div class="row">
         <div class="col-md-7 rounded shadow lighter padding">
-            <h3>Forced alignment is running</h3>
+            <h3>G2P is running</h3>
             <p class="">Status:</p>
             <strong><p id="process-django-status"></p></strong>
-            <a href="{% url "scripts:cd_screen" project_id=project.id %}" style="display: none;" class="btn btn-primary" id="process-continue-button">Continue</a>
+            <a href="{% url "scripts:cd_screen" project=project %}" style="display: none;" class="btn btn-primary" id="process-continue-button">Continue</a>
         </div>
         <div class="col-md-1">
         </div>
@@ -29,7 +28,7 @@ Equestria: G2P status
 {% block scripts %}
     <script>
         var CSRF_TOKEN = "{{ csrf_token }}";
-        var PROCESS_STATUS_URL = "{% url 'scripts:process_details' process=process.id %}";
+        var PROCESS_STATUS_URL = "{% url 'scripts:process_details' process=process %}";
     </script>
     <script src="{% static "scripts/js/process-update.js" %}"></script>
     <script src="{% static "scripts/js/validate.js" %}"></script>
