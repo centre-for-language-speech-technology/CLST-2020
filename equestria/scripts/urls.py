@@ -3,24 +3,14 @@ from django.urls import path
 from scripts.views import *
 
 urlpatterns = [
+    path("projects", ProjectOverview.as_view(), name="projects"),
     path(
-        "projects",
-        ProjectOverview.as_view(),
-        name="projects"),
-    path(
-        "fa/status/<int:project_id>",
-        FALoadScreen.as_view(),
-        name="fa_loading",
+        "fa/status/<int:project_id>", FALoadScreen.as_view(), name="fa_loading",
     ),
     path(
-        "redirect/<int:project_id>",
-        FARedirect.as_view(),
-        name="fa_redirect",
+        "redirect/<int:project_id>", FARedirect.as_view(), name="fa_redirect",
     ),
-    path(
-        "fa/<int:project_id>",
-        FAOverview.as_view(),
-        name="fa_overview",),
+    path("fa/<int:project_id>", FAOverview.as_view(), name="fa_overview",),
     path(
         "g2p/status/<int:project_id>",
         G2PLoadScreen.as_view(),

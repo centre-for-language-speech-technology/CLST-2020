@@ -26,11 +26,16 @@ class UploadProjectView(LoginRequiredMixin, TemplateView):
             project = Project.objects.get(pk=p_id)
         except Project.DoesNotExist:
             raise Http404("That project does not exist")
-        if project.current_process is None or project.current_process.script != project.pipeline.fa_script:
+        if (
+            project.current_process is None
+            or project.current_process.script != project.pipeline.fa_script
+        ):
             raise Http404("The project is currently not running FA.")
         valid_profiles = project.current_process.get_valid_profiles()
         profile_select_form = ProfileSelectForm(profiles=valid_profiles)
-        files = File.objects.filter(owner=request.user.username, project=project)
+        files = File.objects.filter(
+            owner=request.user.username, project=project
+        )
 
         upload_form = UploadForm()
 
@@ -48,14 +53,21 @@ class UploadProjectView(LoginRequiredMixin, TemplateView):
             project = Project.objects.get(pk=p_id)
         except Project.DoesNotExist:
             raise Http404("That project does not exist")
-        if project.current_process is None or project.current_process.script != project.pipeline.fa_script:
+        if (
+            project.current_process is None
+            or project.current_process.script != project.pipeline.fa_script
+        ):
             raise Http404("The project is currently not running FA.")
         valid_profiles = project.current_process.get_valid_profiles()
         upload_form = UploadForm(request.POST, request.FILES)
         profile_form = ProfileSelectForm(request.POST, profiles=valid_profiles)
 
         if profile_form.is_valid():
-            return redirect("scripts:fa_start", project_id=p_id, profile_id=profile_form.cleaned_data.get('profile'))
+            return redirect(
+                "scripts:fa_start",
+                project_id=p_id,
+                profile_id=profile_form.cleaned_data.get("profile"),
+            )
         elif upload_form.is_valid():
             save_file(request, project)
 
@@ -63,7 +75,9 @@ class UploadProjectView(LoginRequiredMixin, TemplateView):
         upload_form = UploadForm()
         profile_form = ProfileSelectForm(profiles=valid_profiles)
 
-        files = File.objects.filter(owner=request.user.username, project=project)
+        files = File.objects.filter(
+            owner=request.user.username, project=project
+        )
         context = {
             "files": files,
             "UploadForm": upload_form,
@@ -96,9 +110,7 @@ def save_file(request, project):
     """Safe uploaded file."""
     uploaded_file = request.FILES["f"]
     path = project.folder
-    save_location = os.path.join(
-        path, uploaded_file.name
-    )
+    save_location = os.path.join(path, uploaded_file.name)
     fs = FileSystemStorage(location=path)
 
     if fs.exists(uploaded_file.name):

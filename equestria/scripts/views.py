@@ -7,18 +7,12 @@ from django.views.static import serve
 from .models import (
     Project,
     Profile,
-    InputTemplate,
     Pipeline,
     Process,
     STATUS_FINISHED,
 )
-from django.http import HttpResponseNotFound
-
 from django.http import JsonResponse
-from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
-import secrets
-import os
 from .forms import ProjectCreateForm, AlterDictionaryForm
 from .tasks import update_script
 import logging
@@ -47,49 +41,44 @@ class FARedirect(LoginRequiredMixin, TemplateView):
                 id=project_id
             )
         except Project.DoesNotExist:
-            return Http404("Project does not exist")
+            raise Http404("Project does not exist")
 
-        # Check if the FA has some .oov files
-        if project.has_non_empty_extension_file([".oov"]):
-            # Check if we should run the G2P.
-            # The Fa must already be finished before we can run the G2P.
-            # If we are already running a g2p, we simply redirect immediately.
-
-            profiles = Profile.objects.filter(process=project.current_process)
-            profile_id = profiles[0]  # TODO: Select correct profile?
-
-            if project.current_process.script == project.pipeline.g2p_script:
-                print("redirect to g2p script start")
-                return redirect("scripts:g2p_start", project_id=project_id, profile_id=profile_id)
-
-            # We can only arrive here from the G2P or FA.
-            if project.current_process.script != project.pipeline.fa_script:
-                print("Not from G2p or Fa script, cannot redirect.")
-                return HttpResponseNotFound("Not from G2P or FA!")
-
-            # We are now from the FA, and we are done loading.
-            # Clean up the old process and make a new G2P one
-
-            project.current_process.remove_corresponding_profiles()
-            project.current_process.delete()
-
-            project.current_process = Process.create_process(
-                project.pipeline.g2p_script, project.folder
+        if (
+            project.current_process.script == project.pipeline.fa_script
+            and project.current_process.status == STATUS_FINISHED
+        ):
+            if project.has_non_empty_extension_file([".oov"]):
+                # TODO: maybe remove the old process here?
+                g2p_process = Process.create_process(
+                    project.pipeline.g2p_script, project.folder
+                )
+                try:
+                    profile = Profile.objects.get(process=g2p_process)
+                except Profile.MultipleObjectsReturned:
+                    # TODO: Make a nice error screen
+                    g2p_process.remove_corresponding_profiles()
+                    g2p_process.delete()
+                    raise Profile.MultipleObjectsReturned
+                project.current_process = g2p_process
+                project.save()
+                return redirect(
+                    "scripts:g2p_start",
+                    project_id=project_id,
+                    profile_id=profile,
+                )
+            else:
+                return redirect("scripts:cd_screen", project_id=project_id)
+        elif project.current_process.script == project.pipeline.g2p_script:
+            try:
+                profile = Profile.objects.get(process=project.current_process)
+            except Profile.MultipleObjectsReturned:
+                # TODO: Make a nice error screen
+                raise Profile.MultipleObjectsReturned
+            return redirect(
+                "scripts:g2p_start", project_id=project_id, profile_id=profile
             )
-            project.save()
-
-            print("redirect to start g2p. Created new process.")
-            return redirect("scripts:g2p_start", project_id=project_id, profile_id=profile_id)
-
-        # We should never arrive in the loading screen when we do not load the FA...
-        if project.current_process.script != project.pipeline.fa_script:
+        else:
             raise Project.StateException
-
-        # Only redirect on successful status.
-        if project.current_process.get_status() == STATUS_FINISHED:
-            return redirect("scripts:cd_screen", project_id=project_id)
-        # Stay on loading page.
-        return redirect("scripts:fa_loading", project_id=project_id)
 
 
 class FAStartView(LoginRequiredMixin, TemplateView):
@@ -249,7 +238,7 @@ class FAOverview(LoginRequiredMixin, TemplateView):
 
 
 class G2PStartScreen(LoginRequiredMixin, TemplateView):
-    """Start screen of the g2p"""
+    """Start screen of the g2p."""
 
     login_url = "/accounts/login/"
 
@@ -257,7 +246,7 @@ class G2PStartScreen(LoginRequiredMixin, TemplateView):
 
     def get(self, request, **kwargs):
         """
-        GET method for the start screen of G2P
+        GET method for the start screen of G2P.
 
         :param request: the request
         :param kwargs: the keyword arguments
@@ -417,7 +406,7 @@ class CheckDictionaryScreen(LoginRequiredMixin, TemplateView):
             dictionary_content = form.cleaned_data.get("dictionary")
             project.write_oov_dict_file_contents(dictionary_content)
             print(project.current_process)
-            
+
             project.current_process.remove_corresponding_profiles()
             project.current_process.delete()
 

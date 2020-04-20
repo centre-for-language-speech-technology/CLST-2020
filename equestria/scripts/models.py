@@ -422,9 +422,7 @@ class Process(Model):
         valid_profiles = []
 
         for p in profiles:
-            if p.is_valid(
-                    self.folder
-            ):
+            if p.is_valid(self.folder):
                 valid_profiles.append(p)
         return valid_profiles
 
