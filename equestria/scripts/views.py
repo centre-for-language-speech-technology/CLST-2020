@@ -54,32 +54,33 @@ class FARedirect(LoginRequiredMixin, TemplateView):
             # Check if we should run the G2P.
             # The Fa must already be finished before we can run the G2P.
             # If we are already running a g2p, we simply redirect immediately.
-            print("debug")
-            profiles = Profile.objects.filter(process=Project.current_process)
-            profile_id = profiles[0]  # TODO select correct profile
+
+            profiles = Profile.objects.filter(process=project.current_process)
+            profile_id = profiles[0]  # TODO: Select correct profile?
 
             if project.current_process.script == project.pipeline.g2p_script:
-                print("g2p script")
+                print("redirect to g2p script start")
                 return redirect("scripts:g2p_start", project_id=project_id, profile_id=profile_id)
 
             # We can only arrive here from the G2P or FA.
             if project.current_process.script != project.pipeline.fa_script:
-                print("oof")
+                print("Not from G2p or Fa script, cannot redirect.")
                 return HttpResponseNotFound("Not from G2P or FA!")
 
             # We are now from the FA, and we are done loading.
             # Clean up the old process and make a new G2P one
 
-            # Project.current_process.remove_corresponding_profiles()
-            # Project.current_process.cleanup()
+            project.current_process.remove_corresponding_profiles()
+            project.current_process.delete()
 
             project.current_process = Process.create_process(
                 project.pipeline.g2p_script, project.folder
             )
             project.save()
+
+            print("redirect to start g2p. Created new process.")
             return redirect("scripts:g2p_start", project_id=project_id, profile_id=profile_id)
 
-        # TODO: fix, we could end up here after we ran g2p?
         # We should never arrive in the loading screen when we do not load the FA...
         if project.current_process.script != project.pipeline.fa_script:
             raise Project.StateException
@@ -246,6 +247,7 @@ class FAOverview(LoginRequiredMixin, TemplateView):
                 {"success": False, "project_id": project.id},
             )
 
+
 class G2PStartScreen(LoginRequiredMixin, TemplateView):
     """Start screen of the g2p"""
 
@@ -323,6 +325,7 @@ class G2PStartScreen(LoginRequiredMixin, TemplateView):
             )
         update_script(process.id)
         return redirect("scripts:g2p_loading", project_id=project_id)
+
 
 class G2PLoadScreen(LoginRequiredMixin, TemplateView):
     """Loading screen, where the g2p is run as well."""
@@ -413,9 +416,10 @@ class CheckDictionaryScreen(LoginRequiredMixin, TemplateView):
         if form.is_valid():
             dictionary_content = form.cleaned_data.get("dictionary")
             project.write_oov_dict_file_contents(dictionary_content)
-
-            Project.current_process.remove_corresponding_profiles()
-            Project.current_process.cleanup()
+            print(project.current_process)
+            
+            project.current_process.remove_corresponding_profiles()
+            project.current_process.delete()
 
             new_process = Process.create_process(
                 project.pipeline.fa_script, project.folder
@@ -537,77 +541,6 @@ class ProjectOverview(LoginRequiredMixin, TemplateView):
         return render(
             request, self.template_name, {"form": form, "projects": projects},
         )
-
-
-class ForcedAlignmentProjectDetails(TemplateView):
-    """Project overview page."""
-
-    template_name = "fa-project-details.html"
-
-    def get(self, request, **kwargs):
-        """
-        GET request for project overview page.
-
-        :param request: the request
-        :param kwargs: keyword arguments
-        :return: A render of 404 or fa-project-details page
-        """
-        process = Process.objects.get(id=kwargs.get("process"))
-        if process is not None:
-            profiles = Profile.objects.filter(process=process)
-            for profile in profiles:
-                profile.input_templates = InputTemplate.objects.select_related().filter(
-                    corresponding_profile=profile.id
-                )
-            return render(
-                request,
-                self.template_name,
-                {"profiles": profiles, "process": process},
-            )
-        else:
-            raise Http404("Project not found")
-
-    def post(self, request, **kwargs):
-        """
-        POST request for project overview page.
-
-        :param request: the request
-        :param kwargs: keyword arguments
-        :return: A 404 or redirecto to the fa_project page
-        """
-        profile_id = request.POST.get("profile_id", None)
-        if profile_id is None:
-            raise Http404("Bad request")
-
-        profile = Profile.objects.get(pk=profile_id)
-
-        if ForcedAlignmentProjectDetails.run_profile(profile, request.FILES):
-            return redirect("scripts:fa_project", process=profile.process.id)
-        else:
-            raise Http404("Something went wrong with processing the files.")
-
-    @staticmethod
-    def run_profile(profile, files):
-        """
-        Run a specified process with the given profile.
-
-        :param profile: the profile to run
-        :param files: the files to be uploaded to the CLAM server
-        :return: None
-        """
-        argument_files = list()
-        for input_template in InputTemplate.objects.select_related().filter(
-            corresponding_profile=profile
-        ):
-            random_token = secrets.token_hex(32)
-            file_name = os.path.join(settings.TMP_DIR, random_token)
-            with open(file_name, "wb",) as file:
-                for chunk in files[str(input_template.id)]:
-                    file.write(chunk)
-            argument_files.append((file_name, input_template.template_id,))
-        profile.process.start(argument_files)
-        update_script(profile.process.id)
-        return True
 
 
 def download_project_archive(request, **kwargs):
