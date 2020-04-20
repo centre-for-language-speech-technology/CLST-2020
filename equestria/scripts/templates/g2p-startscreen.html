@@ -2,18 +2,18 @@
 {% load static %}
 
 {% block title %}
-Equestria: Forced Alignment Error
+Equestria: G2P Error
 {% endblock %}
 
 {% block prebody %}
-{% include "pipeline.html" with active="upload" %}
+{% include "pipeline.html" with active="dictionary" %}
 {% endblock %}
 
 {% block body %}
 <div class="container-fluid">
     <div class="row">
         <div class="col rounded shadow lighter padding">
-            <h1>Failed to start forced alignment</h1>
+            <h1>Failed to start G2P</h1>
             <p>{{ error }}</p>
             <a class="btn btn-primary" href="{% url "upload:upload_project" project=project %}">Go back to uploading files</a>
         </div>

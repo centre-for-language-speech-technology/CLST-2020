@@ -1,7 +1,7 @@
 """Module to define forms related to the scripts app."""
 from django import forms
 from django.contrib.auth import get_user_model
-from .models import Project, Pipeline
+from .models import Project, Pipeline, Profile
 from django.core.validators import RegexValidator
 
 alphanumeric = RegexValidator(
@@ -14,23 +14,35 @@ User = get_user_model()
 class ProfileSelectForm(forms.Form):
     """Form for running a profile."""
 
-    profiles = forms.ChoiceField(choices=[])
+    profile = forms.ChoiceField(choices=[])
 
-    def __init__(self, user, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         """
-        Initialise method for ProfileRunForm.
+        Initialise method for ProfileSelectForm.
 
         :param args: argument
         :param kwargs: keyword arguments containing a scripts variable with Script objects
         """
-        self.user = user
         profiles = kwargs.pop("profiles", None)
         super(ProfileSelectForm, self).__init__(*args, **kwargs)
         choices = []
         if profiles is not None:
             for p in profiles:
-                choices.append((p.id, p.id))
-            self.fields["profiles"].choices = choices
+                choices.append((p.id, "Profile {}".format(p.id)))
+            self.fields["profile"].choices = choices
+
+    def clean_profile(self):
+        """
+        Clean the profile variable in this form.
+
+        :return: the cleaned profile variable
+        """
+        profile = self.cleaned_data.get("profile")
+        profile_qs = Profile.objects.filter(id=profile)
+        if not profile_qs.exists():
+            raise forms.ValidationError("This profile does not exist")
+
+        return profile
 
 
 class AlterDictionaryForm(forms.Form):

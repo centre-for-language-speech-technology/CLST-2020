@@ -410,6 +410,22 @@ class Process(Model):
             profile.remove_corresponding_templates()
             profile.delete()
 
+    def get_valid_profiles(self):
+        """
+        Get the profiles for which the current files meet the requirements.
+
+        :param request:
+        :param p_id:
+        :return:
+        """
+        profiles = Profile.objects.filter(process=self)
+        valid_profiles = []
+
+        for p in profiles:
+            if p.is_valid(self.folder):
+                valid_profiles.append(p)
+        return valid_profiles
+
     class Meta:
         """
         Display configuration for admin pane.
