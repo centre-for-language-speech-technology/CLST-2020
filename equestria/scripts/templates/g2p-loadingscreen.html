@@ -13,7 +13,10 @@ Equestria: G2P status
             <h3>G2P is running</h3>
             <p class="">Status:</p>
             <strong><p id="process-django-status"></p></strong>
-            <a href="{% url "scripts:cd_screen" project=project %}" style="display: none;" class="btn btn-primary" id="process-continue-button">Continue</a>
+            <form class="md-form" action="" method="post">
+                    {% csrf_token %}
+                    <input type="submit" value="Continue" style="display: none;" class="btn btn-primary" id="process-continue-button">
+            </form>
         </div>
         <div class="col-md-1">
         </div>

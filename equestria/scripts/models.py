@@ -85,7 +85,7 @@ class Script(Model):
             # If CLAM can't be reached, the credentials are most likely not valid
             logging.error(e)
             raise ValidationError("There was a problem contacting the CLAM server, did you enter the right username and"
-                                  "password?")
+                                  " password?")
 
         # Remove the profiles that are now associated with this Script
         self.remove_corresponding_profiles()
@@ -139,6 +139,21 @@ class Script(Model):
             )
         else:
             return clam.common.client.CLAMClient(self.hostname)
+
+    def get_valid_profiles(self, folder):
+        """
+        Get the profiles for which the current files meet the requirements.
+
+        :param folder: the folder to check for files
+        :return:
+        """
+        profiles = Profile.objects.filter(script=self)
+        valid_profiles = []
+
+        for p in profiles:
+            if p.is_valid(folder):
+                valid_profiles.append(p)
+        return valid_profiles
 
     class Meta:
         """
@@ -384,6 +399,9 @@ class Process(Model):
             )
             return False
 
+    def is_finished(self):
+        return self.status == STATUS_FINISHED
+
     def get_status_messages(self):
         """
         Get the status messages of this process.
@@ -433,8 +451,6 @@ class Process(Model):
         """
         Get the profiles for which the current files meet the requirements.
 
-        :param request:
-        :param p_id:
         :return:
         """
         profiles = Profile.objects.filter(script=self.script)
@@ -543,6 +559,11 @@ class Profile(Model):
             else:
                 valid_for[template.id] = []
         return valid_for
+
+    class IncorrectProfileException(Exception):
+        """Exception to be thrown when the project has an incorrect state."""
+
+        pass
 
 
 class InputTemplate(Model):
@@ -802,6 +823,42 @@ class Project(Model):
             self.folder,
             zip_dir(self.folder, os.path.join(self.folder, zip_filename)),
         )
+
+    def can_upload(self):
+        return self.current_process is None
+
+    def can_start_new_process(self):
+        return self.current_process is None
+
+    def start_fa_script(self, profile):
+        return self.start_script(profile, self.pipeline.fa_script)
+
+    def start_g2p_script(self, profile):
+        return self.start_script(profile, self.pipeline.g2p_script)
+
+    def start_script(self, profile, script):
+        if self.current_process is not None and self.current_process.script == script:
+            return self.current_process
+        elif not self.can_start_new_process():
+            raise Project.StateException
+        elif profile.script != script:
+            raise Profile.IncorrectProfileException
+
+        self.current_process = Process.objects.create(script=script, folder=self.folder)
+        self.save()
+        try:
+            self.current_process.start_safe(profile)
+            return self.current_process
+        except ValueError as e:
+            self.cleanup()
+            raise e
+        except Exception as e:
+            self.cleanup()
+            raise e
+
+    def cleanup(self):
+        self.current_process = None
+        self.save()
 
     class StateException(Exception):
         """Exception to be thrown when the project has an incorrect state."""

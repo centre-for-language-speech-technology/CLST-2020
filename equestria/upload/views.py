@@ -1,6 +1,6 @@
 """Module to handle uploading files."""
 import os
-from scripts.models import Profile
+from scripts.models import Profile, Project
 from django.shortcuts import render, redirect
 from django.views.generic import TemplateView
 from .models import File
@@ -9,7 +9,6 @@ from scripts.forms import ProfileSelectForm
 from django.core.files.storage import FileSystemStorage
 from django.contrib.auth.mixins import LoginRequiredMixin
 import mimetypes
-from django.http import Http404
 
 
 class UploadProjectView(LoginRequiredMixin, TemplateView):
@@ -25,36 +24,24 @@ class UploadProjectView(LoginRequiredMixin, TemplateView):
         files = File.objects.filter(
             owner=request.user.username, project=project
         )
-
-        upload_form = UploadForm()
-        if (
-            project.current_process is None
-            or project.current_process.script != project.pipeline.fa_script
-        ):
-            context = {"project": project, "files": files}
-            return render(request, self.template_name, context)
-        else:
-            valid_profiles = project.current_process.get_valid_profiles()
-            profile_select_form = ProfileSelectForm(profiles=valid_profiles)
-
-            context = {
-                "project": project,
-                "files": files,
-                "upload_form": upload_form,
-                "profile_form": profile_select_form,
-            }
-            return render(request, self.template_name, context)
+        context = {
+            "project": project,
+            "files": files,
+        }
+        if project.can_upload():
+            context['upload_form'] = UploadForm()
+        if project.can_start_new_process():
+            valid_profiles = project.pipeline.fa_script.get_valid_profiles(project.folder)
+            context['profile_form'] = ProfileSelectForm(profiles=valid_profiles)
+        return render(request, self.template_name, context)
 
     def post(self, request, **kwargs):
         """Handle POST requests file upload page."""
         project = kwargs.get("project")
-        if (
-            project.current_process is None
-            or project.current_process.script != project.pipeline.fa_script
-        ):
-            raise Http404("The project is currently not running FA.")
-        valid_profiles = project.current_process.get_valid_profiles()
-        upload_form = UploadForm(request.POST, request.FILES)
+        if not project.can_start_new_process():
+            return self.get(request, **kwargs)
+
+        valid_profiles = project.pipeline.fa_script.get_valid_profiles(project.folder)
         profile_form = ProfileSelectForm(request.POST, profiles=valid_profiles)
 
         if profile_form.is_valid():
@@ -65,23 +52,29 @@ class UploadProjectView(LoginRequiredMixin, TemplateView):
                     pk=profile_form.cleaned_data.get("profile")
                 ),
             )
-        elif upload_form.is_valid():
-            save_file(request, project)
+        else:
+            raise ValueError("Profile form is invalid.")
 
-        valid_profiles = project.current_process.get_valid_profiles()
-        upload_form = UploadForm()
-        profile_form = ProfileSelectForm(profiles=valid_profiles)
 
-        files = File.objects.filter(
-            owner=request.user.username, project=project
-        )
-        context = {
-            "project": project,
-            "files": files,
-            "upload_form": upload_form,
-            "profile_form": profile_form,
-        }
-        return render(request, self.template_name, context)
+def upload_file_view(request, **kwargs):
+    """
+    Upload file view for uploading a file from a form.
+
+    :param request: the request
+    :param kwargs: keyword arguments
+    :return: a redirect if the file upload succeeded, raises a StateException if the file can't be uploaded because the
+    project has a running process, raises a ValueError if the form is not valid
+    """
+    project = kwargs.get("project")
+    if not project.can_upload():
+        raise Project.StateException("Can't upload files to this project")
+    upload_form = UploadForm(request.POST, request.FILES)
+
+    if upload_form.is_valid():
+        save_file(request, project)
+        return redirect("upload:upload_project", project=project)
+    else:
+        raise ValueError("File upload form invalid.")
 
 
 def get_file_type(path):
