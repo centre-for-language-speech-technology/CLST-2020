@@ -338,13 +338,12 @@ class CheckDictionaryScreen(LoginRequiredMixin, TemplateView):
         if form.is_valid():
             dictionary_content = form.cleaned_data.get("dictionary")
             project.write_oov_dict_file_contents(dictionary_content)
-            print(project.current_process)
 
             project.current_process.remove_corresponding_profiles()
             project.current_process.delete()
 
-            new_process = Process.create_process(
-                project.pipeline.fa_script, project.folder
+            new_process = Process.objects.create(
+                script=project.pipeline.fa_script, folder=project.folder
             )
             project.current_process = new_process
             project.save()
@@ -451,7 +450,7 @@ class ProjectOverview(LoginRequiredMixin, TemplateView):
             project = Project.create_project(
                 project_name, pipeline, request.user
             )
-            process = Process.create_process(pipeline.fa_script, project.folder)
+            process = Process.objects.create(script=pipeline.fa_script, folder=project.folder)
             project.current_process = process
             project.save()
             return redirect("upload:upload_project", project=project)
