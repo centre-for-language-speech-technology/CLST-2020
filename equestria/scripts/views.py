@@ -37,7 +37,9 @@ class FARedirect(LoginRequiredMixin, TemplateView):
         if project.can_start_new_process():
             if project.has_non_empty_extension_file([".oov"]):
                 try:
-                    profile = Profile.objects.get(script=project.pipeline.g2p_script)
+                    profile = Profile.objects.get(
+                        script=project.pipeline.g2p_script
+                    )
                 except Profile.MultipleObjectsReturned:
                     # TODO: Make a nice error screen
                     raise Profile.MultipleObjectsReturned
@@ -51,7 +53,10 @@ class FARedirect(LoginRequiredMixin, TemplateView):
                     raise Project.StateException("Failed to start g2p process")
             else:
                 return redirect("scripts:cd_screen", project=project)
-        elif project.current_process is not None and project.current_process.script == project.pipeline.g2p_script:
+        elif (
+            project.current_process is not None
+            and project.current_process.script == project.pipeline.g2p_script
+        ):
             try:
                 profile = Profile.objects.get(process=project.current_process)
             except Profile.MultipleObjectsReturned as e:
@@ -73,11 +78,13 @@ class FAStartView(LoginRequiredMixin, TemplateView):
 
     def get(self, request, **kwargs):
         """
-        GET method for start view.
+        GET method for the start screen of FA.
 
         :param request: the request
         :param kwargs: the keyword arguments
-        :return: a JSON response indicating whether the CLAM server started
+        :return: a redirect to the fa loading screen if the process could be started successfully, raises a
+        Project.StateException if there is already a running process for the project, returns a render of the
+        fa-startscreen.html template with an error message if an error occurred
         """
         project = kwargs.get("project")
         profile = kwargs.get("profile")
@@ -144,7 +151,7 @@ class FALoadScreen(LoginRequiredMixin, TemplateView):
 
     def get(self, request, **kwargs):
         """
-        GET request for loading page.
+        GET request for fa loading page.
 
         :param request: the request
         :param kwargs: keyword arguments
@@ -164,6 +171,15 @@ class FALoadScreen(LoginRequiredMixin, TemplateView):
         )
 
     def post(self, request, **kwargs):
+        """
+        POST request for the fa loading page.
+
+        :param request: the request
+        :param kwargs: keyword arguments
+        :return: removes a finished process from a project and then redirects to the fa redirect screen. If the
+        project has no running process, the user will be redirected to the change dictionary screen as well. If the
+        process of the project is not finished yet, this function raises a Project.StateException
+        """
         project = kwargs.get("project")
         if project.current_process is None:
             return redirect("scripts:fa_redirect", project=project)
@@ -176,9 +192,7 @@ class FALoadScreen(LoginRequiredMixin, TemplateView):
             project.cleanup()
             return redirect("scripts:fa_redirect", project=project)
         else:
-            raise Project.StateException(
-                "Current process is not finished yet"
-            )
+            raise Project.StateException("Current process is not finished yet")
 
 
 class FAOverview(LoginRequiredMixin, TemplateView):
@@ -225,7 +239,9 @@ class G2PStartScreen(LoginRequiredMixin, TemplateView):
 
         :param request: the request
         :param kwargs: the keyword arguments
-        :return: a JSON response indicating whether the CLAM server started
+        :return: a redirect to the g2p loading screen if the process could be started successfully, raises a
+        Project.StateException if there is already a running process for the project, returns a render of the
+        g2p-startscreen.html template with an error message if an error occurred
         """
         project = kwargs.get("project")
         profile = kwargs.get("profile")
@@ -260,7 +276,7 @@ class G2PStartScreen(LoginRequiredMixin, TemplateView):
                 {
                     "project": project,
                     "error": "Error while starting the process, make sure all input"
-                             " files are specified",
+                    " files are specified",
                 },
             )
         except Exception as e:
@@ -306,6 +322,15 @@ class G2PLoadScreen(LoginRequiredMixin, TemplateView):
         )
 
     def post(self, request, **kwargs):
+        """
+        POST request for the loading page.
+
+        :param request: the request
+        :param kwargs: keyword arguments
+        :return: removes a finished process from a project and then redirects to the change dictionary screen. If the
+        project has no running process, the user will be redirected to the change dictionary screen as well. If the
+        process of the project is not finished yet, this function raises a Project.StateException
+        """
         project = kwargs.get("project")
         if project.current_process is None:
             return redirect("scripts:cd_screen", project=project)
@@ -318,9 +343,7 @@ class G2PLoadScreen(LoginRequiredMixin, TemplateView):
             project.cleanup()
             return redirect("scripts:cd_screen", project=project)
         else:
-            raise Project.StateException(
-                "Current process is not finished yet"
-            )
+            raise Project.StateException("Current process is not finished yet")
 
 
 class CheckDictionaryScreen(LoginRequiredMixin, TemplateView):
@@ -474,7 +497,13 @@ class ProjectOverview(LoginRequiredMixin, TemplateView):
 
 
 def download_project_archive(request, **kwargs):
-    """Download the archive containing the process files."""
+    """
+    Download all files of a project in ZIP format.
+
+    :param request: the request
+    :param kwargs: keyword arguments
+    :return: a serve of a compressed archive of the project folder (ZIP format)
+    """
     project = kwargs.get("project")
 
     zip_filename = project.create_downloadable_archive()

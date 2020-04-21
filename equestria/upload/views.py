@@ -19,7 +19,14 @@ class UploadProjectView(LoginRequiredMixin, TemplateView):
     template_name = "upload/upload-project.html"
 
     def get(self, request, **kwargs):
-        """Handle GET requests file upload page."""
+        """
+        Handle a GET request for the file upload page.
+
+        :param request: the request
+        :param kwargs: keyword arguments
+        :return: A render of the upload_project.html page containing an upload form if files can be uploaded to the
+        project and a profile form if a new process can be started for the project
+        """
         project = kwargs.get("project")
         files = File.objects.filter(
             owner=request.user.username, project=project
@@ -29,19 +36,30 @@ class UploadProjectView(LoginRequiredMixin, TemplateView):
             "files": files,
         }
         if project.can_upload():
-            context['upload_form'] = UploadForm()
+            context["upload_form"] = UploadForm()
         if project.can_start_new_process():
-            valid_profiles = project.pipeline.fa_script.get_valid_profiles(project.folder)
-            context['profile_form'] = ProfileSelectForm(profiles=valid_profiles)
+            valid_profiles = project.pipeline.fa_script.get_valid_profiles(
+                project.folder
+            )
+            context["profile_form"] = ProfileSelectForm(profiles=valid_profiles)
         return render(request, self.template_name, context)
 
     def post(self, request, **kwargs):
-        """Handle POST requests file upload page."""
+        """
+        Handle POST request for file upload page.
+
+        :param request: the request
+        :param kwargs: keyword arguments
+        :return: a ValueError if the profile in the form is not valid, a render of the upload_project.html page if there
+        is already a started process, a redirect to the fa_start view otherwise
+        """
         project = kwargs.get("project")
         if not project.can_start_new_process():
             return self.get(request, **kwargs)
 
-        valid_profiles = project.pipeline.fa_script.get_valid_profiles(project.folder)
+        valid_profiles = project.pipeline.fa_script.get_valid_profiles(
+            project.folder
+        )
         profile_form = ProfileSelectForm(request.POST, profiles=valid_profiles)
 
         if profile_form.is_valid():
@@ -78,13 +96,26 @@ def upload_file_view(request, **kwargs):
 
 
 def get_file_type(path):
-    """Get the file type of the uploaded file and categorize."""
+    """
+    Get the file type of the uploaded file.
+
+    :param path: the path of the file
+    :return: the filetype
+    """
     mime = mimetypes.guess_type(path)
     return mime[0]
 
 
 def make_db_entry(request, path, use_for, project):
-    """Create an entry in the Database for the uploaded file."""
+    """
+    Create a database entry for an uploaded file.
+
+    :param request: the request
+    :param path: the path of the file
+    :param use_for: what to use the file for, either text or audio
+    :param project: the project the file belongs to
+    :return: None
+    """
     exists = File.objects.filter(path=path)
     if len(exists) > 0:
         exists[0].delete()
@@ -98,7 +129,13 @@ def make_db_entry(request, path, use_for, project):
 
 
 def save_file(request, project):
-    """Safe uploaded file."""
+    """
+    Save a file to a project.
+
+    :param request: the request
+    :param project: the project to save the file to
+    :return: None
+    """
     uploaded_file = request.FILES["f"]
     path = project.folder
     save_location = os.path.join(path, uploaded_file.name)

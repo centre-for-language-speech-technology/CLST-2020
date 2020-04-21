@@ -73,7 +73,6 @@ class Script(Model):
         :param kwargs: keyword arguments
         :return: super(Script, self).save()
         """
-
         # First contact CLAM to get the profile data
         random_token = Process.get_random_clam_id()
         try:
@@ -84,8 +83,10 @@ class Script(Model):
         except Exception as e:
             # If CLAM can't be reached, the credentials are most likely not valid
             logging.error(e)
-            raise ValidationError("There was a problem contacting the CLAM server, did you enter the right username and"
-                                  " password?")
+            raise ValidationError(
+                "There was a problem contacting the CLAM server, did you enter the right username and"
+                " password?"
+            )
 
         # Remove the profiles that are now associated with this Script
         self.remove_corresponding_profiles()
@@ -400,6 +401,11 @@ class Process(Model):
             return False
 
     def is_finished(self):
+        """
+        Check if this process is finished.
+
+        :return: True if this process has a status of STATUS_FINISHED, False otherwise
+        """
         return self.status == STATUS_FINISHED
 
     def get_status_messages(self):
@@ -825,26 +831,63 @@ class Project(Model):
         )
 
     def can_upload(self):
+        """
+        Check whether files can be uploaded to this project.
+
+        :return: True if files can be uploaded to this project, False otherwise
+        """
         return self.current_process is None
 
     def can_start_new_process(self):
+        """
+        Check whether a new process can be started for this project.
+
+        :return: True if there are not running processes for this project, False otherwise
+        """
         return self.current_process is None
 
     def start_fa_script(self, profile):
+        """
+        Start the FA script with a given profile.
+
+        :param profile: the profile to start FA with
+        :return: the process with the started script, raises a ValueError if the files in the folder do not match the
+        profile, raises an Exception if a CLAM error occurred
+        """
         return self.start_script(profile, self.pipeline.fa_script)
 
     def start_g2p_script(self, profile):
+        """
+        Start the G2P script with a given profile.
+
+        :param profile: the profile to start G2P with
+        :return: the process with the started script, raises a ValueError if the files in the folder do not match the
+        profile, raises an Exception if a CLAM error occurred
+        """
         return self.start_script(profile, self.pipeline.g2p_script)
 
     def start_script(self, profile, script):
-        if self.current_process is not None and self.current_process.script == script:
+        """
+        Start a new script and add the process to this project.
+
+        :param profile: the profile to start the script with
+        :param script: the script to start
+        :return: the process with the started script, raises a ValueError if the files in the folder do not match the
+        profile, raises an Exception if a CLAM error occurred
+        """
+        if (
+            self.current_process is not None
+            and self.current_process.script == script
+        ):
             return self.current_process
         elif not self.can_start_new_process():
             raise Project.StateException
         elif profile.script != script:
             raise Profile.IncorrectProfileException
 
-        self.current_process = Process.objects.create(script=script, folder=self.folder)
+        self.current_process = Process.objects.create(
+            script=script, folder=self.folder
+        )
         self.save()
         try:
             self.current_process.start_safe(profile)
@@ -857,6 +900,12 @@ class Project(Model):
             raise e
 
     def cleanup(self):
+        """
+        Reset the project to a clean state.
+
+        Resets the current process to None
+        :return: None
+        """
         self.current_process = None
         self.save()
 
