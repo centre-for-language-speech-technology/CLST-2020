@@ -8,7 +8,7 @@
             <i class="fas fa-arrow-right"></i>
         </li>
         <li class="nav-item icon-centered {% if active == "upload" %} active {% endif %}">
-            {% if project %}
+            {% if project and active != "project" %}
                 <a class="nav-link waves-effect waves-light" href="{% url 'upload:upload_project' project=project %}">Upload files</a>
             {% else %}
                 <p class="non-link">Upload files</p>
@@ -18,7 +18,7 @@
             <i class="fas fa-arrow-right"></i>
         </li>
         <li class="nav-item icon-centered {% if active == "dictionary" %} active {% endif %}">
-            {% if project %}
+            {% if project and active != "project" and active != "upload" %}
                 <a class="nav-link waves-effect waves-light" href="{% url 'scripts:cd_screen' project=project %}">Check dictionary</a>
             {% else %}
                 <p class="non-link">Check dictionary</p>
@@ -28,7 +28,7 @@
             <i class="fas fa-arrow-right"></i>
         </li>
         <li class="nav-item icon-centered {% if active == "forced" %} active {% endif %}">
-            {% if project %}
+            {% if project and active != "project" and active != "upload" %}
                 <a class="nav-link waves-effect waves-light" href="{% url 'scripts:fa_overview' project=project %}">Forced Alignment</a>
             {% else %}
                 <p class="non-link">Forced Alignment</p>
@@ -38,7 +38,7 @@
             <i class="fas fa-arrow-right"></i>
         </li>
         <li class="nav-item icon-centered {% if active == "segmentation" %} active {% endif %}">
-            {% if project %}
+            {% if project and active != "project" and active != "upload" and active != "forced" and active != "dictionary" %}
                 <a class="nav-link waves-effect waves-light" href="{% url 'auto_segmentation' %}">Automatic Segmentation</a>
             {% else %}
                 <p class="non-link">Automatic Segmentation</p>
@@ -48,7 +48,7 @@
             <i class="fas fa-arrow-right"></i>
         </li>
         <li class="nav-item icon-centered {% if active == "analysis" %} active {% endif %}">
-            {% if project %}
+            {% if project and active != "project" and active != "upload" and active != "forced" and active != "dictionary" %}
                 <a class="nav-link waves-effect waves-light" href="#">Analysis</a>
             {% else %}
                 <p class="non-link">Analysis</p>
