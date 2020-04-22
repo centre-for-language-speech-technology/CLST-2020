@@ -17,24 +17,11 @@ jobs:
       with:
         python-version: '3.7'
 
-    # We now use another predifend action to install poetry. This works easily with caching.
-    - name: Install Poetry
-      uses: dschep/install-poetry-action@v1.2
-        
-    - name: Cache Poetry virtualenv
-      uses: actions/cache@v1
-      id: cache
-      with:
-          path: ~/.virtualenvs
-          key: poetry-${{ hashFiles('**/poetry.lock') }}
-          restore-keys: |
-            poetry-${{ hashFiles('**/poetry.lock') }}
-    # We only install dependecies if we have a cache miss.
-    - name: Install Dependencies
-      run: poetry install
-      if: steps.cache.outputs.cache-hit != 'true'
-        
-        
+    - name: "Setup Poetry"
+      run: |
+        python -m pip install --upgrade --no-cache-dir pip
+        python -m pip install --no-cache-dir poetry
+        poetry install
     - name: "Run Black"
       run: "poetry run black --check equestria"
 
