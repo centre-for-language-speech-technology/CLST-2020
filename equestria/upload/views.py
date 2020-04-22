@@ -1,11 +1,10 @@
 """Module to handle uploading files."""
 import os
-from scripts.models import Profile, Project
+from django.http import Http404
 from django.shortcuts import render, redirect
 from django.views.generic import TemplateView
 from .models import File
 from .forms import UploadForm
-from scripts.forms import ProfileSelectForm
 from django.core.files.storage import FileSystemStorage
 from django.contrib.auth.mixins import LoginRequiredMixin
 import mimetypes
@@ -38,10 +37,7 @@ class UploadProjectView(LoginRequiredMixin, TemplateView):
         if project.can_upload():
             context["upload_form"] = UploadForm()
         if project.can_start_new_process():
-            valid_profiles = project.pipeline.fa_script.get_valid_profiles(
-                project.folder
-            )
-            context["profile_form"] = ProfileSelectForm(profiles=valid_profiles)
+            context["can_start"] = True
         return render(request, self.template_name, context)
 
     def post(self, request, **kwargs):
@@ -57,21 +53,7 @@ class UploadProjectView(LoginRequiredMixin, TemplateView):
         if not project.can_start_new_process():
             return self.get(request, **kwargs)
 
-        valid_profiles = project.pipeline.fa_script.get_valid_profiles(
-            project.folder
-        )
-        profile_form = ProfileSelectForm(request.POST, profiles=valid_profiles)
-
-        if profile_form.is_valid():
-            return redirect(
-                "scripts:fa_start",
-                project=project,
-                profile=Profile.objects.get(
-                    pk=profile_form.cleaned_data.get("profile")
-                ),
-            )
-        else:
-            raise ValueError("Profile form is invalid.")
+        return redirect("scripts:fa_start_automatic", project=project)
 
 
 def upload_file_view(request, **kwargs):
@@ -85,7 +67,7 @@ def upload_file_view(request, **kwargs):
     """
     project = kwargs.get("project")
     if not project.can_upload():
-        raise Project.StateException("Can't upload files to this project")
+        raise Http404("Can't upload files to this project")
     upload_form = UploadForm(request.POST, request.FILES)
 
     if upload_form.is_valid():

@@ -7,11 +7,10 @@ from .models import (
     Project,
     Profile,
     Pipeline,
-    Process,
 )
 from django.http import JsonResponse
 from django.contrib.auth.mixins import LoginRequiredMixin
-from .forms import ProjectCreateForm, AlterDictionaryForm
+from .forms import ProjectCreateForm, AlterDictionaryForm, ProfileSelectForm
 from .tasks import update_script
 import logging
 
@@ -134,6 +133,93 @@ class FAStartView(LoginRequiredMixin, TemplateView):
             )
         update_script(process.id)
         return redirect("scripts:fa_loading", project=project)
+
+
+class FAStartAutomaticView(LoginRequiredMixin, TemplateView):
+    """Automatic start view for Forced Alignment."""
+
+    login_url = "/accounts/login/"
+
+    template_name = "fa-start-automatic.html"
+
+    def get(self, request, **kwargs):
+        """
+        GET method for the automatic start screen of FA.
+
+        :param request: the request
+        :param kwargs: the keyword arguments
+        :return: a redirect to the fa start view if only one profile matches, otherwise a form to select a profile for
+        the user
+        """
+        project = kwargs.get("project")
+        valid_profiles = project.pipeline.fa_script.get_valid_profiles(
+            project.folder
+        )
+        if len(valid_profiles) > 1:
+            profile_form = ProfileSelectForm(
+                request.POST, profiles=valid_profiles
+            )
+            return render(
+                request,
+                self.template_name,
+                {
+                    "form": profile_form,
+                    "message": "There are multiple profiles"
+                    " that can be applied to this"
+                    " project, please select one.",
+                    "project": project,
+                },
+            )
+        elif len(valid_profiles) == 0:
+            return render(
+                request,
+                self.template_name,
+                {
+                    "message": "There are no profiles that can be applied to this"
+                    " project, did you upload all required files?",
+                    "project": project,
+                },
+            )
+        else:
+            profile = valid_profiles[0]
+            return redirect(
+                "scripts:fa_start", project=project, profile=profile
+            )
+
+    def post(self, request, **kwargs):
+        """
+        POST method for automatic start screen of FA.
+
+        :param request: the request
+        :param kwargs: keyword arguments
+        :return: a redirect to the fa start view if a correct profile is selected, otherwise a form to select a profile
+        for the user
+        """
+        project = kwargs.get("project")
+        valid_profiles = project.pipeline.fa_script.get_valid_profiles(
+            project.folder
+        )
+
+        profile_form = ProfileSelectForm(request.POST, profiles=valid_profiles)
+        if profile_form.is_valid():
+            profile = Profile.objects.get(
+                pk=profile_form.cleaned_data.get("profile")
+            )
+            return redirect(
+                "scripts:fa_start", project=project, profile=profile
+            )
+        else:
+            return render(
+                request,
+                self.template_name,
+                {
+                    "form": profile_form,
+                    "message": "There are multiple profiles"
+                    " that can be applied to this"
+                    " project, please select one.",
+                    "project": project,
+                },
+            )
 
 
 class FALoadScreen(LoginRequiredMixin, TemplateView):
