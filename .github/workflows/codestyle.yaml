@@ -25,7 +25,7 @@ jobs:
       uses: actions/cache@v1
       id: cache
       with:
-          path: .cache/pypoetry/
+          path: ~/.cache/pypoetry/
           key: poetry-${{ hashFiles('**/poetry.lock') }}
           
     - name: Install Dependencies
