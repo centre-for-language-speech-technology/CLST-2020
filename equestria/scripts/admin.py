@@ -16,7 +16,7 @@ class ProfileInline(admin.StackedInline):
     extra = 0
 
 
-class ProcessAdmin(admin.ModelAdmin):
+class ScriptAdmin(admin.ModelAdmin):
     """Profiles are displayed inline when creating/modifying processes."""
 
     inlines = [ProfileInline]
@@ -39,8 +39,8 @@ class ProfileAdmin(admin.ModelAdmin):
     inlines = [InputTemplateInline]
 
 
-admin.site.register(models.Script)
-admin.site.register(models.Process, ProcessAdmin)
+admin.site.register(models.Script, ScriptAdmin)
+admin.site.register(models.Process)
 admin.site.register(models.Project)
 admin.site.register(models.Pipeline)
 admin.site.register(models.InputTemplate)

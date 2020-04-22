@@ -1,0 +1,31 @@
+{% extends 'progbase.html' %}
+{% load static %}
+
+{% block title %}
+Equestria: Forced Alignment Automatic start Error
+{% endblock %}
+
+{% block prebody %}
+{% include "pipeline.html" with active="upload" %}
+{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col rounded shadow lighter padding">
+            <h1>Failed to automatically start Forced Alignment</h1>
+            <p style="background-color: red;">{{ message }}</p>
+            {% if form %}
+                <form class="md-form" action="" method="post">
+                    <div class="input-group mb-3">
+                        {% csrf_token %}
+                        {{ form }}
+                        <input type="submit" value="Continue" class="btn btn-primary">
+                    </div>
+                </form>
+            {% endif %}
+            <a class="btn btn-primary" href="{% url "upload:upload_project" project=project %}">Go back to uploading files</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

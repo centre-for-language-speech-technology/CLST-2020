@@ -36,9 +36,10 @@ Equestria: Upload
 {% block body %}
     <div class="container-fluid">
         <div class="rounded shadow lighter padding">
+            <h1>Upload files</h1>
             {% if upload_form %}
                 <h3>Upload a file (.txt .tg or .wav):</h3>
-                <form class="md-form" action="" method="post" enctype="multipart/form-data">
+                <form class="md-form" action="{% url 'upload:upload_file' project=project %}" method="post" enctype="multipart/form-data">
                     <div class="input-group mb-3">
                         <div class="custom-file">
                             {% crispy upload_form %}
@@ -48,20 +49,18 @@ Equestria: Upload
                     </div>
                 </form>
             {% endif %}
-            {% if profile_form %}
+            {% if can_start %}
                 <form class="md-form" action="" method="post" enctype="multipart/form-data">
                     <div class="input-group mb-3">
                         <div class="custom-file">
-                            {% crispy profile_form %}
-                            {%csrf_token%}
+                            {% csrf_token %}
                             <input type="submit" name="TXTform" value="Submit" class="btn btn-primary" id="upload-txt-btn">
                         </div>
                     </div>
                 </form>
             {% else %}
-                <p style="background-color: red;">The current process is either running, not finished yet or not a
-                forced alignment process, you can not upload files yet. First wait for the current process to finish
-                and restart forced alignment.</p>
+                <p style="background-color: red;">There is currently a running process. You can not start a new process.
+                    First wait for the current process to finish and reload this page.</p>
             {% endif %}
         </div>
     </div>

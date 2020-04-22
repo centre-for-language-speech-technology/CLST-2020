@@ -1,5 +1,6 @@
 """Module to define db models related to the upload app."""
 import pytz
+from django.core.exceptions import ValidationError
 from django.db.models import *
 import clam.common.client
 import clam.common.data
@@ -38,8 +39,6 @@ STATUS = (
 
 User = get_user_model()
 
-User = get_user_model()
-
 
 class Script(Model):
     """
@@ -66,20 +65,68 @@ class Script(Model):
     username = CharField(max_length=200, blank=True)
     password = CharField(max_length=200, blank=True)
 
+    def save(self, *args, **kwargs):
+        """
+        Save function to load profile data from CLAM.
+
+        :param args: arguments
+        :param kwargs: keyword arguments
+        :return: super(Script, self).save()
+        """
+        # First contact CLAM to get the profile data
+        random_token = Process.get_random_clam_id()
+        try:
+            clamclient = self.get_clam_server()
+            clamclient.create(random_token)
+            data = clamclient.get(random_token)
+            clamclient.delete(random_token)
+        except Exception as e:
+            # If CLAM can't be reached, the credentials are most likely not valid
+            logging.error(e)
+            raise ValidationError(
+                "There was a problem contacting the CLAM server, did you enter the right username and"
+                " password?"
+            )
+
+        # Remove the profiles that are now associated with this Script
+        self.remove_corresponding_profiles()
+
+        # Create new profiles associated with this script
+        for profile in data.profiles:
+            self.create_templates_from_data(profile.input)
+
+        # Call the super method
+        super(Script, self).save(*args, **kwargs)
+
+    def create_templates_from_data(self, input_templates):
+        """Create template objects from data."""
+        new_profile = Profile.objects.create(script=self)
+        for input_template in input_templates:
+            InputTemplate.objects.create(
+                template_id=input_template.id,
+                format=input_template.formatclass,
+                label=input_template.label,
+                extension=input_template.extension,
+                optional=input_template.optional,
+                unique=input_template.unique,
+                accept_archive=input_template.acceptarchive,
+                corresponding_profile=new_profile,
+            )
+
     def __str__(self):
         """Use name of script in admin display."""
         return self.name
 
-    class Meta:
+    def remove_corresponding_profiles(self):
         """
-        Display configuration for admin pane.
+        Remove all profiles corresponding to this process.
 
-        Order admin list alphabetically by name.
-        Display plural correctly.
+        :return: None
         """
-
-        ordering = ["name"]
-        verbose_name_plural = "Scripts"
+        profiles = Profile.objects.filter(script=self)
+        for profile in profiles:
+            profile.remove_corresponding_templates()
+            profile.delete()
 
     def get_clam_server(self):
         """
@@ -94,6 +141,32 @@ class Script(Model):
         else:
             return clam.common.client.CLAMClient(self.hostname)
 
+    def get_valid_profiles(self, folder):
+        """
+        Get the profiles for which the current files meet the requirements.
+
+        :param folder: the folder to check for files
+        :return:
+        """
+        profiles = Profile.objects.filter(script=self)
+        valid_profiles = []
+
+        for p in profiles:
+            if p.is_valid(folder):
+                valid_profiles.append(p)
+        return valid_profiles
+
+    class Meta:
+        """
+        Display configuration for admin pane.
+
+        Order admin list alphabetically by name.
+        Display plural correctly.
+        """
+
+        ordering = ["name"]
+        verbose_name_plural = "Scripts"
+
 
 class Process(Model):
     """
@@ -107,7 +180,7 @@ class Process(Model):
     """
 
     script = ForeignKey(Script, on_delete=SET_NULL, blank=False, null=True)
-    clam_id = CharField(max_length=256, null=True)
+    clam_id = CharField(max_length=256, null=True, default=None)
     status = IntegerField(choices=STATUS, default=0)
     folder = FilePathField(
         allow_folders=True, allow_files=False, path=settings.USER_DATA_FOLDER
@@ -121,33 +194,6 @@ class Process(Model):
         :return: a random 32 bit string
         """
         return secrets.token_hex(32)
-
-    @staticmethod
-    def create_process(script, folder):
-        """
-        Start a project.
-
-        :param script: the script
-        :param folder: the upload/download folder for the clam server, the folder must contain at least all the required
-        files in one of the linked input templates before starting this process
-        :return: the process
-        """
-        random_token = Process.get_random_clam_id()
-        try:
-            clamclient = script.get_clam_server()
-            clamclient.create(random_token)
-            data = clamclient.get(random_token)
-            clamclient.delete(random_token)
-        except Exception as e:
-            logging.error(e)
-            return False
-        process = Process.objects.create(
-            script=Script.objects.get(pk=script.id),
-            clam_id=None,
-            folder=folder,
-        )
-        Profile.create_templates_from_data(process, data.inputtemplates())
-        return process
 
     def update_log_messages_from_xml(self, xml_data):
         """
@@ -354,6 +400,14 @@ class Process(Model):
             )
             return False
 
+    def is_finished(self):
+        """
+        Check if this process is finished.
+
+        :return: True if this process has a status of STATUS_FINISHED, False otherwise
+        """
+        return self.status == STATUS_FINISHED
+
     def get_status_messages(self):
         """
         Get the status messages of this process.
@@ -399,26 +453,13 @@ class Process(Model):
         """
         return self.status
 
-    def remove_corresponding_profiles(self):
-        """
-        Remove all profiles corresponding to this process.
-
-        :return: None
-        """
-        profiles = Profile.objects.filter(process=self)
-        for profile in profiles:
-            profile.remove_corresponding_templates()
-            profile.delete()
-
     def get_valid_profiles(self):
         """
         Get the profiles for which the current files meet the requirements.
 
-        :param request:
-        :param p_id:
         :return:
         """
-        profiles = Profile.objects.filter(process=self)
+        profiles = Profile.objects.filter(script=self.script)
         valid_profiles = []
 
         for p in profiles:
@@ -455,7 +496,7 @@ class Profile(Model):
         process                 The process associated with this profile.
     """
 
-    process = ForeignKey(Process, on_delete=SET_NULL, null=True)
+    script = ForeignKey(Script, on_delete=SET_NULL, null=True)
 
     class Meta:
         """
@@ -468,22 +509,6 @@ class Profile(Model):
         ordering = ["id"]
         verbose_name = "Profile"
         verbose_name_plural = "Profiles"
-
-    @staticmethod
-    def create_templates_from_data(process, inputtemplates):
-        """Create template objects from data."""
-        new_profile = Profile.objects.create(process=process)
-        for input_template in inputtemplates:
-            InputTemplate.objects.create(
-                template_id=input_template.id,
-                format=input_template.formatclass,
-                label=input_template.label,
-                extension=input_template.extension,
-                optional=input_template.optional,
-                unique=input_template.unique,
-                accept_archive=input_template.acceptarchive,
-                corresponding_profile=new_profile,
-            )
 
     def __str__(self):
         """
@@ -540,6 +565,11 @@ class Profile(Model):
             else:
                 valid_for[template.id] = []
         return valid_for
+
+    class IncorrectProfileException(Exception):
+        """Exception to be thrown when the project has an incorrect state."""
+
+        pass
 
 
 class InputTemplate(Model):
@@ -800,8 +830,87 @@ class Project(Model):
             zip_dir(self.folder, os.path.join(self.folder, zip_filename)),
         )
 
+    def can_upload(self):
+        """
+        Check whether files can be uploaded to this project.
+
+        :return: True if files can be uploaded to this project, False otherwise
+        """
+        return self.current_process is None
+
+    def can_start_new_process(self):
+        """
+        Check whether a new process can be started for this project.
+
+        :return: True if there are not running processes for this project, False otherwise
+        """
+        return self.current_process is None
+
+    def start_fa_script(self, profile):
+        """
+        Start the FA script with a given profile.
+
+        :param profile: the profile to start FA with
+        :return: the process with the started script, raises a ValueError if the files in the folder do not match the
+        profile, raises an Exception if a CLAM error occurred
+        """
+        return self.start_script(profile, self.pipeline.fa_script)
+
+    def start_g2p_script(self, profile):
+        """
+        Start the G2P script with a given profile.
+
+        :param profile: the profile to start G2P with
+        :return: the process with the started script, raises a ValueError if the files in the folder do not match the
+        profile, raises an Exception if a CLAM error occurred
+        """
+        return self.start_script(profile, self.pipeline.g2p_script)
+
+    def start_script(self, profile, script):
+        """
+        Start a new script and add the process to this project.
+
+        :param profile: the profile to start the script with
+        :param script: the script to start
+        :return: the process with the started script, raises a ValueError if the files in the folder do not match the
+        profile, raises an Exception if a CLAM error occurred
+        """
+        if (
+            self.current_process is not None
+            and self.current_process.script == script
+        ):
+            return self.current_process
+        elif not self.can_start_new_process():
+            raise Project.StateException
+        elif profile.script != script:
+            raise Profile.IncorrectProfileException
+
+        self.current_process = Process.objects.create(
+            script=script, folder=self.folder
+        )
+        self.save()
+        try:
+            self.current_process.start_safe(profile)
+            return self.current_process
+        except ValueError as e:
+            self.cleanup()
+            raise e
+        except Exception as e:
+            self.cleanup()
+            raise e
+
+    def cleanup(self):
+        """
+        Reset the project to a clean state.
+
+        Resets the current process to None
+        :return: None
+        """
+        self.current_process = None
+        self.save()
+
     class StateException(Exception):
-        """Exception to be throwed when the project has an incorrect state."""
+        """Exception to be thrown when the project has an incorrect state."""
 
         pass
 

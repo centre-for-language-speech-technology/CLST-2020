@@ -39,6 +39,11 @@ urlpatterns = [
         name="project_download",
     ),
     path(
+        "fa/<project:project>/start",
+        FAStartAutomaticView.as_view(),
+        name="fa_start_automatic",
+    ),
+    path(
         "fa/<project:project>/start/<profile:profile>",
         FAStartView.as_view(),
         name="fa_start",

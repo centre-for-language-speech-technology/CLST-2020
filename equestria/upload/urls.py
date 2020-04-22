@@ -3,7 +3,7 @@ from django.urls import path, register_converter
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.conf.urls.static import static
 from django.conf import settings
-from .views import UploadProjectView
+from .views import UploadProjectView, upload_file_view
 from scripts.converters import ProjectConverter
 
 register_converter(ProjectConverter, "project")
@@ -12,6 +12,7 @@ urlpatterns = [
     path(
         "<project:project>", UploadProjectView.as_view(), name="upload_project"
     ),
+    path("<project:project>/upload", upload_file_view, name="upload_file"),
 ]
 
 
