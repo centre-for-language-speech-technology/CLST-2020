@@ -14,6 +14,7 @@ import secrets
 from django.contrib.auth import get_user_model
 import zipfile
 from .services import zip_dir
+from django.contrib.contenttypes.models import ContentType
 
 # Create your models here.
 
@@ -91,12 +92,49 @@ class Script(Model):
         # Remove the profiles that are now associated with this Script
         self.remove_corresponding_profiles()
 
+        default_values = dict()
+        for parameter in BaseParameter.objects.filter(corresponding_script=self):
+            default_key = parameter.get_default_value()
+            if default_key is not None:
+                default_values[parameter.name] = parameter.get_default_value()
+
+        self.remove_corresponding_parameters()
+        self.generate_parameters_from_clam_data(data.passparameters().keys(), data, default_values)
+
         # Create new profiles associated with this script
         for profile in data.profiles:
             self.create_templates_from_data(profile.input)
 
         # Call the super method
         super(Script, self).save(*args, **kwargs)
+
+    def generate_parameters_from_clam_data(self, parameter_names, clam_data, default_values):
+        for parameter_name in parameter_names:
+            parameter = clam_data.parameter(parameter_name)
+            type = BaseParameter.get_type(parameter)
+            base_parameter = BaseParameter.objects.create(name=parameter_name,
+                                                          corresponding_script=self,
+                                                          type=type)
+            if type == BaseParameter.BOOLEAN_TYPE:
+                param = BooleanParameter.objects.create(base=base_parameter)
+            elif type == BaseParameter.STATIC_TYPE:
+                param = StaticParameter.objects.create(base=base_parameter)
+            elif type == BaseParameter.STRING_TYPE:
+                param = StringParameter.objects.create(base=base_parameter)
+            elif type == BaseParameter.CHOICE_TYPE:
+                param = ChoiceParameter.objects.create(base=base_parameter)
+                Choice.add_choices(parameter.choices, param)
+            elif type == BaseParameter.TEXT_TYPE:
+                param = TextParameter.objects.create(base=base_parameter)
+            elif type == BaseParameter.INTEGER_TYPE:
+                param = IntegerParameter.objects.create(base=base_parameter)
+            elif type == BaseParameter.FLOAT_TYPE:
+                param = FloatParameter.objects.create(base=base_parameter)
+            else:
+                param = None
+
+            if parameter_name in default_values.keys() and param is not None:
+                param.set_preset(default_values[parameter_name])
 
     def create_templates_from_data(self, input_templates):
         """Create template objects from data."""
@@ -127,6 +165,12 @@ class Script(Model):
         for profile in profiles:
             profile.remove_corresponding_templates()
             profile.delete()
+
+    def remove_corresponding_parameters(self):
+        parameters = BaseParameter.objects.filter(corresponding_script=self)
+        for parameter in parameters:
+            parameter.remove_corresponding_presets()
+            parameter.delete()
 
     def get_clam_server(self):
         """
@@ -918,3 +962,220 @@ class Project(Model):
         """Meta class for Project model."""
 
         unique_together = ("name", "user")
+
+
+class BaseParameter(Model):
+
+    BOOLEAN_TYPE = 0
+    STATIC_TYPE = 1
+    STRING_TYPE = 2
+    CHOICE_TYPE = 3
+    TEXT_TYPE = 4
+    INTEGER_TYPE = 5
+    FLOAT_TYPE = 6
+
+    TYPES = (
+        (BOOLEAN_TYPE, "Boolean"),
+        (STATIC_TYPE, "Static"),
+        (STRING_TYPE, "String"),
+        (CHOICE_TYPE, "Choice"),
+        (TEXT_TYPE, "Text"),
+        (INTEGER_TYPE, "Integer"),
+        (FLOAT_TYPE, "Float"),
+    )
+
+    name = CharField(max_length=1024)
+    corresponding_script = ForeignKey(Script, on_delete=SET_NULL, null=True)
+    preset = BooleanField(default=False)
+    type = IntegerField(choices=TYPES)
+
+    @staticmethod
+    def get_type(parameter):
+        if parameter.__class__ == clam.common.parameters.BooleanParameter:
+            return BaseParameter.BOOLEAN_TYPE
+        elif parameter.__class__ == clam.common.parameters.StaticParameter:
+            return BaseParameter.STATIC_TYPE
+        elif parameter.__class__ == clam.common.parameters.StringParameter:
+            return BaseParameter.STRING_TYPE
+        elif parameter.__class__ == clam.common.parameters.ChoiceParameter:
+            return BaseParameter.CHOICE_TYPE
+        elif parameter.__class__ == clam.common.parameters.TextParameter:
+            return BaseParameter.TEXT_TYPE
+        elif parameter.__class__ == clam.common.parameters.IntegerParameter:
+            return BaseParameter.INTEGER_TYPE
+        elif parameter.__class__ == clam.common.parameters.FloatParameter:
+            return BaseParameter.FLOAT_TYPE
+        else:
+            raise TypeError("Type of parameter {} unknown".format(parameter))
+
+    def get_default_value(self):
+        if not self.preset:
+            return None
+        else:
+            try:
+                if self.type == self.BOOLEAN_TYPE:
+                    param = BooleanParameter.objects.get(base=self)
+                    return param.value
+                elif self.type == self.STATIC_TYPE:
+                    param = StaticParameter.objects.get(base=self)
+                    return param.value
+                elif self.type == self.STRING_TYPE:
+                    param = StringParameter.objects.get(base=self)
+                    return param.value
+                elif self.type == self.CHOICE_TYPE:
+                    param = ChoiceParameter.objects.get(base=self)
+                    return param.value.value
+                elif self.type == self.TEXT_TYPE:
+                    param = TextParameter.objects.get(base=self)
+                    return param.value
+                elif self.type == self.INTEGER_TYPE:
+                    param = IntegerParameter.objects.get(base=self)
+                    return param.value
+                elif self.type == self.FLOAT_TYPE:
+                    param = FloatParameter.objects.get(base=self)
+                    return param.value
+                else:
+                    return None
+            except (BooleanParameter.DoesNotExist,
+                    StaticParameter.DoesNotExist,
+                    StringParameter.DoesNotExist,
+                    ChoiceParameter.DoesNotExist,
+                    TextParameter.DoesNotExist,
+                    IntegerParameter.DoesNotExist,
+                    FloatParameter.DoesNotExist) as e:
+                return None
+
+    def remove_corresponding_presets(self):
+        parameter_classes = [BooleanParameter,
+                             StaticParameter,
+                             StringParameter,
+                             ChoiceParameter,
+                             TextParameter,
+                             IntegerParameter,
+                             FloatParameter]
+        for parameter_class in parameter_classes:
+            try:
+                obj = parameter_class.objects.get(base=self)
+                if parameter_class.__class__ == ChoiceParameter:
+                    obj.remove_corresponding_choices()
+                obj.delete()
+            except parameter_class.DoesNotExist:
+                pass
+
+    def __str__(self):
+        return "{} ({})".format(self.name, self.pk)
+
+    class Meta:
+        verbose_name_plural = "Parameters"
+        verbose_name = "Parameter"
+
+
+class BooleanParameter(Model):
+
+    base = OneToOneField(BaseParameter, on_delete=SET_NULL, null=True)
+    value = BooleanField(default=False, null=True, blank=True)
+
+    def set_preset(self, value):
+        if isinstance(value, bool):
+            self.base.preset = True
+            self.base.save()
+            self.value = value
+            self.save()
+
+
+class StaticParameter(Model):
+
+    base = OneToOneField(BaseParameter, on_delete=SET_NULL, null=True)
+    value = CharField(max_length=2048, null=True, blank=True)
+
+    def set_preset(self, value):
+        if isinstance(value, str):
+            self.base.preset = True
+            self.base.save()
+            self.value = value
+            self.save()
+
+
+class StringParameter(Model):
+
+    base = OneToOneField(BaseParameter, on_delete=SET_NULL, null=True)
+    value = CharField(max_length=2048, null=True, blank=True)
+
+    def set_preset(self, value):
+        if isinstance(value, str):
+            self.base.preset = True
+            self.base.save()
+            self.value = value
+            self.save()
+
+
+class Choice(Model):
+
+    corresponding_choice_parameter = ForeignKey("ChoiceParameter", on_delete=SET_NULL, null=True)
+    value = CharField(max_length=2048)
+
+    def __str__(self):
+        return self.value
+
+    @staticmethod
+    def add_choices(choices, choice_parameter):
+        for _, v in choices:
+            Choice.objects.create(corresponding_choice_parameter=choice_parameter, value=v)
+
+
+class ChoiceParameter(Model):
+
+    base = OneToOneField(BaseParameter, on_delete=SET_NULL, null=True)
+    value = ForeignKey(Choice, on_delete=SET_NULL, null=True, blank=True)
+
+    def remove_corresponding_choices(self):
+        choices = Choice.objects.filter(corresponding_choice_parameter=self)
+        for choice in choices:
+            choice.delete()
+
+    def set_preset(self, value):
+        if isinstance(value, str):
+            try:
+                choice = Choice.objects.get(corresponding_choice_parameter=self, value=value)
+                self.value = choice
+                self.save()
+                self.base.preset = True
+                self.base.save()
+            except (Choice.MultipleObjectsReturned, Choice.DoesNotExist):
+                pass
+
+
+class TextParameter(Model):
+    base = OneToOneField(BaseParameter, on_delete=SET_NULL, null=True)
+    value = TextField(null=True, blank=True)
+
+    def set_preset(self, value):
+        if isinstance(value, str):
+            self.base.preset = True
+            self.base.save()
+            self.value = value
+            self.save()
+
+
+class IntegerParameter(Model):
+    base = OneToOneField(BaseParameter, on_delete=SET_NULL, null=True)
+    value = IntegerField(null=True, blank=True)
+
+    def set_preset(self, value):
+        if isinstance(value, int):
+            self.base.preset = True
+            self.base.save()
+            self.value = value
+            self.save()
+
+
+class FloatParameter(Model):
+    base = OneToOneField(BaseParameter, on_delete=SET_NULL, null=True)
+    value = FloatField(null=True, blank=True)
+
+    def set_preset(self, value):
+        if isinstance(value, float):
+            self.base.preset = True
+            self.base.save()
+            self.value = value
+            self.save()

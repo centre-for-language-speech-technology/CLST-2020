@@ -3,6 +3,7 @@ from django import forms
 from django.contrib.auth import get_user_model
 from .models import Project, Pipeline, Profile
 from django.core.validators import RegexValidator
+from .models import ChoiceParameter, Choice
 
 alphanumeric = RegexValidator(
     r"^[0-9a-zA-Z]*$", "Only alphanumeric characters are allowed."
@@ -105,3 +106,15 @@ class ProjectCreateForm(forms.Form):
             raise forms.ValidationError("This pipeline does not exist")
 
         return pipeline
+
+
+class ChoiceParameterAdminForm(forms.ModelForm):
+
+    class Meta:
+        model = ChoiceParameter
+        fields = "__all__"
+
+    def __init__(self, *args, **kwargs):
+        super(ChoiceParameterAdminForm, self).__init__(*args, **kwargs)
+        if self.instance:
+            self.fields['value'].queryset = Choice.objects.filter(corresponding_choice_parameter=self.instance)
