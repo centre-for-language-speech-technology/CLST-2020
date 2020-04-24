@@ -136,6 +136,49 @@ class Script(Model):
             if parameter_name in default_values.keys() and param is not None:
                 param.set_preset(default_values[parameter_name])
 
+    def get_parameters(self):
+        return BaseParameter.objects.filter(corresponding_script=self)
+
+    def get_variable_parameters(self):
+        parameters = self.get_parameters()
+        variable_parameters = list()
+        for parameter in parameters:
+            if parameter.get_default_value() is None:
+                variable_parameters.append(parameter)
+
+        return variable_parameters
+
+    def get_default_parameter_values(self):
+        parameters = self.get_parameters()
+        values = dict()
+        for parameter in parameters:
+            value = parameter.get_default_value()
+            if value is not None:
+                values[parameter.name] = value
+
+        return values
+
+    def construct_variable_parameter_values(self, parameter_dict):
+        variable_dict = dict()
+        for parameter_name, parameter_value in parameter_dict:
+            try:
+                parameter = BaseParameter.objects.get(name=parameter_name, corresponding_script=self)
+                value = parameter.get_corresponding_value(parameter_value)
+                if value is not None:
+                    variable_dict[parameter_name] = value
+            except BaseParameter.DoesNotExist:
+                pass
+        return variable_dict
+
+    def get_unsatisfied_parameters(self, parameter_names):
+        parameters = self.get_parameters()
+        not_satisfied = list()
+        for parameter in parameters:
+            if parameter.name not in parameter_names:
+                not_satisfied.append(parameter)
+
+        return not_satisfied
+
     def create_templates_from_data(self, input_templates):
         """Create template objects from data."""
         new_profile = Profile.objects.create(script=self)
@@ -302,20 +345,25 @@ class Process(Model):
         self.clam_id = clam_id
         self.save()
 
-    def start_safe(self, profile):
+    def start_safe(self, profile, parameter_values=None):
         """
         Start uploading files to CLAM and start the CLAM server in a safe way.
 
         Actually only executes the start() method and runs the cleanup() method when an exception is raised.
         :param profile: the profile to start this process with
+        :param parameter_values: a dictionary of (key, value) pairs with the parameter values to fill in, only
+        overwrites variable parameters
         :return: True when the process was started, False otherwise, raises a ValueError if there was an error with the
         input templates, raises an Exception if there was an error when uploading files to CLAM or when starting the
-        CLAM server
+        CLAM server, raises a ParameterException if one or more parameters are not satisfied
         """
         try:
-            return self.start(profile)
+            return self.start(profile, parameter_values=parameter_values)
         except ValueError as e:
             # Input template error
+            self.cleanup()
+            raise e
+        except BaseParameter.ParameterException as e:
             self.cleanup()
             raise e
         except Exception as e:
@@ -323,14 +371,19 @@ class Process(Model):
             self.cleanup()
             raise e
 
-    def start(self, profile):
+    def start(self, profile, parameter_values=None):
         """
         Add inputs to clam server and starts it.
 
         :param profile: the profile to run the process with
+        :param parameter_values: a dictionary of (key, value) pairs with the parameter values to fill in, only
+        overwrites variable parameters
         :return: the status of this project, or a ValueError when an error is encountered with the uploaded files and
-        selected profile, or an Exception for CLAM errors
+        selected profile, an Exception for CLAM errors, or a ParameterException when a parameter is not satisfied
         """
+        if parameter_values is None:
+            parameter_values = dict()
+
         if self.status == STATUS_CREATED:
             self.set_status(STATUS_UPLOADING)
             self.set_clam_id(Process.get_random_clam_id())
@@ -339,6 +392,13 @@ class Process(Model):
             templates = InputTemplate.objects.filter(
                 corresponding_profile=profile
             )
+            default_parameters = self.script.get_default_parameter_values()
+            set_parameters = self.script.construct_variable_parameter_values(parameter_values)
+
+            merged_parameters = {**set_parameters, **default_parameters}
+
+            if len(self.script.get_unsatisfied_parameters(merged_parameters.keys())) != 0:
+                raise BaseParameter.ParameterException("Not all parameters are satisfied")
 
             for template in templates:
                 files = template.is_valid_for(self.folder)
@@ -1062,8 +1122,42 @@ class BaseParameter(Model):
             except parameter_class.DoesNotExist:
                 pass
 
+    def get_corresponding_value(self, value):
+        if self.type == self.BOOLEAN_TYPE and isinstance(value, bool):
+            return value
+        elif self.type == self.STATIC_TYPE and isinstance(value, str):
+            return value
+        elif self.type == self.STRING_TYPE and isinstance(value, str):
+            return value
+        elif self.type == self.CHOICE_TYPE:
+            try:
+                if isinstance(value, int):
+                    choice = Choice.objects.get(pk=value)
+                elif isinstance(value, Choice):
+                    choice = value
+                else:
+                    return None
+                choice_parameter = self.objects.get(base=self)
+            except (Choice.DoesNotExist, ChoiceParameter.DoesNotExist):
+                return None
+            if choice.corresponding_choice_parameter == choice_parameter:
+                return choice.value
+            else:
+                return None
+        elif self.type == self.TEXT_TYPE and isinstance(value, str):
+            return value
+        elif self.type == self.INTEGER_TYPE and isinstance(value, int):
+            return value
+        elif self.type == self.FLOAT_TYPE and isinstance(value, float):
+            return value
+        else:
+            return None
+
     def __str__(self):
         return "{} ({})".format(self.name, self.pk)
+
+    class ParameterException(Exception):
+        pass
 
     class Meta:
         verbose_name_plural = "Parameters"
@@ -1074,6 +1168,9 @@ class BooleanParameter(Model):
 
     base = OneToOneField(BaseParameter, on_delete=SET_NULL, null=True)
     value = BooleanField(default=False, null=True, blank=True)
+
+    def get_value(self):
+        return self.value
 
     def set_preset(self, value):
         if isinstance(value, bool):
@@ -1088,6 +1185,9 @@ class StaticParameter(Model):
     base = OneToOneField(BaseParameter, on_delete=SET_NULL, null=True)
     value = CharField(max_length=2048, null=True, blank=True)
 
+    def get_value(self):
+        return self.value
+
     def set_preset(self, value):
         if isinstance(value, str):
             self.base.preset = True
@@ -1100,6 +1200,9 @@ class StringParameter(Model):
 
     base = OneToOneField(BaseParameter, on_delete=SET_NULL, null=True)
     value = CharField(max_length=2048, null=True, blank=True)
+
+    def get_value(self):
+        return self.value
 
     def set_preset(self, value):
         if isinstance(value, str):
@@ -1114,6 +1217,9 @@ class Choice(Model):
     corresponding_choice_parameter = ForeignKey("ChoiceParameter", on_delete=SET_NULL, null=True)
     value = CharField(max_length=2048)
 
+    def get_value(self):
+        return self.value
+
     def __str__(self):
         return self.value
 
@@ -1127,6 +1233,9 @@ class ChoiceParameter(Model):
 
     base = OneToOneField(BaseParameter, on_delete=SET_NULL, null=True)
     value = ForeignKey(Choice, on_delete=SET_NULL, null=True, blank=True)
+
+    def get_value(self):
+        return self.value.value
 
     def remove_corresponding_choices(self):
         choices = Choice.objects.filter(corresponding_choice_parameter=self)
@@ -1149,6 +1258,9 @@ class TextParameter(Model):
     base = OneToOneField(BaseParameter, on_delete=SET_NULL, null=True)
     value = TextField(null=True, blank=True)
 
+    def get_value(self):
+        return self.value
+
     def set_preset(self, value):
         if isinstance(value, str):
             self.base.preset = True
@@ -1161,6 +1273,9 @@ class IntegerParameter(Model):
     base = OneToOneField(BaseParameter, on_delete=SET_NULL, null=True)
     value = IntegerField(null=True, blank=True)
 
+    def get_value(self):
+        return self.value
+
     def set_preset(self, value):
         if isinstance(value, int):
             self.base.preset = True
@@ -1172,6 +1287,9 @@ class IntegerParameter(Model):
 class FloatParameter(Model):
     base = OneToOneField(BaseParameter, on_delete=SET_NULL, null=True)
     value = FloatField(null=True, blank=True)
+
+    def get_value(self):
+        return self.value
 
     def set_preset(self, value):
         if isinstance(value, float):
