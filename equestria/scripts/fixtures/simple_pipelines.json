@@ -1,0 +1,41 @@
+[
+    {
+	"model": "scripts.Script",
+	"pk": 1,
+	"fields": {
+	    "description": "Dutch Forced Alignment",
+	}
+    },
+    {
+	"model": "scripts.Script",
+	"pk": 2,
+	"fields": {
+	    "description": "Dutch G2P service",
+	}
+    },
+    {
+	"model": "scripts.Script",
+	"pk": 3,
+	"fields": {
+	    "description": "Frisian Forced Alignment",
+	}
+    },
+    {
+	"model": "scripts.Pipeline",
+	"pk": 1,
+	"fields": {
+	    "name": "Dutch Forced Alignment pipeline",
+	    "fa_script": 1,
+	    "g2p_script": 2
+	}
+    },
+    {
+	"model": "scripts.Pipeline",
+	"pk": 2,
+	"fields": {
+	    "name": "Frisian Forced Alignment pipeline",
+	    "fa_script": 3,
+	    "g2p_script": 2
+	}
+    }
+]
