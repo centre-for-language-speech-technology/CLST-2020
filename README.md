@@ -6,6 +6,8 @@
 ![Coding style](https://github.com/GipHouse/CLST-2020/workflows/Coding%20style/badge.svg?branch=master)
 [![codecov](https://codecov.io/gh/GipHouse/CLST-2020/branch/master/graph/badge.svg?token=97JZOEZOAS)](https://codecov.io/gh/GipHouse/CLST-2020)
 
+[Coverage Report](https://giphouse.github.io/CLST-2020/)
+
 
 Getting started
 ---------------
