@@ -104,4 +104,66 @@ When creating a new model class, you are most likely experimenting a lot and cre
 
 ## CLAM
 
-## Database structure
+I'm sure you've by now noticed that we have already stated [CLAM](http://proycon.github.io/clam/) a lot of times. CLAM is, as the name suggests, a wrapper around shell scripts. CLAM allows someone to convert a shell script to a RESTful webservice and web interface. CLAM is used for executing all kinds of scripts (such as the Forced Alignment scripts) used for our project.
+
+There are a couple of advantages for using CLAM over implementing a wrapper around shell scripts ourselves:
+
+- We don't have to maintain a way to execute shell scripts and monitor processes.
+- CLAM is a RESTful webservice so we can communicate commands via regular HTTP requests.
+- CLAM is written in Python and includes an API that we can use in our Django server.
+
+Adding a script to our application is easy as you have to only setup a new CLAM server and put in in the database of this project. Interfacing options are already implemented in this project or existing methods already existed in the CLAM API.
+
+### Inner workings of a CLAM server
+
+There might be a need for you to set up a CLAM server for a script in the future, it might also be that someone else will set up the CLAM server for you but this background information will still be very handy to read as the inner-workings of this project mirrors the inner-workings of CLAM servers at some points.
+
+There are a couple of important things that must be specified when setting up a CLAM server. These things are:
+
+- Profiles and input templates
+- Parameters
+
+Another important thing for setting up a CLAM server is the wrapper script. Because we are not interfacing with the wrapper script in this project, we will not discuss this. For more information about setting up a CLAM server we refer to the [CLAM documentation](https://clam.readthedocs.io/en/latest/).
+
+#### Profiles and input template
+
+Profiles and input templates specify the files that a CLAM server expects as input. A CLAM server can have several profiles which can have several input templates. If you want to run a script on a CLAM server, you must first pick a profile and upload at least one file for all required input templates.
+
+A profile is thus a set of input templates and an input template includes at least the following information:
+
+- A template id
+- A template format, classifying the format as a CLAM class
+- A label
+- A mimetype
+- An extension
+- If the template is optional
+- If the template is unique
+- If the template accepts an archive
+
+The above information is also stored by our project in a model class named ```InputTemplate```.
+
+It might be that more then one profile is specified for a CLAM server. Running the CLAM server then requires you to pick a profile before running so that CLAM knows which files to use.
+
+#### Parameters
+
+Parameters specify the parameters that a CLAM server can take for the script to run. Parameters are always global, so parameters are not specified per profile. Parameters in CLAM also have a default value, but in our project one has to always provide another (or the same) default value manually. This is because of the way our project functions.
+
+Parameters can be of the following types:
+
+- Boolean
+- Static
+- String
+- Choice
+- Text
+- Integer
+- Float
+
+For each of these types, a parameter model class is also present in our model. Note that a static parameter can not be passed to CLAM as the parameter is static. For more information about why these parameters exists we refer to the [CLAM documentation](https://clam.readthedocs.io/en/latest/).
+
+### Automatic import of CLAM data
+
+For our project to function, we need to know what CLAM profiles, input templates and parameters are used. Therefor, when pressing ```Save``` on the admin page of a Script, we automatically ask the CLAM server for its data and import it in our database model. Upon resaving, all profiles, input templates and parameters are recreated. Input templates are static and need not to be modified as are profiles. 
+
+#### Setting default values for parameters
+
+You might need to change default values for parameters, this can be done by looking at the ```Parameters``` section in the ```Script``` details. Check which parameters are linked to the script by remembering their ids. Then go to the ```BaseParameters``` page on the administration view. Set ```Preset``` to ```True``` and change the default value in the corresponding typed parameter. The current parameter type can be seen in the ```Type``` field.
