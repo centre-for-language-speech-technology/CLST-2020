@@ -93,13 +93,17 @@ class Script(Model):
         self.remove_corresponding_profiles()
 
         default_values = dict()
-        for parameter in BaseParameter.objects.filter(corresponding_script=self):
+        for parameter in BaseParameter.objects.filter(
+            corresponding_script=self
+        ):
             default_key = parameter.get_default_value()
             if default_key is not None:
                 default_values[parameter.name] = parameter.get_default_value()
 
         self.remove_corresponding_parameters()
-        self.generate_parameters_from_clam_data(data.passparameters().keys(), data, default_values)
+        self.generate_parameters_from_clam_data(
+            data.passparameters().keys(), data, default_values
+        )
 
         # Create new profiles associated with this script
         for profile in data.profiles:
@@ -108,13 +112,23 @@ class Script(Model):
         # Call the super method
         super(Script, self).save(*args, **kwargs)
 
-    def generate_parameters_from_clam_data(self, parameter_names, clam_data, default_values):
+    def generate_parameters_from_clam_data(
+        self, parameter_names, clam_data, default_values
+    ):
+        """
+        Generate parameter objects from CLAM data and set default values for these objects.
+
+        :param parameter_names: the names of the parameters to generate
+        :param clam_data: the CLAM data
+        :param default_values: a dictionary of (parameter_name, parameter_value) pairs with default values
+        :return: None
+        """
         for parameter_name in parameter_names:
             parameter = clam_data.parameter(parameter_name)
             type = BaseParameter.get_type(parameter)
-            base_parameter = BaseParameter.objects.create(name=parameter_name,
-                                                          corresponding_script=self,
-                                                          type=type)
+            base_parameter = BaseParameter.objects.create(
+                name=parameter_name, corresponding_script=self, type=type
+            )
             if type == BaseParameter.BOOLEAN_TYPE:
                 param = BooleanParameter.objects.create(base=base_parameter)
             elif type == BaseParameter.STATIC_TYPE:
@@ -123,7 +137,8 @@ class Script(Model):
                 param = StringParameter.objects.create(base=base_parameter)
             elif type == BaseParameter.CHOICE_TYPE:
                 param = ChoiceParameter.objects.create(base=base_parameter)
-                Choice.add_choices(parameter.choices, param)
+                choices = [x for _, x in parameter.choices]
+                Choice.add_choices(choices, param)
             elif type == BaseParameter.TEXT_TYPE:
                 param = TextParameter.objects.create(base=base_parameter)
             elif type == BaseParameter.INTEGER_TYPE:
@@ -137,9 +152,19 @@ class Script(Model):
                 param.set_preset(default_values[parameter_name])
 
     def get_parameters(self):
+        """
+        Get all parameters for this script.
+
+        :return: a QuerySet of BaseParameter objects corresponding to this script
+        """
         return BaseParameter.objects.filter(corresponding_script=self)
 
     def get_variable_parameters(self):
+        """
+        Get a list of all parameters without a preset.
+
+        :return: a list of BaseParameter objects without a preset
+        """
         parameters = self.get_parameters()
         variable_parameters = list()
         for parameter in parameters:
@@ -149,6 +174,11 @@ class Script(Model):
         return variable_parameters
 
     def get_default_parameter_values(self):
+        """
+        Get a dictionary of (key, value) pairs for all default parameters.
+
+        :return: a dictionary of (parameter_name, parameter_value) pairs for all default parameters with a preset
+        """
         parameters = self.get_parameters()
         values = dict()
         for parameter in parameters:
@@ -159,10 +189,20 @@ class Script(Model):
         return values
 
     def construct_variable_parameter_values(self, parameter_dict):
+        """
+        Construct (key, value) pairs from a parameter dictionary.
+
+        Also checks if the parameters in the dictionary exist for this script and if they have valid values.
+        :param parameter_dict: a dictionary of (parameter_name, parameter_value) pairs
+        :return: a dictionary of (parameter_name, parameter_value) pairs of parameters that have valid values and exist
+        for this script
+        """
         variable_dict = dict()
-        for parameter_name, parameter_value in parameter_dict:
+        for parameter_name, parameter_value in parameter_dict.items():
             try:
-                parameter = BaseParameter.objects.get(name=parameter_name, corresponding_script=self)
+                parameter = BaseParameter.objects.get(
+                    name=parameter_name, corresponding_script=self
+                )
                 value = parameter.get_corresponding_value(parameter_value)
                 if value is not None:
                     variable_dict[parameter_name] = value
@@ -170,7 +210,33 @@ class Script(Model):
                 pass
         return variable_dict
 
+    def get_parameters_as_dict(self, preset_parameters=None):
+        """
+        Get all parameters as (key, value) pairs.
+
+        :param preset_parameters: a dictionary of (parameter_name, parameter_value) pairs for parameters without a
+        default value
+        :return: a dictionary of (parameter_name, parameter_value) pairs including all default parameters with their
+        values and the parameter presets in preset_parameters. If a parameter is in preset_parameters and has a default
+        value the preset_parameters value is overwritten
+        """
+        if preset_parameters is None:
+            preset_parameters = dict()
+
+        default_parameters = self.get_default_parameter_values()
+        variable_parameters = self.construct_variable_parameter_values(
+            preset_parameters
+        )
+
+        return {**variable_parameters, **default_parameters}
+
     def get_unsatisfied_parameters(self, parameter_names):
+        """
+        Get all parameters without their name in parameter_names.
+
+        :param parameter_names: a list of satisfied parameter names
+        :return: a list of parameters without their names being in parameter_names
+        """
         parameters = self.get_parameters()
         not_satisfied = list()
         for parameter in parameters:
@@ -180,7 +246,12 @@ class Script(Model):
         return not_satisfied
 
     def create_templates_from_data(self, input_templates):
-        """Create template objects from data."""
+        """
+        Create InputTemplate objects from CLAM input template data.
+
+        :param input_templates: a list of CLAM input template objects
+        :return: None
+        """
         new_profile = Profile.objects.create(script=self)
         for input_template in input_templates:
             InputTemplate.objects.create(
@@ -210,6 +281,11 @@ class Script(Model):
             profile.delete()
 
     def remove_corresponding_parameters(self):
+        """
+        Remove all parameters corresponding to this process.
+
+        :return: None
+        """
         parameters = BaseParameter.objects.filter(corresponding_script=self)
         for parameter in parameters:
             parameter.remove_corresponding_presets()
@@ -364,6 +440,7 @@ class Process(Model):
             self.cleanup()
             raise e
         except BaseParameter.ParameterException as e:
+            # Not all parameters are satisfied
             self.cleanup()
             raise e
         except Exception as e:
@@ -392,13 +469,22 @@ class Process(Model):
             templates = InputTemplate.objects.filter(
                 corresponding_profile=profile
             )
-            default_parameters = self.script.get_default_parameter_values()
-            set_parameters = self.script.construct_variable_parameter_values(parameter_values)
 
-            merged_parameters = {**set_parameters, **default_parameters}
+            merged_parameters = self.script.get_parameters_as_dict(
+                preset_parameters=parameter_values
+            )
 
-            if len(self.script.get_unsatisfied_parameters(merged_parameters.keys())) != 0:
-                raise BaseParameter.ParameterException("Not all parameters are satisfied")
+            if (
+                len(
+                    self.script.get_unsatisfied_parameters(
+                        merged_parameters.keys()
+                    )
+                )
+                != 0
+            ):
+                raise BaseParameter.ParameterException(
+                    "Not all parameters are satisfied"
+                )
 
             for template in templates:
                 files = template.is_valid_for(self.folder)
@@ -418,7 +504,8 @@ class Process(Model):
                         clamclient.addinputfile(
                             self.clam_id, template.template_id, full_file_path
                         )
-            clamclient.startsafe(self.clam_id)
+
+            clamclient.startsafe(self.clam_id, **merged_parameters)
             self.set_status(STATUS_RUNNING)
             return True
         else:
@@ -950,35 +1037,45 @@ class Project(Model):
         """
         return self.current_process is None
 
-    def start_fa_script(self, profile):
+    def start_fa_script(self, profile, parameter_values=None):
         """
         Start the FA script with a given profile.
 
+        :param parameter_values: parameter values in (key, value) format in a dictionary
         :param profile: the profile to start FA with
         :return: the process with the started script, raises a ValueError if the files in the folder do not match the
         profile, raises an Exception if a CLAM error occurred
         """
+        if parameter_values is None:
+            parameter_values = dict()
         return self.start_script(profile, self.pipeline.fa_script)
 
-    def start_g2p_script(self, profile):
+    def start_g2p_script(self, profile, parameter_values=None):
         """
         Start the G2P script with a given profile.
 
+        :param parameter_values: parameter values in (key, value) format in a dictionary
         :param profile: the profile to start G2P with
         :return: the process with the started script, raises a ValueError if the files in the folder do not match the
         profile, raises an Exception if a CLAM error occurred
         """
+        if parameter_values is None:
+            parameter_values = dict()
         return self.start_script(profile, self.pipeline.g2p_script)
 
-    def start_script(self, profile, script):
+    def start_script(self, profile, script, parameter_values=None):
         """
         Start a new script and add the process to this project.
 
+        :param parameter_values: parameter values in (key, value) format in a dictionary
         :param profile: the profile to start the script with
         :param script: the script to start
         :return: the process with the started script, raises a ValueError if the files in the folder do not match the
         profile, raises an Exception if a CLAM error occurred
         """
+        if parameter_values is None:
+            parameter_values = dict()
+
         if (
             self.current_process is not None
             and self.current_process.script == script
@@ -994,9 +1091,14 @@ class Project(Model):
         )
         self.save()
         try:
-            self.current_process.start_safe(profile)
+            self.current_process.start_safe(
+                profile, parameter_values=parameter_values
+            )
             return self.current_process
         except ValueError as e:
+            self.cleanup()
+            raise e
+        except BaseParameter.ParameterException as e:
             self.cleanup()
             raise e
         except Exception as e:
@@ -1025,6 +1127,7 @@ class Project(Model):
 
 
 class BaseParameter(Model):
+    """Base model for a parameter object."""
 
     BOOLEAN_TYPE = 0
     STATIC_TYPE = 1
@@ -1051,6 +1154,12 @@ class BaseParameter(Model):
 
     @staticmethod
     def get_type(parameter):
+        """
+        Get the type of a CLAM parameter.
+
+        :param parameter: the CLAM parameter object
+        :return: the type of the CLAM parameter in BaseParameter.TYPES types
+        """
         if parameter.__class__ == clam.common.parameters.BooleanParameter:
             return BaseParameter.BOOLEAN_TYPE
         elif parameter.__class__ == clam.common.parameters.StaticParameter:
@@ -1069,50 +1178,64 @@ class BaseParameter(Model):
             raise TypeError("Type of parameter {} unknown".format(parameter))
 
     def get_default_value(self):
+        """
+        Get the default value of a parameter.
+
+        :return: the default value of a parameter, None if the default value is not set
+        """
         if not self.preset:
             return None
         else:
             try:
                 if self.type == self.BOOLEAN_TYPE:
                     param = BooleanParameter.objects.get(base=self)
-                    return param.value
+                    return param.get_value()
                 elif self.type == self.STATIC_TYPE:
                     param = StaticParameter.objects.get(base=self)
-                    return param.value
+                    return param.get_value()
                 elif self.type == self.STRING_TYPE:
                     param = StringParameter.objects.get(base=self)
-                    return param.value
+                    return param.get_value()
                 elif self.type == self.CHOICE_TYPE:
                     param = ChoiceParameter.objects.get(base=self)
-                    return param.value.value
+                    return param.get_value()
                 elif self.type == self.TEXT_TYPE:
                     param = TextParameter.objects.get(base=self)
-                    return param.value
+                    return param.get_value()
                 elif self.type == self.INTEGER_TYPE:
                     param = IntegerParameter.objects.get(base=self)
-                    return param.value
+                    return param.get_value()
                 elif self.type == self.FLOAT_TYPE:
                     param = FloatParameter.objects.get(base=self)
-                    return param.value
+                    return param.get_value()
                 else:
                     return None
-            except (BooleanParameter.DoesNotExist,
-                    StaticParameter.DoesNotExist,
-                    StringParameter.DoesNotExist,
-                    ChoiceParameter.DoesNotExist,
-                    TextParameter.DoesNotExist,
-                    IntegerParameter.DoesNotExist,
-                    FloatParameter.DoesNotExist) as e:
+            except (
+                BooleanParameter.DoesNotExist,
+                StaticParameter.DoesNotExist,
+                StringParameter.DoesNotExist,
+                ChoiceParameter.DoesNotExist,
+                TextParameter.DoesNotExist,
+                IntegerParameter.DoesNotExist,
+                FloatParameter.DoesNotExist,
+            ) as e:
                 return None
 
     def remove_corresponding_presets(self):
-        parameter_classes = [BooleanParameter,
-                             StaticParameter,
-                             StringParameter,
-                             ChoiceParameter,
-                             TextParameter,
-                             IntegerParameter,
-                             FloatParameter]
+        """
+        Remove all typed parameters corresponding to this parameter.
+
+        :return: None
+        """
+        parameter_classes = [
+            BooleanParameter,
+            StaticParameter,
+            StringParameter,
+            ChoiceParameter,
+            TextParameter,
+            IntegerParameter,
+            FloatParameter,
+        ]
         for parameter_class in parameter_classes:
             try:
                 obj = parameter_class.objects.get(base=self)
@@ -1123,6 +1246,17 @@ class BaseParameter(Model):
                 pass
 
     def get_corresponding_value(self, value):
+        """
+        Get and check a value for this parameter.
+
+        This function receives a value and checks if it is of the same type as this parameter. If it is not, this
+        function will return None.
+        :param value: the value for this parameter, for choice types the value can either be the private key or a
+        Choice object
+        :return: the value for this parameter if the instance of the value is matching the parameter type. For
+        choice types the value is also checked against the choices and the value of the corresponding choice is
+        returned, None is returned if the type of the value does not match the type of the parameter
+        """
         if self.type == self.BOOLEAN_TYPE and isinstance(value, bool):
             return value
         elif self.type == self.STATIC_TYPE and isinstance(value, str):
@@ -1130,15 +1264,17 @@ class BaseParameter(Model):
         elif self.type == self.STRING_TYPE and isinstance(value, str):
             return value
         elif self.type == self.CHOICE_TYPE:
-            try:
-                if isinstance(value, int):
+            if isinstance(value, Choice):
+                choice = value
+            else:
+                try:
                     choice = Choice.objects.get(pk=value)
-                elif isinstance(value, Choice):
-                    choice = value
-                else:
+                except Choice.DoesNotExist:
                     return None
-                choice_parameter = self.objects.get(base=self)
-            except (Choice.DoesNotExist, ChoiceParameter.DoesNotExist):
+            try:
+                choice_parameter = ChoiceParameter.objects.get(base=self)
+            except ChoiceParameter.DoesNotExist as e:
+                logging.error(e)
                 return None
             if choice.corresponding_choice_parameter == choice_parameter:
                 return choice.value
@@ -1154,25 +1290,46 @@ class BaseParameter(Model):
             return None
 
     def __str__(self):
+        """
+        Convert this model to string.
+
+        :return: the name of this model and the private key
+        """
         return "{} ({})".format(self.name, self.pk)
 
     class ParameterException(Exception):
+        """Exception to be thrown when a parameter error occurs."""
+
         pass
 
     class Meta:
+        """Meta class."""
+
         verbose_name_plural = "Parameters"
         verbose_name = "Parameter"
 
 
 class BooleanParameter(Model):
+    """Parameter for boolean values."""
 
     base = OneToOneField(BaseParameter, on_delete=SET_NULL, null=True)
     value = BooleanField(default=False, null=True, blank=True)
 
     def get_value(self):
+        """
+        Get the current value.
+
+        :return: the current value of this parameter
+        """
         return self.value
 
     def set_preset(self, value):
+        """
+        Set a preset for this parameter.
+
+        :param value: the value to set the preset to
+        :return: None
+        """
         if isinstance(value, bool):
             self.base.preset = True
             self.base.save()
@@ -1181,14 +1338,26 @@ class BooleanParameter(Model):
 
 
 class StaticParameter(Model):
+    """Parameter for static values."""
 
     base = OneToOneField(BaseParameter, on_delete=SET_NULL, null=True)
     value = CharField(max_length=2048, null=True, blank=True)
 
     def get_value(self):
+        """
+        Get the current value.
+
+        :return: the current value of this parameter
+        """
         return self.value
 
     def set_preset(self, value):
+        """
+        Set a preset for this parameter.
+
+        :param value: the value to set the preset to
+        :return: None
+        """
         if isinstance(value, str):
             self.base.preset = True
             self.base.save()
@@ -1197,14 +1366,26 @@ class StaticParameter(Model):
 
 
 class StringParameter(Model):
+    """Parameter for string values."""
 
     base = OneToOneField(BaseParameter, on_delete=SET_NULL, null=True)
     value = CharField(max_length=2048, null=True, blank=True)
 
     def get_value(self):
+        """
+        Get the current value.
+
+        :return: the current value of this parameter
+        """
         return self.value
 
     def set_preset(self, value):
+        """
+        Set a preset for this parameter.
+
+        :param value: the value to set the preset to
+        :return: None
+        """
         if isinstance(value, str):
             self.base.preset = True
             self.base.save()
@@ -1213,39 +1394,80 @@ class StringParameter(Model):
 
 
 class Choice(Model):
+    """Model for choices in ChoiceParameter."""
 
-    corresponding_choice_parameter = ForeignKey("ChoiceParameter", on_delete=SET_NULL, null=True)
+    corresponding_choice_parameter = ForeignKey(
+        "ChoiceParameter", on_delete=SET_NULL, null=True
+    )
     value = CharField(max_length=2048)
 
     def get_value(self):
+        """
+        Get the current value.
+
+        :return: the current value of this parameter
+        """
         return self.value
 
     def __str__(self):
+        """
+        Convert this object to a string.
+
+        :return: the value of this object
+        """
         return self.value
 
     @staticmethod
     def add_choices(choices, choice_parameter):
-        for _, v in choices:
-            Choice.objects.create(corresponding_choice_parameter=choice_parameter, value=v)
+        """
+        Add choices to a choice parameter.
+
+        :param choices: the choices to add as a list of values
+        :param choice_parameter: the choice parameter to add the choices to
+        :return: None
+        """
+        for value in choices:
+            Choice.objects.create(
+                corresponding_choice_parameter=choice_parameter, value=value
+            )
 
 
 class ChoiceParameter(Model):
+    """Parameter for choice values."""
 
     base = OneToOneField(BaseParameter, on_delete=SET_NULL, null=True)
     value = ForeignKey(Choice, on_delete=SET_NULL, null=True, blank=True)
 
     def get_value(self):
-        return self.value.value
+        """
+        Get the current value.
+
+        :return: the current value of this parameter
+        """
+        return self.value.get_value()
 
     def remove_corresponding_choices(self):
+        """
+        Remove the choices corresponding to this model from the database.
+
+        :return: None
+        """
         choices = Choice.objects.filter(corresponding_choice_parameter=self)
         for choice in choices:
             choice.delete()
 
     def set_preset(self, value):
+        """
+        Set a preset for this parameter.
+
+        :param value: the value to set the preset to
+        :return: None
+        """
         if isinstance(value, str):
             try:
-                choice = Choice.objects.get(corresponding_choice_parameter=self, value=value)
+                choice = Choice.objects.get(
+                    corresponding_choice_parameter=self, value=value
+                )
                 self.value = choice
                 self.save()
                 self.base.preset = True
@@ -1255,13 +1477,26 @@ class ChoiceParameter(Model):
 
 
 class TextParameter(Model):
+    """Parameter for text values."""
+
     base = OneToOneField(BaseParameter, on_delete=SET_NULL, null=True)
     value = TextField(null=True, blank=True)
 
     def get_value(self):
+        """
+        Get the current value.
+
+        :return: the current value of this parameter
+        """
         return self.value
 
     def set_preset(self, value):
+        """
+        Set a preset for this parameter.
+
+        :param value: the value to set the preset to
+        :return: None
+        """
         if isinstance(value, str):
             self.base.preset = True
             self.base.save()
@@ -1270,13 +1505,26 @@ class TextParameter(Model):
 
 
 class IntegerParameter(Model):
+    """Parameter for integer values."""
+
     base = OneToOneField(BaseParameter, on_delete=SET_NULL, null=True)
     value = IntegerField(null=True, blank=True)
 
     def get_value(self):
+        """
+        Get the current value.
+
+        :return: the current value of this parameter
+        """
         return self.value
 
     def set_preset(self, value):
+        """
+        Set a preset for this parameter.
+
+        :param value: the value to set the preset to
+        :return: None
+        """
         if isinstance(value, int):
             self.base.preset = True
             self.base.save()
@@ -1285,13 +1533,26 @@ class IntegerParameter(Model):
 
 
 class FloatParameter(Model):
+    """Parameter for float values."""
+
     base = OneToOneField(BaseParameter, on_delete=SET_NULL, null=True)
     value = FloatField(null=True, blank=True)
 
     def get_value(self):
+        """
+        Get the current value.
+
+        :return: the current value of this parameter
+        """
         return self.value
 
     def set_preset(self, value):
+        """
+        Set a preset for this parameter.
+
+        :param value: the value to set the preset to
+        :return: None
+        """
         if isinstance(value, float):
             self.base.preset = True
             self.base.save()

@@ -6,24 +6,28 @@ from nested_inline.admin import NestedStackedInline, NestedModelAdmin
 
 
 class BooleanParameterInline(NestedStackedInline):
+    """Display BooleanParameter objects inline."""
 
     model = models.BooleanParameter
     extra = 0
 
 
 class StaticParameterInline(NestedStackedInline):
+    """Display StaticParameter objects inline."""
 
     model = models.StaticParameter
     extra = 0
 
 
 class StringParameterInline(NestedStackedInline):
+    """Display StringParameter objects inline."""
 
     model = models.StringParameter
     extra = 0
 
 
 class ChoiceInline(NestedStackedInline):
+    """Display Choice objects inline."""
 
     model = models.Choice
     extra = 0
@@ -31,6 +35,7 @@ class ChoiceInline(NestedStackedInline):
 
 
 class ChoiceParameterInline(NestedStackedInline):
+    """Display ChoiceParameter objects inline."""
 
     form = ChoiceParameterAdminForm
 
@@ -39,30 +44,32 @@ class ChoiceParameterInline(NestedStackedInline):
 
 
 class TextParameterInline(NestedStackedInline):
+    """Display TextParameter objects inline."""
 
     model = models.TextParameter
     extra = 0
 
 
 class IntegerParameterInline(NestedStackedInline):
+    """Display IntegerParameter objects inline."""
 
     model = models.IntegerParameter
     extra = 0
 
 
 class FloatParameterInline(NestedStackedInline):
+    """Display FloatParameter objects inline."""
 
     model = models.FloatParameter
     extra = 0
 
 
 class ChoiceParameterAdmin(NestedModelAdmin):
+    """Admin screen for showing choices inline."""
 
     form = ChoiceParameterAdminForm
 
-    inlines = [
-        ChoiceInline
-    ]
+    inlines = [ChoiceInline]
 
 
 class ProfileInline(NestedStackedInline):
@@ -77,20 +84,18 @@ class ProfileInline(NestedStackedInline):
 
 
 class BaseParameterInline(admin.StackedInline):
+    """Display BaseParameter objects inline."""
 
     model = models.BaseParameter
     extra = 0
 
-    exclude = ['name', 'type', 'preset']
+    exclude = ["name", "type", "preset"]
 
 
 class ScriptAdmin(NestedModelAdmin):
     """Profiles are displayed inline when creating/modifying processes."""
 
-    inlines = [
-        ProfileInline,
-        BaseParameterInline
-    ]
+    inlines = [ProfileInline, BaseParameterInline]
 
 
 class InputTemplateInline(admin.StackedInline):
@@ -111,6 +116,7 @@ class ProfileAdmin(admin.ModelAdmin):
 
 
 class ParameterAdmin(NestedModelAdmin):
+    """Admin screen for showing parameters inline."""
 
     inlines = [
         BooleanParameterInline,
@@ -119,7 +125,7 @@ class ParameterAdmin(NestedModelAdmin):
         ChoiceParameterInline,
         TextParameterInline,
         IntegerParameterInline,
-        FloatParameterInline
+        FloatParameterInline,
     ]
 
 

@@ -3,14 +3,15 @@ from django.views.generic import TemplateView
 from django.shortcuts import render, redirect
 from os.path import basename, dirname
 from django.views.static import serve
-from .models import (
-    Project,
-    Profile,
-    Pipeline,
-)
+from .models import Project, Profile, Pipeline, BaseParameter, Process
 from django.http import JsonResponse
 from django.contrib.auth.mixins import LoginRequiredMixin
-from .forms import ProjectCreateForm, AlterDictionaryForm, ProfileSelectForm
+from .forms import (
+    ProjectCreateForm,
+    AlterDictionaryForm,
+    ProfileSelectForm,
+    ParameterForm,
+)
 from .tasks import update_script
 import logging
 
@@ -42,14 +43,9 @@ class FARedirect(LoginRequiredMixin, TemplateView):
                 except Profile.MultipleObjectsReturned:
                     # TODO: Make a nice error screen
                     raise Profile.MultipleObjectsReturned
-                try:
-                    project.start_g2p_script(profile)
-                    return redirect(
-                        "scripts:g2p_start", project=project, profile=profile,
-                    )
-                except Exception as e:
-                    logging.error(e)
-                    raise Project.StateException("Failed to start g2p process")
+                return redirect(
+                    "scripts:g2p_start", project=project, profile=profile,
+                )
             else:
                 return redirect("scripts:cd_screen", project=project)
         elif (
@@ -81,58 +77,67 @@ class FAStartView(LoginRequiredMixin, TemplateView):
 
         :param request: the request
         :param kwargs: the keyword arguments
-        :return: a redirect to the fa loading screen if the process could be started successfully, raises a
-        Project.StateException if there is already a running process for the project, returns a render of the
-        fa-startscreen.html template with an error message if an error occurred
+        :return: a redirect to the fa loading screen if the process could be started successfully, returns a render of
+        the fa-startscreen.html template with an error message if an error occurred
         """
         project = kwargs.get("project")
         profile = kwargs.get("profile")
 
-        try:
-            process = project.start_fa_script(profile)
-        except Project.StateException as e:
-            logging.error(e)
-            return render(
-                request,
-                self.template_name,
-                {
-                    "project": project,
-                    "error": "There is already a running process for this project",
-                },
-            )
-        except Profile.IncorrectProfileException as e:
-            logging.error(e)
-            return render(
-                request,
-                self.template_name,
-                {
-                    "project": project,
-                    "error": "Invalid profile for running FA",
-                },
-            )
-        except ValueError as e:
-            logging.error(e)
-            return render(
-                request,
-                self.template_name,
-                {
-                    "project": project,
-                    "error": "Error while starting the process, make sure all input"
-                    " files are specified",
-                },
-            )
-        except Exception as e:
-            logging.error(e)
-            return render(
-                request,
-                self.template_name,
-                {
-                    "project": project,
-                    "error": "Error while uploading files to CLAM, please try again later",
-                },
-            )
-        update_script(process.id)
-        return redirect("scripts:fa_loading", project=project)
+        variable_parameters = (
+            project.pipeline.fa_script.get_variable_parameters()
+        )
+        if len(variable_parameters) > 0:
+            parameter_form = ParameterForm(variable_parameters)
+        else:
+            parameter_form = None
+
+        process_or_view = render_start_screen(
+            request,
+            self.template_name,
+            parameter_form,
+            project.pipeline.fa_script,
+            project,
+            profile,
+        )
+        if isinstance(process_or_view, Process):
+            update_script(process_or_view.id)
+            return redirect("scripts:fa_loading", project=project)
+        else:
+            return process_or_view
+
+    def post(self, request, **kwargs):
+        """
+        POST method for the start screen of FA.
+
+        :param request: the request
+        :param kwargs: the keyword arguments
+        :return: a redirect to the fa loading screen if the process could be started successfully, returns a render of
+        the fa-startscreen.html template with an error message if an error occurred
+        """
+        project = kwargs.get("project")
+        profile = kwargs.get("profile")
+
+        variable_parameters = (
+            project.pipeline.fa_script.get_variable_parameters()
+        )
+        if len(variable_parameters) > 0:
+            parameter_form = ParameterForm(variable_parameters, request.POST)
+        else:
+            parameter_form = None
+
+        process_or_view = render_start_screen(
+            request,
+            self.template_name,
+            parameter_form,
+            project.pipeline.fa_script,
+            project,
+            profile,
+        )
+        if isinstance(process_or_view, Process):
+            update_script(process_or_view.id)
+            return redirect("scripts:fa_loading", project=project)
+        else:
+            return process_or_view
 
 
 class FAStartAutomaticView(LoginRequiredMixin, TemplateView):
@@ -325,58 +330,64 @@ class G2PStartScreen(LoginRequiredMixin, TemplateView):
 
         :param request: the request
         :param kwargs: the keyword arguments
-        :return: a redirect to the g2p loading screen if the process could be started successfully, raises a
-        Project.StateException if there is already a running process for the project, returns a render of the
-        g2p-startscreen.html template with an error message if an error occurred
+        :return: a redirect to the g2p loading screen if the process could be started successfully, returns a render of
+        the g2p-startscreen.html template with an error message if an error occurred
         """
         project = kwargs.get("project")
         profile = kwargs.get("profile")
 
-        try:
-            process = project.start_g2p_script(profile)
-        except Project.StateException as e:
-            logging.error(e)
-            return render(
-                request,
-                self.template_name,
-                {
-                    "project": project,
-                    "error": "There is already a running process for this project",
-                },
-            )
-        except Profile.IncorrectProfileException as e:
-            logging.error(e)
-            return render(
-                request,
-                self.template_name,
-                {
-                    "project": project,
-                    "error": "Invalid profile for running FA",
-                },
-            )
-        except ValueError as e:
-            logging.error(e)
-            return render(
-                request,
-                self.template_name,
-                {
-                    "project": project,
-                    "error": "Error while starting the process, make sure all input"
-                    " files are specified",
-                },
-            )
-        except Exception as e:
-            logging.error(e)
-            return render(
-                request,
-                self.template_name,
-                {
-                    "project": project,
-                    "error": "Error while uploading files to CLAM, please try again later",
-                },
-            )
-        update_script(process.id)
-        return redirect("scripts:g2p_loading", project=project)
+        variable_parameters = (
+            project.pipeline.g2p_script.get_variable_parameters()
+        )
+        parameter_form = ParameterForm(variable_parameters)
+
+        process_or_view = render_start_screen(
+            request,
+            self.template_name,
+            parameter_form,
+            project.pipeline.g2p_script,
+            project,
+            profile,
+        )
+        if isinstance(process_or_view, Process):
+            update_script(process_or_view.id)
+            return redirect("scripts:g2p_loading", project=project)
+        else:
+            return process_or_view
+
+    def post(self, request, **kwargs):
+        """
+        POST method for the start screen of G2P.
+
+        :param request: the request
+        :param kwargs: the keyword arguments
+        :return: a redirect to the g2p loading screen if the process could be started successfully, returns a render of
+        the g2p-startscreen.html template with an error message if an error occurred
+        """
+        project = kwargs.get("project")
+        profile = kwargs.get("profile")
+
+        variable_parameters = (
+            project.pipeline.g2p_script.get_variable_parameters()
+        )
+        if len(variable_parameters) > 0:
+            parameter_form = ParameterForm(variable_parameters, request.POST)
+        else:
+            parameter_form = None
+
+        process_or_view = render_start_screen(
+            request,
+            self.template_name,
+            parameter_form,
+            project.pipeline.g2p_script,
+            project,
+            profile,
+        )
+        if isinstance(process_or_view, Process):
+            update_script(process_or_view.id)
+            return redirect("scripts:g2p_loading", project=project)
+        else:
+            return process_or_view
 
 
 class G2PLoadScreen(LoginRequiredMixin, TemplateView):
@@ -579,6 +590,90 @@ class ProjectOverview(LoginRequiredMixin, TemplateView):
             return redirect("upload:upload_project", project=project)
         return render(
             request, self.template_name, {"form": form, "projects": projects},
+        )
+
+
+def render_start_screen(
+    request, template_name, parameter_form, script_to_start, project, profile
+):
+    """
+    Render a start screen.
+
+    This method is used by the FA start screen and the G2P start screen. This method tries to start a script and return
+    the process on success.
+    :param request: the request
+    :param template_name: the template to render (this must be a start screen template)
+    :param parameter_form: a form for setting variable parameters
+    :param script_to_start: the script to start
+    :param project: the project to use
+    :param profile: the profile to use
+    :return: a Process object if the script was started successfully. A render of the template_name page with a
+    corresponding error message if starting of the script failed
+    """
+    try:
+        if parameter_form is not None and parameter_form.is_valid():
+            return project.start_script(
+                profile,
+                script_to_start,
+                parameter_values=parameter_form.cleaned_data,
+            )
+        else:
+            return project.start_script(profile, script_to_start)
+    except BaseParameter.ParameterException as e:
+        logging.error(e)
+        return render(
+            request,
+            template_name,
+            {
+                "project": project,
+                "error": "Not all script parameters are filled in",
+                "parameter_form": parameter_form,
+            },
+        )
+    except Project.StateException as e:
+        logging.error(e)
+        return render(
+            request,
+            template_name,
+            {
+                "project": project,
+                "error": "There is already a running process for this project",
+                "parameter_form": parameter_form,
+            },
+        )
+    except Profile.IncorrectProfileException as e:
+        logging.error(e)
+        return render(
+            request,
+            template_name,
+            {
+                "project": project,
+                "error": "Invalid profile for running this script",
+                "parameter_form": parameter_form,
+            },
+        )
+    except ValueError as e:
+        logging.error(e)
+        return render(
+            request,
+            template_name,
+            {
+                "project": project,
+                "error": "Error while starting the process, make sure all input"
+                " files are specified",
+                "parameter_form": parameter_form,
+            },
+        )
+    except Exception as e:
+        logging.error(e)
+        return render(
+            request,
+            template_name,
+            {
+                "project": project,
+                "error": "Error while uploading files to CLAM, please try again later",
+                "parameter_form": parameter_form,
+            },
         )
 
 
