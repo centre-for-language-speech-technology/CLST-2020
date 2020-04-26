@@ -7,7 +7,7 @@
 
 [Coverage Report](https://giphouse.github.io/CLST-2020/)
 
-Welcome to the Equestria repo, a Django application build for chaining forced alignment scripts in a [CLAM](https://clam.readthedocs.io/en/latest/) server. This application was build on the CLAM servers of the [Centre of Language and Speech Technology](https://www.ru.nl/clst/) of the Radboud University in Nijmegen. It currently features a couple of things:
+Welcome to the Equestria repo, a Django application build for chaining forced alignment scripts on [CLAM](https://clam.readthedocs.io/en/latest/) servers. This application was build on the CLAM servers of the [Centre of Language and Speech Technology](https://www.ru.nl/clst/) of the Radboud University in Nijmegen. It currently features a couple of things:
 
 - Project separation and file storage.
 - A full blown backend interface for managing different language pipelines.
