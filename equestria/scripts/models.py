@@ -1187,6 +1187,40 @@ class BaseParameter(Model):
         else:
             raise TypeError("Type of parameter {} unknown".format(parameter))
 
+    def get_typed_parameter(self):
+        """
+        Get the corresponding typed parameter for this object.
+
+        :return: a typed parameter object corresponding to this object
+        """
+        try:
+            if self.type == self.BOOLEAN_TYPE:
+                return BooleanParameter.objects.get(base=self)
+            elif self.type == self.STATIC_TYPE:
+                return StaticParameter.objects.get(base=self)
+            elif self.type == self.STRING_TYPE:
+                return StringParameter.objects.get(base=self)
+            elif self.type == self.CHOICE_TYPE:
+                return ChoiceParameter.objects.get(base=self)
+            elif self.type == self.TEXT_TYPE:
+                return TextParameter.objects.get(base=self)
+            elif self.type == self.INTEGER_TYPE:
+                return IntegerParameter.objects.get(base=self)
+            elif self.type == self.FLOAT_TYPE:
+                return FloatParameter.objects.get(base=self)
+            else:
+                return None
+        except (
+            BooleanParameter.DoesNotExist,
+            StaticParameter.DoesNotExist,
+            StringParameter.DoesNotExist,
+            ChoiceParameter.DoesNotExist,
+            TextParameter.DoesNotExist,
+            IntegerParameter.DoesNotExist,
+            FloatParameter.DoesNotExist,
+        ) as e:
+            return None
+
     def get_default_value(self):
         """
         Get the default value of a parameter.
@@ -1196,39 +1230,10 @@ class BaseParameter(Model):
         if not self.preset:
             return None
         else:
-            try:
-                if self.type == self.BOOLEAN_TYPE:
-                    param = BooleanParameter.objects.get(base=self)
-                    return param.get_value()
-                elif self.type == self.STATIC_TYPE:
-                    param = StaticParameter.objects.get(base=self)
-                    return param.get_value()
-                elif self.type == self.STRING_TYPE:
-                    param = StringParameter.objects.get(base=self)
-                    return param.get_value()
-                elif self.type == self.CHOICE_TYPE:
-                    param = ChoiceParameter.objects.get(base=self)
-                    return param.get_value()
-                elif self.type == self.TEXT_TYPE:
-                    param = TextParameter.objects.get(base=self)
-                    return param.get_value()
-                elif self.type == self.INTEGER_TYPE:
-                    param = IntegerParameter.objects.get(base=self)
-                    return param.get_value()
-                elif self.type == self.FLOAT_TYPE:
-                    param = FloatParameter.objects.get(base=self)
-                    return param.get_value()
-                else:
-                    return None
-            except (
-                BooleanParameter.DoesNotExist,
-                StaticParameter.DoesNotExist,
-                StringParameter.DoesNotExist,
-                ChoiceParameter.DoesNotExist,
-                TextParameter.DoesNotExist,
-                IntegerParameter.DoesNotExist,
-                FloatParameter.DoesNotExist,
-            ) as e:
+            typed_parameter = self.get_typed_parameter()
+            if typed_parameter is not None:
+                return typed_parameter.get_value()
+            else:
                 return None
 
     def remove_corresponding_presets(self):
@@ -1267,37 +1272,8 @@ class BaseParameter(Model):
         choice types the value is also checked against the choices and the value of the corresponding choice is
         returned, None is returned if the type of the value does not match the type of the parameter
         """
-        if self.type == self.BOOLEAN_TYPE and isinstance(value, bool):
-            return value
-        elif self.type == self.STATIC_TYPE and isinstance(value, str):
-            return value
-        elif self.type == self.STRING_TYPE and isinstance(value, str):
-            return value
-        elif self.type == self.CHOICE_TYPE:
-            if isinstance(value, Choice):
-                choice = value
-            else:
-                try:
-                    choice = Choice.objects.get(pk=value)
-                except Choice.DoesNotExist:
-                    return None
-            try:
-                choice_parameter = ChoiceParameter.objects.get(base=self)
-            except ChoiceParameter.DoesNotExist as e:
-                logging.error(e)
-                return None
-            if choice.corresponding_choice_parameter == choice_parameter:
-                return choice.value
-            else:
-                return None
-        elif self.type == self.TEXT_TYPE and isinstance(value, str):
-            return value
-        elif self.type == self.INTEGER_TYPE and isinstance(value, int):
-            return value
-        elif self.type == self.FLOAT_TYPE and isinstance(value, float):
-            return value
-        else:
-            return None
+        typed_parameter = self.get_typed_parameter()
+        return typed_parameter.get_corresponding_value(value)
 
     def __str__(self):
         """
@@ -1333,6 +1309,18 @@ class BooleanParameter(Model):
         """
         return self.value
 
+    def get_corresponding_value(self, value):
+        """
+        Check if the value is valid for this parameter.
+
+        :param value: the value to check
+        :return: None if the value is not valid, the value otherwise
+        """
+        if isinstance(value, bool):
+            return value
+        else:
+            return None
+
     def set_preset(self, value):
         """
         Set a preset for this parameter.
@@ -1358,6 +1346,15 @@ class StaticParameter(Model):
         Get the current value.
 
         :return: the current value of this parameter
+        """
+        return self.value
+
+    def get_corresponding_value(self, value):
+        """
+        Check if the value is valid for this parameter.
+
+        :param value: the value to check
+        :return: the value of this parameter (as this is a static parameter which can not be set)
         """
         return self.value
 
@@ -1388,6 +1385,18 @@ class StringParameter(Model):
         :return: the current value of this parameter
         """
         return self.value
+
+    def get_corresponding_value(self, value):
+        """
+        Check if the value is valid for this parameter.
+
+        :param value: the value to check
+        :return: None if the value is not valid, the value otherwise
+        """
+        if isinstance(value, str):
+            return value
+        else:
+            return None
 
     def set_preset(self, value):
         """
@@ -1456,6 +1465,25 @@ class ChoiceParameter(Model):
         """
         return self.value.get_value()
 
+    def get_corresponding_value(self, value):
+        """
+        Check if the value is valid for this parameter.
+
+        :param value: the value to check, can be either a Choice or a pk of a Choice
+        :return: None if the value is not valid, the value of the corresponding Choice object otherwise
+        """
+        if isinstance(value, Choice):
+            choice = value
+        else:
+            try:
+                choice = Choice.objects.get(pk=value)
+            except Choice.DoesNotExist:
+                return None
+        if choice.corresponding_choice_parameter == self:
+            return choice.value
+        else:
+            return None
+
     def remove_corresponding_choices(self):
         """
         Remove the choices corresponding to this model from the database.
@@ -1500,6 +1528,18 @@ class TextParameter(Model):
         """
         return self.value
 
+    def get_corresponding_value(self, value):
+        """
+        Check if the value is valid for this parameter.
+
+        :param value: the value to check
+        :return: None if the value is not valid, the value otherwise
+        """
+        if isinstance(value, str):
+            return value
+        else:
+            return None
+
     def set_preset(self, value):
         """
         Set a preset for this parameter.
@@ -1528,6 +1568,18 @@ class IntegerParameter(Model):
         """
         return self.value
 
+    def get_corresponding_value(self, value):
+        """
+        Check if the value is valid for this parameter.
+
+        :param value: the value to check
+        :return: None if the value is not valid, the value otherwise
+        """
+        if isinstance(value, int):
+            return value
+        else:
+            return None
+
     def set_preset(self, value):
         """
         Set a preset for this parameter.
@@ -1555,6 +1607,18 @@ class FloatParameter(Model):
         :return: the current value of this parameter
         """
         return self.value
+
+    def get_corresponding_value(self, value):
+        """
+        Check if the value is valid for this parameter.
+
+        :param value: the value to check
+        :return: None if the value is not valid, the value otherwise
+        """
+        if isinstance(value, float):
+            return value
+        else:
+            return None
 
     def set_preset(self, value):
         """
