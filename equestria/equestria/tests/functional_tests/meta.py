@@ -1,5 +1,7 @@
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from selenium import webdriver
+import shutil
+import os
 
 
 class GenericFuncTest(StaticLiveServerTestCase):
@@ -10,6 +12,10 @@ class GenericFuncTest(StaticLiveServerTestCase):
         self.driver = webdriver.Firefox()
         # Wait up to 100s before failing to access element
         self.driver.implicitly_wait(100)
+        try:
+            shutil.rmtree(os.path.join("equestria", "userdata", "testuser"))
+        except:
+            pass
 
     def tearDown(self):
         """Close the driver."""

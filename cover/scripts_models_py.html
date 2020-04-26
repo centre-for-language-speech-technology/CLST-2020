@@ -3,7 +3,7 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=emulateIE7" />
-    <title>Coverage for scripts/models.py: 2%</title>
+    <title>Coverage for scripts/models.py: 3%</title>
     <link rel="stylesheet" href="style.css" type="text/css">
     <script type="text/javascript" src="jquery.min.js"></script>
     <script type="text/javascript" src="jquery.hotkeys.js"></script>
@@ -17,13 +17,13 @@
 <div id="header">
     <div class="content">
         <h1>Coverage for <b>scripts/models.py</b> :
-            <span class="pc_cov">2%</span>
+            <span class="pc_cov">3%</span>
         </h1>
         <img id="keyboard_icon" src="keybd_closed.png" alt="Show keyboard shortcuts" />
         <h2 class="stats">
             369 statements &nbsp;
-            <span class="run shortkey_r button_toggle_run">6 run</span>
-            <span class="mis show_mis shortkey_m button_toggle_mis">363 missing</span>
+            <span class="run shortkey_r button_toggle_run">10 run</span>
+            <span class="mis show_mis shortkey_m button_toggle_mis">359 missing</span>
             <span class="exc show_exc shortkey_x button_toggle_exc">0 excluded</span>
         </h2>
     </div>
@@ -791,8 +791,8 @@
     <p id="t738" class="pln"><span class="n"><a href="#t738">738</a></span><span class="t">                    <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p id="t739" class="pln"><span class="n"><a href="#t739">739</a></span><span class="t">                <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p id="t740" class="pln"><span class="n"><a href="#t740">740</a></span><span class="t">            <span class="key">else</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p id="t741" class="mis show_mis"><span class="n"><a href="#t741">741</a></span><span class="t">                <span class="nam">os</span><span class="op">.</span><span class="nam">makedirs</span><span class="op">(</span><span class="nam">folder</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p id="t742" class="mis show_mis"><span class="n"><a href="#t742">742</a></span><span class="t">                <span class="key">return</span> <span class="nam">Project</span><span class="op">.</span><span class="nam">objects</span><span class="op">.</span><span class="nam">create</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t741" class="run"><span class="n"><a href="#t741">741</a></span><span class="t">                <span class="nam">os</span><span class="op">.</span><span class="nam">makedirs</span><span class="op">(</span><span class="nam">folder</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t742" class="run"><span class="n"><a href="#t742">742</a></span><span class="t">                <span class="key">return</span> <span class="nam">Project</span><span class="op">.</span><span class="nam">objects</span><span class="op">.</span><span class="nam">create</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
     <p id="t743" class="pln"><span class="n"><a href="#t743">743</a></span><span class="t">                    <span class="nam">name</span><span class="op">=</span><span class="nam">name</span><span class="op">,</span> <span class="nam">folder</span><span class="op">=</span><span class="nam">folder</span><span class="op">,</span> <span class="nam">pipeline</span><span class="op">=</span><span class="nam">pipeline</span><span class="op">,</span> <span class="nam">user</span><span class="op">=</span><span class="nam">user</span>&nbsp;</span><span class="r"></span></p>
     <p id="t744" class="pln"><span class="n"><a href="#t744">744</a></span><span class="t">                <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p id="t745" class="pln"><span class="n"><a href="#t745">745</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
@@ -889,7 +889,7 @@
     <p id="t836" class="pln"><span class="n"><a href="#t836">836</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p id="t837" class="pln"><span class="n"><a href="#t837">837</a></span><span class="t"><span class="str">        :return: True if files can be uploaded to this project, False otherwise</span>&nbsp;</span><span class="r"></span></p>
     <p id="t838" class="pln"><span class="n"><a href="#t838">838</a></span><span class="t"><span class="str">        """</span>&nbsp;</span><span class="r"></span></p>
-    <p id="t839" class="mis show_mis"><span class="n"><a href="#t839">839</a></span><span class="t">        <span class="key">return</span> <span class="nam">self</span><span class="op">.</span><span class="nam">current_process</span> <span class="key">is</span> <span class="key">None</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t839" class="run"><span class="n"><a href="#t839">839</a></span><span class="t">        <span class="key">return</span> <span class="nam">self</span><span class="op">.</span><span class="nam">current_process</span> <span class="key">is</span> <span class="key">None</span>&nbsp;</span><span class="r"></span></p>
     <p id="t840" class="pln"><span class="n"><a href="#t840">840</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p id="t841" class="mis show_mis"><span class="n"><a href="#t841">841</a></span><span class="t">    <span class="key">def</span> <span class="nam">can_start_new_process</span><span class="op">(</span><span class="nam">self</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p id="t842" class="pln"><span class="n"><a href="#t842">842</a></span><span class="t">        <span class="str">"""</span>&nbsp;</span><span class="r"></span></p>
@@ -897,7 +897,7 @@
     <p id="t844" class="pln"><span class="n"><a href="#t844">844</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p id="t845" class="pln"><span class="n"><a href="#t845">845</a></span><span class="t"><span class="str">        :return: True if there are not running processes for this project, False otherwise</span>&nbsp;</span><span class="r"></span></p>
     <p id="t846" class="pln"><span class="n"><a href="#t846">846</a></span><span class="t"><span class="str">        """</span>&nbsp;</span><span class="r"></span></p>
-    <p id="t847" class="mis show_mis"><span class="n"><a href="#t847">847</a></span><span class="t">        <span class="key">return</span> <span class="nam">self</span><span class="op">.</span><span class="nam">current_process</span> <span class="key">is</span> <span class="key">None</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t847" class="run"><span class="n"><a href="#t847">847</a></span><span class="t">        <span class="key">return</span> <span class="nam">self</span><span class="op">.</span><span class="nam">current_process</span> <span class="key">is</span> <span class="key">None</span>&nbsp;</span><span class="r"></span></p>
     <p id="t848" class="pln"><span class="n"><a href="#t848">848</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p id="t849" class="mis show_mis"><span class="n"><a href="#t849">849</a></span><span class="t">    <span class="key">def</span> <span class="nam">start_fa_script</span><span class="op">(</span><span class="nam">self</span><span class="op">,</span> <span class="nam">profile</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p id="t850" class="pln"><span class="n"><a href="#t850">850</a></span><span class="t">        <span class="str">"""</span>&nbsp;</span><span class="r"></span></p>
@@ -976,7 +976,7 @@
     <div class="content">
         <p>
             <a class="nav" href="index.html">&#xab; index</a> &nbsp; &nbsp; <a class="nav" href="https://coverage.readthedocs.io">coverage.py v5.1</a>,
-            created at 2020-04-25 22:57
+            created at 2020-04-26 09:42
         </p>
     </div>
 </div>

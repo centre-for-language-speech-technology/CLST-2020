@@ -1,5 +1,6 @@
 """Module to test forced alignment."""
 from equestria.tests.functional_tests.meta import GenericFuncTest
+import time
 
 
 class ForcedAllignmentTest(GenericFuncTest):
@@ -29,15 +30,14 @@ class TestUI(GenericFuncTest):
         self.get_id("id_project_name").send_keys("testproject")
         # Click create button
         self.get("/html/body/div[1]/div/form/div/input[2]").click()
-        input()
         print(self.driver.current_url)
         self.assertTrue("upload/" in self.driver.current_url)
         # Click on Select Project button in navbar to go a step back
         self.get("/html/body/nav[2]/ul/li[1]/a").click()
         new_project_on_page = False
         for h4 in self.driver.find_elements_by_tag_name('h4'):
-            new_project_on_page = new_project_on_page or "Name: testproject".equals(h4.text())
-        assertTrue(new_project_on_page)
+            new_project_on_page = new_project_on_page or "Name: testproject" == h4.text
+        self.assertTrue(new_project_on_page)
 
             
         
