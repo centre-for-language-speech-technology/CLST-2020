@@ -56,9 +56,52 @@ After running through these steps the server works as intented and you are able 
 You are now all set up to develop and test this project. For more information about the project, please read the background information below.
 
 ## General Django information
-What is Django?
+Pulled straight from the [Django website](https://www.djangoproject.com):
+
+_"Django is a high-level Python Web framework that encourages rapid development and clean, pragmatic design. Built by experienced developers, it takes care of much of the hassle of Web development, so you can focus on writing your app without needing to reinvent the wheel."_
+
+Django is thus a web framework built in Python and has a lot of things needed for running a website with database already created. Using Django, you don't have to worry about handling a Database or creating queries, Django has build-in methods to do all those things. Database entries are created like standard Python classes and automatically handled by Django.
+
+### Django applications
+
+Django works by separating different parts of the website in different applications called _apps_. An app can be created by executing the following command in a Django project: ```django-admin startapp [app name]```. There are currently three self-written apps used in Equestria:
+
+- ```accounts```, this application defines user accounts.
+- ```upload```, this application defines uploaded files and handles them.
+- ```scripts```, this application handles all things that have to interface with CLAM servers.
+
+We will briefly explain some more things about the ```scripts``` application as this is the largest application in this project.
+
+#### Scripts application
+The ```scripts``` application handles all things that have to interface with CLAM servers. This project is designed around the use of CLAM servers and so Scripts are actually a database representation of a live CLAM server. 
+
+##### Script model
+The ```scripts``` application includes a model ```Script``` which saves data regarding a CLAM server. This model can also be used to request a ```clamclient``` instance which can be used to interact with s CLAM server. Password validation will automatically be taken care of. 
+
+##### Process model
+The ```scripts``` application also includes a model for representing processes in the database. The ```Process``` class stores information regarding a running process. Note that we only store processes on the CLAM servers for as long as they are needed, they will be removed automatically after a file download is done or if an error occured. This to prevent cluttering on the CLAM server.
+
+##### Project model
+The ```Project``` class in the ```scripts``` application stores data regarding a users' project. The ```Project``` model keeps track of a currently running script and can be used to see which stage of the pipeline a user is in.
 
 ### Migrations
 
+Django uses migrations to perform database alterations. A migration is the specification of an alteration of a database model (or more). When, for example, adding a new type of parameter to the project, you will need to create a migration to update the database tables regarding this new model. There are two important thing to remember about migrations:
+
+- How to run migrations.
+- How to make migrations.
+
+Running migrations is easy, if you setup the project before reading this you have actually already ran migrations once. To run migrations, you can execute ```./manage.py migrate``` and Django will look for the migration files in the ```migrations``` directories in each installed app. These migration files are just plain Python files and define the database alterations made during project development.
+
+When you have altered a model, added or deleted field or added a completely different model yourself (or deleted one), you should make migrations in order for Django to alter the database such that the new model representation is in synch with the database. To make migrations automatically, you can run ```./manage.py makemigrations```. If you have created a new application and you did make migrations for this applications before, you need to run ```./manage.py makemigrations [app name]```. Note that the app must already be installed in the ```settings.py``` file.
+
+Making migrations and migrating the database is necessary because otherwise the running webserver and the database are not in synch with eachother. For example, if you create a new type of parameter for a script and you do not run migrations, then Django will at some point look for a table in the database that includes the new parameter but won't find one because you did not run migrations yet.
+
+#### Committing migrations
+
+When creating a new model class, you are most likely experimenting a lot and creating migrations a couple of times until your database class is perfect for your needs. Please note that you do not want to commit all new migrations you made, but rather delete the ones you created previously (so not all migrations, just the ones you created in this commit) and create one new migration after you are done altering a model. This ensures that your migrations are kept clean and prevents migration errors.
+
+
+## CLAM
 
 ## Database structure
