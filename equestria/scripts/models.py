@@ -14,7 +14,6 @@ import secrets
 from django.contrib.auth import get_user_model
 import zipfile
 from .services import zip_dir
-from django.contrib.contenttypes.models import ContentType
 
 # Create your models here.
 
