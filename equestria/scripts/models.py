@@ -485,30 +485,41 @@ class Process(Model):
                     "Not all parameters are satisfied"
                 )
 
-            for template in templates:
-                files = template.is_valid_for(self.folder)
-                if not files and not template.optional:
-                    raise ValueError(
-                        "No file specified for template {}".format(template)
-                    )
-                if files:
-                    if len(files) > 1 and template.unique:
-                        raise ValueError(
-                            "More than one file specified for unique template {}".format(
-                                template
-                            )
-                        )
-                    for file in files:
-                        full_file_path = os.path.join(self.folder, file)
-                        clamclient.addinputfile(
-                            self.clam_id, template.template_id, full_file_path
-                        )
+            self.upload_input_templates(templates)
 
             clamclient.startsafe(self.clam_id, **merged_parameters)
             self.set_status(STATUS_RUNNING)
             return True
         else:
             return False
+
+    def upload_input_templates(self, templates):
+        """
+        Upload files corresponding to the input templates.
+
+        :param templates: a list of InputTemplate objects
+        :return: None, raises a ValueError if there is no file for the template or more than one file for a unique
+        template
+        """
+        clamclient = self.script.get_clam_server()
+        for template in templates:
+            files = template.is_valid_for(self.folder)
+            if not files and not template.optional:
+                raise ValueError(
+                    "No file specified for template {}".format(template)
+                )
+            if files:
+                if len(files) > 1 and template.unique:
+                    raise ValueError(
+                        "More than one file specified for unique template {}".format(
+                            template
+                        )
+                    )
+                for file in files:
+                    full_file_path = os.path.join(self.folder, file)
+                    clamclient.addinputfile(
+                        self.clam_id, template.template_id, full_file_path
+                    )
 
     def cleanup(self, status=STATUS_CREATED):
         """

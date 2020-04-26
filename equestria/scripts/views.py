@@ -621,60 +621,25 @@ def render_start_screen(
             return project.start_script(profile, script_to_start)
     except BaseParameter.ParameterException as e:
         logging.error(e)
-        return render(
-            request,
-            template_name,
-            {
-                "project": project,
-                "error": "Not all script parameters are filled in",
-                "parameter_form": parameter_form,
-            },
-        )
+        error = "Not all script parameters are filled in"
     except Project.StateException as e:
         logging.error(e)
-        return render(
-            request,
-            template_name,
-            {
-                "project": project,
-                "error": "There is already a running process for this project",
-                "parameter_form": parameter_form,
-            },
-        )
+        error = "There is already a running process for this project"
     except Profile.IncorrectProfileException as e:
         logging.error(e)
-        return render(
-            request,
-            template_name,
-            {
-                "project": project,
-                "error": "Invalid profile for running this script",
-                "parameter_form": parameter_form,
-            },
-        )
+        error = "Invalid profile for running this script"
     except ValueError as e:
         logging.error(e)
-        return render(
-            request,
-            template_name,
-            {
-                "project": project,
-                "error": "Error while starting the process, make sure all input"
-                " files are specified",
-                "parameter_form": parameter_form,
-            },
-        )
+        error = "Error while starting the process, make sure all input files are specified"
     except Exception as e:
         logging.error(e)
-        return render(
-            request,
-            template_name,
-            {
-                "project": project,
-                "error": "Error while uploading files to CLAM, please try again later",
-                "parameter_form": parameter_form,
-            },
-        )
+        error = "Error while uploading files to CLAM, please try again later"
+
+    return render(
+        request,
+        template_name,
+        {"project": project, "error": error, "parameter_form": parameter_form,},
+    )
 
 
 def download_project_archive(request, **kwargs):
