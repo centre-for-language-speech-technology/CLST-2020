@@ -38,7 +38,7 @@ Equestria: Upload
         <div class="rounded shadow lighter padding">
             <h1>Upload files</h1>
             {% if upload_form %}
-                <h3>Upload a file (.txt .tg or .wav):</h3>
+                <h3>Upload your files (.txt .tg .wav or .zip):</h3>
                 <form class="md-form" action="{% url 'upload:upload_file' project=project %}" method="post" enctype="multipart/form-data">
                     <div class="input-group mb-3">
                         <div class="custom-file">

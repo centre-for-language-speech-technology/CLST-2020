@@ -6,7 +6,7 @@ from django.views.generic import TemplateView
 from django.contrib import messages
 from accounts.models import UserProfile
 from upload.models import File
-from upload.forms import UploadForm, UploadWAVForm
+from upload.forms import UploadForm
 from .forms import AudioSelectForm
 from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
