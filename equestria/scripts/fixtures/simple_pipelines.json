@@ -4,7 +4,7 @@
     "pk": 1,
     "fields": {
       "name": "Dutch Forced Alignment",
-      "hostname": "https://webservices-lst.science.ru.nl/forcedalignment",
+      "hostname": "localhost:12345",
       "description": "Dutch Forced Alignment",
       "username": "clst",
       "password": ""
