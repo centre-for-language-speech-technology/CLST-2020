@@ -9,7 +9,8 @@ class ForcedAllignmentTest(GenericFuncTest):
 
 class TestUI(GenericFuncTest):
     """Tests basic UI elements."""
-    fixtures = ['simple_pipelines']
+
+    fixtures = ["simple_pipelines"]
 
     def test_welcome_test(self):
         """Test if user is greeted by welcome text."""
@@ -35,9 +36,8 @@ class TestUI(GenericFuncTest):
         # Click on Select Project button in navbar to go a step back
         self.get("/html/body/nav[2]/ul/li[1]/a").click()
         new_project_on_page = False
-        for h4 in self.driver.find_elements_by_tag_name('h4'):
-            new_project_on_page = new_project_on_page or "Name: testproject" == h4.text
+        for h4 in self.driver.find_elements_by_tag_name("h4"):
+            new_project_on_page = (
+                new_project_on_page or "Name: testproject" == h4.text
+            )
         self.assertTrue(new_project_on_page)
-
-            
-        
