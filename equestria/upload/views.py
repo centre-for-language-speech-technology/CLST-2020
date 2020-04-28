@@ -17,7 +17,7 @@ class UploadProjectView(LoginRequiredMixin, TemplateView):
 
     login_url = "/accounts/login/"
 
-    template_name = "upload/upload-project.html"
+    template_name = "upload-project.html"
 
     def get(self, request, **kwargs):
         """
@@ -79,17 +79,6 @@ def upload_file_view(request, **kwargs):
             elif ext in ["wav", "txt", "tg"]:
                 save_file(request, project, file)
     return redirect("upload:upload_project", project=project)
-
-
-def get_file_type(path):
-    """
-    Get the file type of the uploaded file.
-
-    :param path: the path of the file
-    :return: the filetype
-    """
-    mime = mimetypes.guess_type(path)
-    return mime[0]
 
 
 def save_zipped_files(request, project, file):

@@ -44,7 +44,7 @@ Equestria: Upload
                         <div class="custom-file">
                             {% crispy upload_form %}
                             {%csrf_token%}
-                            <input type="submit" name="TXTform" value="Submit" class="btn btn-primary" id="upload-txt-btn">
+                            <input type="submit" name="TXTform" value="Upload files" class="btn btn-primary" id="upload-txt-btn">
                         </div>
                     </div>
                 </form>
@@ -54,17 +54,22 @@ Equestria: Upload
                     <div class="input-group mb-3">
                         <div class="custom-file">
                             {% csrf_token %}
-                            <input type="submit" name="TXTform" value="Submit" class="btn btn-primary" id="upload-txt-btn">
+                            <input type="submit" name="TXTform" value="Continue" class="btn btn-primary" id="upload-txt-btn">
                         </div>
                     </div>
                 </form>
             {% else %}
-                <p style="background-color: red;">There is currently a running process. You can not start a new process.
-                    First wait for the current process to finish and reload this page.</p>
+                <p style="background-color: red;">There is currently a running process. You cannot start a new process.
+                    First, wait for the current process to finish and reload this page.</p>
             {% endif %}
         </div>
     </div>
-{% for file in  files %}
-    <p> {{ file }} </p>
-{% endfor %}
+    <br />
+	<div class="container-fluid">
+		<div class="rounded shadow lighter padding">
+			{% for file in  files %}
+	    		<p> {{ file }} </p>
+			{% endfor %}
+		</div>
+	</div>
 {% endblock %}
