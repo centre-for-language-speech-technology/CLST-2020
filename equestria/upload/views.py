@@ -7,7 +7,6 @@ from .models import File
 from .forms import UploadForm
 from django.core.files.storage import FileSystemStorage
 from django.contrib.auth.mixins import LoginRequiredMixin
-import mimetypes
 from django.core.exceptions import ValidationError
 import zipfile
 
