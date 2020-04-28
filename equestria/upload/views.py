@@ -90,7 +90,6 @@ def save_zipped_files(request, project, file):
     :param file: the zip file
     :return: None
     """
-
     path = project.folder
     save_location = os.path.join(path, file.name)
     fs = FileSystemStorage(location=path)
@@ -121,7 +120,6 @@ def save_file(request, project, file):
     :param file: the file to be uploaded
     :return: None
     """
-
     path = project.folder
     save_location = os.path.join(path, file.name)
     fs = FileSystemStorage(location=path)
