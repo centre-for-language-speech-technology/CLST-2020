@@ -1,185 +1,139 @@
+"""Module to handle uploading files."""
+import os
+from django.http import Http404
 from django.shortcuts import render, redirect
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.contrib.auth import login, logout
-from equestria.views import GenericTemplate
 from django.views.generic import TemplateView
-from django.contrib import messages
-from accounts.models import UserProfile
-from upload.models import File
-from upload.forms import UploadForm
-from .forms import AudioSelectForm
-from django.conf import settings
+from .models import File
+from .forms import UploadForm
+from django.core.files.storage import FileSystemStorage
 from django.contrib.auth.mixins import LoginRequiredMixin
-
-"""Module serving responses to user upon request."""
-
-
-class Signup(GenericTemplate):
-    """Page to create new account."""
-
-    template = "accounts/signup.html"
-
-    def get(self, request):
-        """Render django user creation form."""
-        form = UserCreationForm()
-        return render(request, self.template, {"form": form})
-
-    def post(self, request):
-        """Validate form, create new user account, login user, redirect to main page."""
-        form = UserCreationForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            #  log in the user
-            login(request, user)
-            return redirect("welcome")
-        else:
-            # implement error handling here
-            messages.info(
-                request,
-                "Invalid password or already taken user name. Please check the requirements for passwords",
-            )
-            return redirect("accounts:signup")
+import mimetypes
+from django.core.exceptions import ValidationError
+import zipfile
 
 
-class Login(GenericTemplate):
-    """Page to login as existing user."""
+class UploadProjectView(LoginRequiredMixin, TemplateView):
+    """View for initial upload of files to a project."""
 
-    template = "accounts/login.html"
+    login_url = "/accounts/login/"
 
-    def get(self, request):
-        """Render django user login form."""
-        form = AuthenticationForm()
-        return render(request, self.template, {"form": form})
-
-    def post(self, request):
-        """Validate form, login user, redirect."""
-        form = AuthenticationForm(data=request.POST)
-        if form.is_valid():
-            # log the user in
-            user = form.get_user()
-            login(request, user)
-            if "next" in request.POST:
-                return redirect(request.POST.get("next"))
-            else:
-                return redirect("welcome")
-        else:
-            # implement error handling here
-            messages.info(request, "Invalid username or password")
-            return redirect("accounts:login")
-
-
-class Forgot(TemplateView):
-    """Forgot password page."""
-
-    template_name = "accounts/forgot.html"
+    template_name = "upload-project.html"
 
     def get(self, request, **kwargs):
         """
-        GET request for forgot password view.
+        Handle a GET request for the file upload page.
 
         :param request: the request
         :param kwargs: keyword arguments
-        :return: a render of the forgot password page
+        :return: A render of the upload_project.html page containing an upload form if files can be uploaded to the
+        project and a profile form if a new process can be started for the project
         """
-        print(settings.ADMIN_EMAIL)
-        context = {"admin_email": settings.ADMIN_EMAIL}
+        project = kwargs.get("project")
+        files = os.listdir(project.folder)
+        context = {
+            "project": project,
+            "files": files,
+        }
+        if project.can_upload():
+            context["upload_form"] = UploadForm()
+        if project.can_start_new_process():
+            context["can_start"] = True
         return render(request, self.template_name, context)
 
-
-class Logout(TemplateView):
-    """Page to logout."""
-
-    template_name = "accounts/logout.html"
-
-    def get(self, request, *args, **kwargs):
+    def post(self, request, **kwargs):
         """
-        GET request for logout view.
+        Handle POST request for file upload page.
 
         :param request: the request
         :param kwargs: keyword arguments
-        :return: a render of the logout page or a redirect to the next parameter or home page
+        :return: a ValueError if the profile in the form is not valid, a render of the upload_project.html page if there
+        is already a started process, a redirect to the fa_start view otherwise
         """
-        next_page = request.GET.get("next")
-        if request.user.is_authenticated:
-            logout(request)
-            if next_page:
-                return redirect(next_page)
-            return render(request, self.template_name)
-        else:
-            if next_page:
-                return redirect(next_page)
-            return redirect("/")
+        project = kwargs.get("project")
+        if not project.can_start_new_process():
+            return self.get(request, **kwargs)
+
+        return redirect("scripts:fa_start_automatic", project=project)
 
 
-class Settings(LoginRequiredMixin, GenericTemplate):
-    """Page to configure user settings."""
+def upload_file_view(request, **kwargs):
+    """
+    Upload file view for uploading a file from a form.
 
-    login_url = "/accounts/login/"
-    redirect_field_name = "redirect_to"
+    :param request: the request
+    :param kwargs: keyword arguments
+    :return: a redirect if the file upload succeeded, raises a StateException if the file can't be uploaded because the
+    project has a running process, raises a ValueError if the form is not valid
+    """
+    project = kwargs.get("project")
+    if not project.can_upload():
+        raise Http404("Can't upload files to this project")
+    upload_form = UploadForm(request.POST, request.FILES)
 
-    template = "accounts/settings.html"
-
-    def __get_profile(self, request):
-        """Retrieve profile based on user in request."""
-        user_profile = (
-            UserProfile.objects.select_related()
-            .filter(user_id=request.user.id)
-            .first()
-        )
-        return user_profile
-
-    def get(self, request):
-        """Display settings."""
-        arg = {"profile": self.__get_profile(request)}
-        return render(request, self.template, arg)
-
-    def post(self, request):
-        """Update settings."""
-        user_profile = self.__get_profile(request)
-        # Too lazy to sanitize and themes/colors are really someone elses job
-        user_profile.favorite_pony = request.POST.get(
-            "pony", user_profile.favorite_pony
-        )
-        user_profile.theme = request.POST.get("theme", user_profile.theme)
-        user_profile.background_color = "#" + request.POST.get(
-            "background_color", user_profile.background_color
-        )
-        user_profile.background_lighter = "#" + request.POST.get(
-            "background_lighter", user_profile.background_lighter
-        )
-        user_profile.accent_color = "#" + request.POST.get(
-            "accent_color", user_profile.accent_color
-        )
-        user_profile.accent_darker = "#" + request.POST.get(
-            "accent_darker", user_profile.accent_darker
-        )
-        user_profile.text_color = "#" + request.POST.get(
-            "text_color", user_profile.text_color
-        )
-        user_profile.save()
-
-        arg = {"profile": user_profile}
-        return render(request, self.template, arg)
+    if upload_form.is_valid():
+        uploaded_files = request.FILES.getlist("f")
+        for file in uploaded_files:
+            ext = file.name.split(".")[-1]
+            if ext == "zip":
+                save_zipped_files(request, project, file)
+            elif ext in ["wav", "txt", "tg"]:
+                save_file(request, project, file)
+    return redirect("upload:upload_project", project=project)
 
 
-class Overview(LoginRequiredMixin, GenericTemplate):
-    """Page to display user files and stuff."""
+def save_zipped_files(request, project, file):
+    """
+    Save zipped files to a project.
 
-    login_url = "/accounts/login/"
-    redirect_field_name = "redirect_to"
+    :param request: the request
+    :param project: the project to save the file to
+    :param file: the zip file
+    :return: None
+    """
+    path = project.folder
+    save_location = os.path.join(path, file.name)
+    fs = FileSystemStorage(location=path)
 
-    template = "accounts/overview.html"
+    if fs.exists(file.name):
+        """Delete previously uploaded file with same name."""
+        os.remove(save_location)
 
-    def get(self, request):
-        """Display files."""
-        files = File.objects.all().filter(owner=request.user.username)
-        audioSelectForm = AudioSelectForm(user=request.user)
-        wavForm = UploadWAVForm()
-        txtForm = UploadForm()
-        context = {
-            "files": files,
-            "WAVform": wavForm,
-            "TXTform": txtForm,
-            "audioSelect": audioSelectForm,
-        }
-        return render(request, self.template, context)
+    with zipfile.ZipFile(file) as zip_file:
+        names = zip_file.namelist()
+        for name in names:
+            with zip_file.open(name) as f:
+                ext = name.split(".")[-1]
+
+                if ext == "zip":
+                    """Zip in a zip"""
+                    save_zipped_files(request, project, f)
+                elif ext in ["wav", "txt", "tg"]:
+                    save_file(request, project, f)
+
+
+def save_file(request, project, file):
+    """
+    Save a file to a project.
+
+    :param request: the request
+    :param project: the project to save the file to
+    :param file: the file to be uploaded
+    :return: None
+    """
+    path = project.folder
+    save_location = os.path.join(path, file.name)
+    fs = FileSystemStorage(location=path)
+
+    if fs.exists(file.name):
+        """Delete previously uploaded file with same name."""
+        os.remove(save_location)
+
+    ext = file.name.split(".")[-1]
+    if ext == "txt" or ext == "tg":
+        use_for = "text"
+    elif ext == "wav":
+        use_for = "audio"
+    else:
+        raise ValidationError("Unsupported file extension.")
+
+    fs.save(file.name, file)
