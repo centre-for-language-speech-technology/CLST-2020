@@ -42,43 +42,54 @@ class ScriptModelTest(TestCase):
 
     @staticmethod
     def _test(msg):
+        """Debug method."""
         print(str(msg))
         os.system("dunstify {}".format(str(msg)))
 
     def setUp(self):
+        """Get a script from the db for use in tests."""
         self.dfa = Script.objects.filter(id=1)[0]
 
     def _setup_scallop(self, method="default"):
+        """Legacy."""
         self.p = multiprocessing.Process(target=scallop.start, args=(method,))
         self.p.start()
 
     def _teardown_scallop(self):
+        """Legacy."""
         self.p.terminate()
         self.p.kill()
 
     def tearDown(self):
+        """Run after every test."""
         pass
 
     def setUpModule(self):
+        """Legacy."""
         # _setup_scallop()
         pass
 
     def tearDownModule(self):
+        """Legacy."""
         # _teardown_scallop()
         pass
 
     def test_number_of_scripts(self):
+        """Test if scripts are loaded correctly."""
         self.assertEquals(len(Script.objects.all()), 3)
 
     def test_name(self):
+        """Test if correct script is selected."""
         self.assertEquals(self.dfa.name, "Dutch Forced Alignment")
 
     def test_server_credentials(self):
+        """Test if server credentials are good."""
         self.assertEquals(self.dfa.hostname, GOOD_SERVER)
         self.assertEquals(self.dfa.username, "clst")
         self.assertEquals(self.dfa.password, "clst")
 
     def test_get_clam_server(self):
+        """Test if clam server is defined."""
         self.assertTrue(self.dfa.get_clam_server() is not None)
 
     #    @scallop
@@ -86,11 +97,13 @@ class ScriptModelTest(TestCase):
     #        self.dfa.save()
 
     def test_safe_good(self):
+        """Test if saving works if the server cooperates."""
         self.dfa.hostname = GOOD_SERVER
         self.dfa.save()
 
     #    @scallop("error")
     def test_safe_fail(self):
+        """Test that saving does not work if the server is faulty."""
         self.dfa.hostname = BAD_500_SERVER
         # self.assertRaises(ValidationError, self.dfa.save())
         # does not work for some reason
