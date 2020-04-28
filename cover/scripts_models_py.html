@@ -3,7 +3,7 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=emulateIE7" />
-    <title>Coverage for scripts/models.py: 2%</title>
+    <title>Coverage for scripts/models.py: 5%</title>
     <link rel="stylesheet" href="style.css" type="text/css">
     <script type="text/javascript" src="jquery.min.js"></script>
     <script type="text/javascript" src="jquery.hotkeys.js"></script>
@@ -17,13 +17,13 @@
 <div id="header">
     <div class="content">
         <h1>Coverage for <b>scripts/models.py</b> :
-            <span class="pc_cov">2%</span>
+            <span class="pc_cov">5%</span>
         </h1>
         <img id="keyboard_icon" src="keybd_closed.png" alt="Show keyboard shortcuts" />
         <h2 class="stats">
             369 statements &nbsp;
-            <span class="run shortkey_r button_toggle_run">8 run</span>
-            <span class="mis show_mis shortkey_m button_toggle_mis">361 missing</span>
+            <span class="run shortkey_r button_toggle_run">20 run</span>
+            <span class="mis show_mis shortkey_m button_toggle_mis">349 missing</span>
             <span class="exc show_exc shortkey_x button_toggle_exc">0 excluded</span>
         </h2>
     </div>
@@ -127,16 +127,16 @@
     <p id="t74" class="pln"><span class="n"><a href="#t74">74</a></span><span class="t"><span class="str">        :return: super(Script, self).save()</span>&nbsp;</span><span class="r"></span></p>
     <p id="t75" class="pln"><span class="n"><a href="#t75">75</a></span><span class="t"><span class="str">        """</span>&nbsp;</span><span class="r"></span></p>
     <p id="t76" class="pln"><span class="n"><a href="#t76">76</a></span><span class="t">        <span class="com"># First contact CLAM to get the profile data</span>&nbsp;</span><span class="r"></span></p>
-    <p id="t77" class="mis show_mis"><span class="n"><a href="#t77">77</a></span><span class="t">        <span class="nam">random_token</span> <span class="op">=</span> <span class="nam">Process</span><span class="op">.</span><span class="nam">get_random_clam_id</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p id="t78" class="mis show_mis"><span class="n"><a href="#t78">78</a></span><span class="t">        <span class="key">try</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p id="t79" class="mis show_mis"><span class="n"><a href="#t79">79</a></span><span class="t">            <span class="nam">clamclient</span> <span class="op">=</span> <span class="nam">self</span><span class="op">.</span><span class="nam">get_clam_server</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p id="t80" class="mis show_mis"><span class="n"><a href="#t80">80</a></span><span class="t">            <span class="nam">clamclient</span><span class="op">.</span><span class="nam">create</span><span class="op">(</span><span class="nam">random_token</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p id="t81" class="mis show_mis"><span class="n"><a href="#t81">81</a></span><span class="t">            <span class="nam">data</span> <span class="op">=</span> <span class="nam">clamclient</span><span class="op">.</span><span class="nam">get</span><span class="op">(</span><span class="nam">random_token</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t77" class="run"><span class="n"><a href="#t77">77</a></span><span class="t">        <span class="nam">random_token</span> <span class="op">=</span> <span class="nam">Process</span><span class="op">.</span><span class="nam">get_random_clam_id</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t78" class="run"><span class="n"><a href="#t78">78</a></span><span class="t">        <span class="key">try</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t79" class="run"><span class="n"><a href="#t79">79</a></span><span class="t">            <span class="nam">clamclient</span> <span class="op">=</span> <span class="nam">self</span><span class="op">.</span><span class="nam">get_clam_server</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t80" class="run"><span class="n"><a href="#t80">80</a></span><span class="t">            <span class="nam">clamclient</span><span class="op">.</span><span class="nam">create</span><span class="op">(</span><span class="nam">random_token</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t81" class="run"><span class="n"><a href="#t81">81</a></span><span class="t">            <span class="nam">data</span> <span class="op">=</span> <span class="nam">clamclient</span><span class="op">.</span><span class="nam">get</span><span class="op">(</span><span class="nam">random_token</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p id="t82" class="mis show_mis"><span class="n"><a href="#t82">82</a></span><span class="t">            <span class="nam">clamclient</span><span class="op">.</span><span class="nam">delete</span><span class="op">(</span><span class="nam">random_token</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p id="t83" class="mis show_mis"><span class="n"><a href="#t83">83</a></span><span class="t">        <span class="key">except</span> <span class="nam">Exception</span> <span class="key">as</span> <span class="nam">e</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t83" class="run"><span class="n"><a href="#t83">83</a></span><span class="t">        <span class="key">except</span> <span class="nam">Exception</span> <span class="key">as</span> <span class="nam">e</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p id="t84" class="pln"><span class="n"><a href="#t84">84</a></span><span class="t">            <span class="com"># If CLAM can't be reached, the credentials are most likely not valid</span>&nbsp;</span><span class="r"></span></p>
-    <p id="t85" class="mis show_mis"><span class="n"><a href="#t85">85</a></span><span class="t">            <span class="nam">logging</span><span class="op">.</span><span class="nam">error</span><span class="op">(</span><span class="nam">e</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p id="t86" class="mis show_mis"><span class="n"><a href="#t86">86</a></span><span class="t">            <span class="key">raise</span> <span class="nam">ValidationError</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t85" class="run"><span class="n"><a href="#t85">85</a></span><span class="t">            <span class="nam">logging</span><span class="op">.</span><span class="nam">error</span><span class="op">(</span><span class="nam">e</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t86" class="run"><span class="n"><a href="#t86">86</a></span><span class="t">            <span class="key">raise</span> <span class="nam">ValidationError</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
     <p id="t87" class="pln"><span class="n"><a href="#t87">87</a></span><span class="t">                <span class="str">"There was a problem contacting the CLAM server, did you enter the right username and"</span>&nbsp;</span><span class="r"></span></p>
     <p id="t88" class="pln"><span class="n"><a href="#t88">88</a></span><span class="t">                <span class="str">" password?"</span>&nbsp;</span><span class="r"></span></p>
     <p id="t89" class="pln"><span class="n"><a href="#t89">89</a></span><span class="t">            <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
@@ -187,12 +187,12 @@
     <p id="t134" class="pln"><span class="n"><a href="#t134">134</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p id="t135" class="pln"><span class="n"><a href="#t135">135</a></span><span class="t"><span class="str">        :return: a CLAMClient</span>&nbsp;</span><span class="r"></span></p>
     <p id="t136" class="pln"><span class="n"><a href="#t136">136</a></span><span class="t"><span class="str">        """</span>&nbsp;</span><span class="r"></span></p>
-    <p id="t137" class="mis show_mis"><span class="n"><a href="#t137">137</a></span><span class="t">        <span class="key">if</span> <span class="nam">self</span><span class="op">.</span><span class="nam">username</span> <span class="op">!=</span> <span class="str">""</span> <span class="key">and</span> <span class="nam">self</span><span class="op">.</span><span class="nam">password</span> <span class="op">!=</span> <span class="str">""</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p id="t138" class="mis show_mis"><span class="n"><a href="#t138">138</a></span><span class="t">            <span class="key">return</span> <span class="nam">clam</span><span class="op">.</span><span class="nam">common</span><span class="op">.</span><span class="nam">client</span><span class="op">.</span><span class="nam">CLAMClient</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t137" class="run"><span class="n"><a href="#t137">137</a></span><span class="t">        <span class="key">if</span> <span class="nam">self</span><span class="op">.</span><span class="nam">username</span> <span class="op">!=</span> <span class="str">""</span> <span class="key">and</span> <span class="nam">self</span><span class="op">.</span><span class="nam">password</span> <span class="op">!=</span> <span class="str">""</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t138" class="run"><span class="n"><a href="#t138">138</a></span><span class="t">            <span class="key">return</span> <span class="nam">clam</span><span class="op">.</span><span class="nam">common</span><span class="op">.</span><span class="nam">client</span><span class="op">.</span><span class="nam">CLAMClient</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
     <p id="t139" class="pln"><span class="n"><a href="#t139">139</a></span><span class="t">                <span class="nam">self</span><span class="op">.</span><span class="nam">hostname</span><span class="op">,</span> <span class="nam">self</span><span class="op">.</span><span class="nam">username</span><span class="op">,</span> <span class="nam">self</span><span class="op">.</span><span class="nam">password</span><span class="op">,</span> <span class="nam">basicauth</span><span class="op">=</span><span class="key">True</span>&nbsp;</span><span class="r"></span></p>
     <p id="t140" class="pln"><span class="n"><a href="#t140">140</a></span><span class="t">            <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p id="t141" class="pln"><span class="n"><a href="#t141">141</a></span><span class="t">        <span class="key">else</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p id="t142" class="mis show_mis"><span class="n"><a href="#t142">142</a></span><span class="t">            <span class="key">return</span> <span class="nam">clam</span><span class="op">.</span><span class="nam">common</span><span class="op">.</span><span class="nam">client</span><span class="op">.</span><span class="nam">CLAMClient</span><span class="op">(</span><span class="nam">self</span><span class="op">.</span><span class="nam">hostname</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t142" class="run"><span class="n"><a href="#t142">142</a></span><span class="t">            <span class="key">return</span> <span class="nam">clam</span><span class="op">.</span><span class="nam">common</span><span class="op">.</span><span class="nam">client</span><span class="op">.</span><span class="nam">CLAMClient</span><span class="op">(</span><span class="nam">self</span><span class="op">.</span><span class="nam">hostname</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p id="t143" class="pln"><span class="n"><a href="#t143">143</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p id="t144" class="mis show_mis"><span class="n"><a href="#t144">144</a></span><span class="t">    <span class="key">def</span> <span class="nam">get_valid_profiles</span><span class="op">(</span><span class="nam">self</span><span class="op">,</span> <span class="nam">folder</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p id="t145" class="pln"><span class="n"><a href="#t145">145</a></span><span class="t">        <span class="str">"""</span>&nbsp;</span><span class="r"></span></p>
@@ -246,7 +246,7 @@
     <p id="t193" class="pln"><span class="n"><a href="#t193">193</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p id="t194" class="pln"><span class="n"><a href="#t194">194</a></span><span class="t"><span class="str">        :return: a random 32 bit string</span>&nbsp;</span><span class="r"></span></p>
     <p id="t195" class="pln"><span class="n"><a href="#t195">195</a></span><span class="t"><span class="str">        """</span>&nbsp;</span><span class="r"></span></p>
-    <p id="t196" class="mis show_mis"><span class="n"><a href="#t196">196</a></span><span class="t">        <span class="key">return</span> <span class="nam">secrets</span><span class="op">.</span><span class="nam">token_hex</span><span class="op">(</span><span class="num">32</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t196" class="run"><span class="n"><a href="#t196">196</a></span><span class="t">        <span class="key">return</span> <span class="nam">secrets</span><span class="op">.</span><span class="nam">token_hex</span><span class="op">(</span><span class="num">32</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p id="t197" class="pln"><span class="n"><a href="#t197">197</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p id="t198" class="mis show_mis"><span class="n"><a href="#t198">198</a></span><span class="t">    <span class="key">def</span> <span class="nam">update_log_messages_from_xml</span><span class="op">(</span><span class="nam">self</span><span class="op">,</span> <span class="nam">xml_data</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p id="t199" class="pln"><span class="n"><a href="#t199">199</a></span><span class="t">        <span class="str">"""</span>&nbsp;</span><span class="r"></span></p>
@@ -976,7 +976,7 @@
     <div class="content">
         <p>
             <a class="nav" href="index.html">&#xab; index</a> &nbsp; &nbsp; <a class="nav" href="https://coverage.readthedocs.io">coverage.py v5.0.4</a>,
-            created at 2020-04-27 20:38
+            created at 2020-04-28 14:01
         </p>
     </div>
 </div>
