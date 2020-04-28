@@ -4,7 +4,7 @@ from django.core.exceptions import ValidationError
 
 def validate_file_extension(file):
     """
-    Checks if the file extension is in the whitelist. 
+    Check if the file extension is in the whitelist.
 
     :param file: the file to be validated
     :param file: the file to be uploaded
