@@ -24,7 +24,8 @@ class SirRobert(BaseHTTPRequestHandler):
         print(self.path)
         print(self.headers)
         if self.get_file:
-            with open(self.get_file, "r") as f:
+            _get_file = os.path.join("equestria", "testing", self.get_file)
+            with open(_get_file, "r") as f:
                 self.wfile.write(bytes(f.read(), "utf-8"))
         print()
 
