@@ -1,7 +1,6 @@
 from django.test import TestCase
 from scripts.models import Script
 import os
-import subprocess
 import multiprocessing
 from django.core.exceptions import ValidationError
 
