@@ -83,7 +83,7 @@ handler = {
     ).serve_forever(),
     "no_server": lambda: print("no_server"),
     "error": lambda: HTTPServer(("localhost", 12346), Thomas).serve_forever(),
-    "liar": lambda: HTTPServer(
+    "ghost": lambda: HTTPServer(
         ("localhost", 12347), JacquesBenigne
     ).serve_forever(),
 }
@@ -93,7 +93,7 @@ def start(method="default"):
     """Run all servers."""
     sir_robert = Thread(target=handler["default"])
     thomas = Thread(target=handler["error"])
-    jacques_benigne = Thread(target=handler["liar"])
+    jacques_benigne = Thread(target=handler["ghost"])
     sir_robert.start()
     thomas.start()
 
