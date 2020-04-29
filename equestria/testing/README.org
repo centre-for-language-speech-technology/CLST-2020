@@ -61,7 +61,7 @@ For example, to test the same as in [[file:README.org::*Test if everything works
 #+BEGIN_SRC python
 def test_safe_good(self):
         """Test if saving works if the server cooperates."""
-        self.dfa.save()
+        Script.objects.filter(id=1)[0].save()
 #+END_SRC
 Make sure the hostname refers to a good server.
 Testing that something does not work is a bit more tricky, since ~assertRaises()~ does not seem to work. To check for a specific error, write a test like this:
@@ -70,7 +70,7 @@ def test_safe_fail(self):
         """Test that saving does not work if the server is faulty."""
         raises_validation_error = False
         try:
-            self.dfa.save()
+            Script.objects.filter(id=1)[0].save()
         except ValidationError:
             raises_validation_error = True
         self.assertTrue(raises_validation_error)
