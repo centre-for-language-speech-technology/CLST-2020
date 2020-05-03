@@ -10,27 +10,27 @@ Equestria: Upload
 {% include "pipeline.html" with active="upload" %}
 
 
-<script>function uploadTXT(event) {
-    event.preventDefault();
-    var Form = new FormData($('TXTform'));
-    var data = Form.get(0);
-    $.ajax({
-        url: $(this).attr('action'),
-        type: $(this).attr('method'),
-        data: data,
-        cache: false,
-        processData: false,
-        contentType: false,
-        success: function(data) {
-            alert('success');
+<script>
+    $(document).ready ( function () {
+        $("#ImageHosting").click(function (event) {
+            event.preventDefault();
+            var formData = new FormData($(this).attr('class'))
+            console.log(formData);
+            $.ajax({
+                url: $(this).attr('action'),
+                type: $(this).attr('method'),
+                data: formData,
+                cache: false,
+                processData: false,
+                contentType: false,
+                success: function(data) {
+                    console.log("success");
         }
     });
-    return false;
-    }
-    
-    $(function() {
-        $('TXTform').submit(uploadTXT);
-    });</script>
+        });
+    });
+
+    </script>
 {% endblock %}
 
 {% block body %}
@@ -44,7 +44,7 @@ Equestria: Upload
                         <div class="custom-file">
                             {% crispy upload_form %}
                             {%csrf_token%}
-                            <input type="submit" name="TXTform" value="Upload files" class="btn btn-primary" id="upload-txt-btn">
+                            <input type="submit" id="ImageHosting" value="Upload files" class="btn btn-primary">
                         </div>
                     </div>
                 </form>
@@ -54,7 +54,7 @@ Equestria: Upload
                     <div class="input-group mb-3">
                         <div class="custom-file">
                             {% csrf_token %}
-                            <input type="submit" name="TXTform" value="Continue" class="btn btn-primary" id="upload-txt-btn">
+                            <input type="submit" value="Continue" class="btn btn-primary">
                         </div>
                     </div>
                 </form>
@@ -62,14 +62,32 @@ Equestria: Upload
                 <p style="background-color: red;">There is currently a running process. You cannot start a new process.
                     First, wait for the current process to finish and reload this page.</p>
             {% endif %}
+            {% if no_txt_list %}
+                Warning! These .wav files do not have a corresponding .txt or .tg file: <br/>
+                {% for file in no_txt_list %}
+                    {{ file }}
+                {% endfor %}
+                <br/>
+            {% endif %}
+            {% if no_wav_list %}
+                Warning! These .txt or .tg files do not have a corresponding .wav file: <br/>
+                {% for file in no_wav_list %}
+                {{  file }}
+                {% endfor %}
+            {% endif %}
+
         </div>
     </div>
     <br />
 	<div class="container-fluid">
 		<div class="rounded shadow lighter padding">
-			{% for file in  files %}
-	    		<p> {{ file }} </p>
-			{% endfor %}
+            {% if files %}
+                {% for file in  files %}
+                    <p> {{ file }} </p>
+                {% endfor %}
+            {% else %}
+                <p> No files have been uploaded yet </p>
+            {% endif %}
 		</div>
 	</div>
 {% endblock %}
