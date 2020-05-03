@@ -1,4 +1,7 @@
 {% load static %}
+{% load process_check %}
+
+{% check_project project=project as project_status%}
 <nav class="mt-3 mb-3 shadow">
     <ul class="nav nav-justified">
         <li class="nav-item icon-centered {% if active == "project" %} active {% endif %}">
@@ -18,8 +21,12 @@
             <i class="fas fa-arrow-right"></i>
         </li>
         <li class="nav-item icon-centered {% if active == "dictionary" %} active {% endif %}">
-            {% if project and active != "project" and active != "upload" %}
+            {% if project and active != "project" and active != "upload" or project and project_status == "Finished" %}
                 <a class="nav-link waves-effect waves-light" href="{% url 'scripts:cd_screen' project=project %}">Check dictionary</a>
+            {% elif project and project_status == "FA" %}
+                <a class="nav-link waves-effect waves-light" href="{% url 'scripts:fa_start' project=project %}">Check dictionary</a>
+            {% elif project and project_status == "G2P" %}
+                <a class="nav-link waves-effect waves-light" href="{% url 'scripts:g2p_start' project=project %}">Check dictionary</a>
             {% else %}
                 <p class="non-link">Check dictionary</p>
             {% endif %}
@@ -28,8 +35,12 @@
             <i class="fas fa-arrow-right"></i>
         </li>
         <li class="nav-item icon-centered {% if active == "forced" %} active {% endif %}">
-            {% if project and active != "project" and active != "upload" %}
+            {% if project and active != "project" and active != "upload" or project and project_status == "Finished" %}
                 <a class="nav-link waves-effect waves-light" href="{% url 'scripts:fa_overview' project=project %}">Forced Alignment</a>
+            {% elif project and project_status == "FA" %}
+                <a class="nav-link waves-effect waves-light" href="{% url 'scripts:fa_start' project=project %}">Forced Alignment</a>
+            {% elif project and project_status == "G2P" %}
+                <a class="nav-link waves-effect waves-light" href="{% url 'scripts:g2p_start' project=project %}">Forced Alignment</a>
             {% else %}
                 <p class="non-link">Forced Alignment</p>
             {% endif %}
