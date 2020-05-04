@@ -1,0 +1,80 @@
+* What is Scallop
+Scallops are first and foremost delicious.
+When testing, we need to make sure that interactions with CLAM work as expected. It leads to undetermined tests if we use external servers and it is infeasible to run a local CLAM server just for tests, as it would cost too many precious GitHub minutes. Fear not, Scallop is the lightweight™ easy™ scalable™ solution for all your testing needs.
+Scallop is a basic python server that runs in the background and pretends to be a CLAM server by sending pre-defined status codes and replaying CLAM responses.
+* How to run tests with scallop
+Because Scallop is an actual server that occupies an actual port, only one instance of each scallop server can be run at a time. I tried to automatically start scallop before the tests, but that doesn't work all too well. Since scallop does not have an internal state, a single instance of a server can be used for all tests, there is nothing to "reset".
+Start scallop before your tests and kill it afterwards. Either run ~scallop~ in another terminal, or do everything in the same one, like so:
+#+BEGIN_SRC shell
+# Make sure you are in the CLST-2020 folder, not in equestria 
+# Also make sure you are in the poetry shell
+# Run scallop in background
+python3 equestria/testing/scallop.py &
+# Run all tests in parallel, without using a Firefox GUI
+# Remove MOZ_HEADLESS=1 is you want to see the browser do its thing
+MOZ_HEADLESS=1 python3 equestria/manage.py test equestria --parallel
+# Kill all background jobs (in Unix). If you run other background jobs, use better commands
+kill $(jobs -p)
+#+END_SRC
+* Test if everything works
+To test whether scallop works properly, follow these steps from the CLST-2020 folder
+#+BEGIN_SRC shell
+# Remove the database
+rm equestria/db.sqlite3
+# Create a new one
+python3 equestria/manage.py migrate
+# Fill it with test data
+python3 equestria/manage.py loaddata simple_pipelines
+# Run scallop in the background or in another terminal
+python3 equestria/testing/scallop.py &
+# Run the interactive Django shell
+python3 equestria/manage.py shell
+#+END_SRC
+In the shell, type the following
+#+BEGIN_SRC python
+>>> from scripts.models import Script
+>>> test = Script.objects.filter(id=1)[0]
+>>> test.hostname
+'http://localhost:12345' # The good scallop server
+>>> test.save()
+#+END_SRC
+You should see some output in the terminal you ran scallop in and the python command should have completed successfully without any output. Kill scallop and you should get an error instead
+
+* How to make scallop tests
+** Existing test servers
+By default, scallop spawns three servers. They are
+1. Sir Robert (default): A reliable server that sends outputs as expected, on port 12345
+2. Thomas (error): A server that only responds with internal server errors instead, on port 12346
+3. Jacques Benigne (ghost): A server that pretends like everything works (by sending 200s), but sends empty replies, on port 123457
+** Modifying/Writing additional scallop servers
+For every HTTP method (GET/POST/DELETE/PUT/etc) there is a corresponding do_[THAT METHOD] function in Sir Robert. For now, these methods mostly just echo the request they got.
+~self.path~ contains the URL of the request. Since our Django server uses random ids, filtering based on that URL is tricky. Should you wish to send a specific response to a certain script, consider using a separate server. To do that, simply extend Sir Robert and overwrite the functionality you need. Writing to ~self.wfile~ corresponds to sending text in the body of the request.
+There are some defined variables for easy extending:
+1. ~code~: The status code to send. 200 (OK) by default
+2. ~put_code~: The status code to send for a PUT request. 201 (CREATED) by default
+3. ~get_file~: The content of this file will be the body of the response to a get request 
+*** How to get such a GET response
+The easiest way is to use some kind of proxy software, like ZAP or Burp, visit a proper CLAM server in a browser that uses that proxy, perform the GET request you want and copy the response into some file.
+** Writing tests with scallop
+You can use scallop in tests just like you would use CLAM (that's the point). In your fixtures, make sure the hostname of a script points to a scallop server and execute functions like normal. At this stage, not all requests are handled by scallop, so you might need to writing additional servers.
+For example, to test the same as in [[file:README.org::*Test if everything works][Test if everything works]], just type a test like this:
+#+BEGIN_SRC python
+def test_safe_good(self):
+        """Test if saving works if the server cooperates."""
+        Script.objects.filter(id=1)[0].save()
+#+END_SRC
+Make sure the hostname refers to a good server.
+Testing that something does not work is a bit more tricky, since ~assertRaises()~ does not seem to work. To check for a specific error, write a test like this:
+#+BEGIN_SRC python
+def test_safe_fail(self):
+        """Test that saving does not work if the server is faulty."""
+        raises_validation_error = False
+        try:
+            Script.objects.filter(id=1)[0].save()
+        except ValidationError:
+            raises_validation_error = True
+        self.assertTrue(raises_validation_error)
+#+END_SRC
+Make sure the hostname refers to a bad server.
+* Wow, that sounds complicated. How does the CI handle it?
+Scallop is completely integrated into CI testing, so you don't need to worry about starting scallop on GH when you submit a put request. As stated above, scallop is extensible™ lightweight™ resource-friendly™ and a couple other good things, so it does not consume too many precious Github minutes (especially compared to a local CLAM server).
