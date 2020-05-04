@@ -25,6 +25,10 @@ class GenericFuncTest(StaticLiveServerTestCase):
         """Open the live server page."""
         self.driver.get(self.live_server_url)
 
+    def navigate(self, path):
+        """Open the live server page on a specified path."""
+        self.driver.get(self.live_server_url + "/" + path)
+
     def get(self, xpath):
         """
         Return an element specified by xpath.
@@ -71,9 +75,7 @@ class GenericFuncTest(StaticLiveServerTestCase):
         self.assertFalse(self._has_class(element, class_name))
 
     def login_and_go_to_start(self):
-        """
-        Sign in as new user and go to home screen.
-        """
+        """Sign in as new user and go to home screen."""
         self.get_page()
         # Click start adventure button
         self.get('//*[@id="inputGroupFileAddon02"]').click()

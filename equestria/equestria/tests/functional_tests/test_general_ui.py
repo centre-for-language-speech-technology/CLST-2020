@@ -1,5 +1,6 @@
 from equestria.tests.functional_tests.meta import GenericFuncTest
 
+
 class TestUI(GenericFuncTest):
     """Tests basic UI elements."""
 

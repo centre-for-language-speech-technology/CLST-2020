@@ -4,10 +4,10 @@
     "pk": 1,
     "fields": {
       "name": "Dutch Forced Alignment",
-      "hostname": "https://webservices-lst.science.ru.nl/forcedalignment",
+      "hostname": "http://localhost:12345",
       "description": "Dutch Forced Alignment",
       "username": "clst",
-      "password": ""
+      "password": "clst"
     }
   },
   {
@@ -15,10 +15,10 @@
     "pk": 2,
     "fields": {
       "name": "Dutch G2P service",
-      "hostname": "https://localhost:12345",
+      "hostname": "http://localhost:12345",
       "description": "Dutch G2P service",
       "username": "clst",
-      "password": ""
+      "password": "clst"
     }
   },
   {
@@ -26,10 +26,10 @@
     "pk": 3,
     "fields": {
       "name": "Frisian Forced Alignment",
-      "hostname": "https://localhost:12345",
+      "hostname": "http://localhost:12345",
       "description": "Frisian Forced Alignment",
       "username": "clst",
-      "password": ""
+      "password": "clst"
     }
   },
   {
