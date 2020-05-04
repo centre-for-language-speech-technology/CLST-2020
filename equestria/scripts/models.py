@@ -91,6 +91,19 @@ class Script(Model):
         # Remove the profiles that are now associated with this Script
         self.remove_corresponding_profiles()
 
+        default_values = dict()
+        for parameter in BaseParameter.objects.filter(
+            corresponding_script=self
+        ):
+            default_key = parameter.get_default_value()
+            if default_key is not None:
+                default_values[parameter.name] = parameter.get_default_value()
+
+        self.remove_corresponding_parameters()
+        self.generate_parameters_from_clam_data(
+            data.passparameters().keys(), data, default_values
+        )
+
         # Create new profiles associated with this script
         for profile in data.profiles:
             self.create_templates_from_data(profile.input)
@@ -98,8 +111,146 @@ class Script(Model):
         # Call the super method
         super(Script, self).save(*args, **kwargs)
 
+    def generate_parameters_from_clam_data(
+        self, parameter_names, clam_data, default_values
+    ):
+        """
+        Generate parameter objects from CLAM data and set default values for these objects.
+
+        :param parameter_names: the names of the parameters to generate
+        :param clam_data: the CLAM data
+        :param default_values: a dictionary of (parameter_name, parameter_value) pairs with default values
+        :return: None
+        """
+        for parameter_name in parameter_names:
+            parameter = clam_data.parameter(parameter_name)
+            type = BaseParameter.get_type(parameter)
+            base_parameter = BaseParameter.objects.create(
+                name=parameter_name, corresponding_script=self, type=type
+            )
+            if type == BaseParameter.BOOLEAN_TYPE:
+                param = BooleanParameter.objects.create(base=base_parameter)
+            elif type == BaseParameter.STATIC_TYPE:
+                param = StaticParameter.objects.create(base=base_parameter)
+            elif type == BaseParameter.STRING_TYPE:
+                param = StringParameter.objects.create(base=base_parameter)
+            elif type == BaseParameter.CHOICE_TYPE:
+                param = ChoiceParameter.objects.create(base=base_parameter)
+                choices = [x for _, x in parameter.choices]
+                Choice.add_choices(choices, param)
+            elif type == BaseParameter.TEXT_TYPE:
+                param = TextParameter.objects.create(base=base_parameter)
+            elif type == BaseParameter.INTEGER_TYPE:
+                param = IntegerParameter.objects.create(base=base_parameter)
+            elif type == BaseParameter.FLOAT_TYPE:
+                param = FloatParameter.objects.create(base=base_parameter)
+            else:
+                param = None
+
+            if parameter_name in default_values.keys() and param is not None:
+                param.set_preset(default_values[parameter_name])
+
+    def get_parameters(self):
+        """
+        Get all parameters for this script.
+
+        :return: a QuerySet of BaseParameter objects corresponding to this script
+        """
+        return BaseParameter.objects.filter(corresponding_script=self)
+
+    def get_variable_parameters(self):
+        """
+        Get a list of all parameters without a preset.
+
+        :return: a list of BaseParameter objects without a preset
+        """
+        parameters = self.get_parameters()
+        variable_parameters = list()
+        for parameter in parameters:
+            if parameter.get_default_value() is None:
+                variable_parameters.append(parameter)
+
+        return variable_parameters
+
+    def get_default_parameter_values(self):
+        """
+        Get a dictionary of (key, value) pairs for all default parameters.
+
+        :return: a dictionary of (parameter_name, parameter_value) pairs for all default parameters with a preset
+        """
+        parameters = self.get_parameters()
+        values = dict()
+        for parameter in parameters:
+            value = parameter.get_default_value()
+            if value is not None:
+                values[parameter.name] = value
+
+        return values
+
+    def construct_variable_parameter_values(self, parameter_dict):
+        """
+        Construct (key, value) pairs from a parameter dictionary.
+
+        Also checks if the parameters in the dictionary exist for this script and if they have valid values.
+        :param parameter_dict: a dictionary of (parameter_name, parameter_value) pairs
+        :return: a dictionary of (parameter_name, parameter_value) pairs of parameters that have valid values and exist
+        for this script
+        """
+        variable_dict = dict()
+        for parameter_name, parameter_value in parameter_dict.items():
+            try:
+                parameter = BaseParameter.objects.get(
+                    name=parameter_name, corresponding_script=self
+                )
+                value = parameter.get_corresponding_value(parameter_value)
+                if value is not None:
+                    variable_dict[parameter_name] = value
+            except BaseParameter.DoesNotExist:
+                pass
+        return variable_dict
+
+    def get_parameters_as_dict(self, preset_parameters=None):
+        """
+        Get all parameters as (key, value) pairs.
+
+        :param preset_parameters: a dictionary of (parameter_name, parameter_value) pairs for parameters without a
+        default value
+        :return: a dictionary of (parameter_name, parameter_value) pairs including all default parameters with their
+        values and the parameter presets in preset_parameters. If a parameter is in preset_parameters and has a default
+        value the preset_parameters value is overwritten
+        """
+        if preset_parameters is None:
+            preset_parameters = dict()
+
+        default_parameters = self.get_default_parameter_values()
+        variable_parameters = self.construct_variable_parameter_values(
+            preset_parameters
+        )
+
+        return {**variable_parameters, **default_parameters}
+
+    def get_unsatisfied_parameters(self, parameter_names):
+        """
+        Get all parameters without their name in parameter_names.
+
+        :param parameter_names: a list of satisfied parameter names
+        :return: a list of parameters without their names being in parameter_names
+        """
+        parameters = self.get_parameters()
+        not_satisfied = list()
+        for parameter in parameters:
+            if parameter.name not in parameter_names:
+                not_satisfied.append(parameter)
+
+        return not_satisfied
+
     def create_templates_from_data(self, input_templates):
-        """Create template objects from data."""
+        """
+        Create InputTemplate objects from CLAM input template data.
+
+        :param input_templates: a list of CLAM input template objects
+        :return: None
+        """
         new_profile = Profile.objects.create(script=self)
         for input_template in input_templates:
             InputTemplate.objects.create(
@@ -127,6 +278,17 @@ class Script(Model):
         for profile in profiles:
             profile.remove_corresponding_templates()
             profile.delete()
+
+    def remove_corresponding_parameters(self):
+        """
+        Remove all parameters corresponding to this process.
+
+        :return: None
+        """
+        parameters = BaseParameter.objects.filter(corresponding_script=self)
+        for parameter in parameters:
+            parameter.remove_corresponding_presets()
+            parameter.delete()
 
     def get_clam_server(self):
         """
@@ -258,20 +420,26 @@ class Process(Model):
         self.clam_id = clam_id
         self.save()
 
-    def start_safe(self, profile):
+    def start_safe(self, profile, parameter_values=None):
         """
         Start uploading files to CLAM and start the CLAM server in a safe way.
 
         Actually only executes the start() method and runs the cleanup() method when an exception is raised.
         :param profile: the profile to start this process with
+        :param parameter_values: a dictionary of (key, value) pairs with the parameter values to fill in, only
+        overwrites variable parameters
         :return: True when the process was started, False otherwise, raises a ValueError if there was an error with the
         input templates, raises an Exception if there was an error when uploading files to CLAM or when starting the
-        CLAM server
+        CLAM server, raises a ParameterException if one or more parameters are not satisfied
         """
         try:
-            return self.start(profile)
+            return self.start(profile, parameter_values=parameter_values)
         except ValueError as e:
             # Input template error
+            self.cleanup()
+            raise e
+        except BaseParameter.ParameterException as e:
+            # Not all parameters are satisfied
             self.cleanup()
             raise e
         except Exception as e:
@@ -279,14 +447,19 @@ class Process(Model):
             self.cleanup()
             raise e
 
-    def start(self, profile):
+    def start(self, profile, parameter_values=None):
         """
         Add inputs to clam server and starts it.
 
         :param profile: the profile to run the process with
+        :param parameter_values: a dictionary of (key, value) pairs with the parameter values to fill in, only
+        overwrites variable parameters
         :return: the status of this project, or a ValueError when an error is encountered with the uploaded files and
-        selected profile, or an Exception for CLAM errors
+        selected profile, an Exception for CLAM errors, or a ParameterException when a parameter is not satisfied
         """
+        if parameter_values is None:
+            parameter_values = dict()
+
         if self.status == STATUS_CREATED:
             self.set_status(STATUS_UPLOADING)
             self.set_clam_id(Process.get_random_clam_id())
@@ -296,29 +469,57 @@ class Process(Model):
                 corresponding_profile=profile
             )
 
-            for template in templates:
-                files = template.is_valid_for(self.folder)
-                if not files and not template.optional:
-                    raise ValueError(
-                        "No file specified for template {}".format(template)
+            merged_parameters = self.script.get_parameters_as_dict(
+                preset_parameters=parameter_values
+            )
+
+            if (
+                len(
+                    self.script.get_unsatisfied_parameters(
+                        merged_parameters.keys()
                     )
-                if files:
-                    if len(files) > 1 and template.unique:
-                        raise ValueError(
-                            "More than one file specified for unique template {}".format(
-                                template
-                            )
-                        )
-                    for file in files:
-                        full_file_path = os.path.join(self.folder, file)
-                        clamclient.addinputfile(
-                            self.clam_id, template.template_id, full_file_path
-                        )
-            clamclient.startsafe(self.clam_id)
+                )
+                != 0
+            ):
+                raise BaseParameter.ParameterException(
+                    "Not all parameters are satisfied"
+                )
+
+            self.upload_input_templates(templates)
+
+            clamclient.startsafe(self.clam_id, **merged_parameters)
             self.set_status(STATUS_RUNNING)
             return True
         else:
             return False
+
+    def upload_input_templates(self, templates):
+        """
+        Upload files corresponding to the input templates.
+
+        :param templates: a list of InputTemplate objects
+        :return: None, raises a ValueError if there is no file for the template or more than one file for a unique
+        template
+        """
+        clamclient = self.script.get_clam_server()
+        for template in templates:
+            files = template.is_valid_for(self.folder)
+            if not files and not template.optional:
+                raise ValueError(
+                    "No file specified for template {}".format(template)
+                )
+            if files:
+                if len(files) > 1 and template.unique:
+                    raise ValueError(
+                        "More than one file specified for unique template {}".format(
+                            template
+                        )
+                    )
+                for file in files:
+                    full_file_path = os.path.join(self.folder, file)
+                    clamclient.addinputfile(
+                        self.clam_id, template.template_id, full_file_path
+                    )
 
     def cleanup(self, status=STATUS_CREATED):
         """
@@ -846,35 +1047,45 @@ class Project(Model):
         """
         return self.current_process is None
 
-    def start_fa_script(self, profile):
+    def start_fa_script(self, profile, parameter_values=None):
         """
         Start the FA script with a given profile.
 
+        :param parameter_values: parameter values in (key, value) format in a dictionary
         :param profile: the profile to start FA with
         :return: the process with the started script, raises a ValueError if the files in the folder do not match the
         profile, raises an Exception if a CLAM error occurred
         """
+        if parameter_values is None:
+            parameter_values = dict()
         return self.start_script(profile, self.pipeline.fa_script)
 
-    def start_g2p_script(self, profile):
+    def start_g2p_script(self, profile, parameter_values=None):
         """
         Start the G2P script with a given profile.
 
+        :param parameter_values: parameter values in (key, value) format in a dictionary
         :param profile: the profile to start G2P with
         :return: the process with the started script, raises a ValueError if the files in the folder do not match the
         profile, raises an Exception if a CLAM error occurred
         """
+        if parameter_values is None:
+            parameter_values = dict()
         return self.start_script(profile, self.pipeline.g2p_script)
 
-    def start_script(self, profile, script):
+    def start_script(self, profile, script, parameter_values=None):
         """
         Start a new script and add the process to this project.
 
+        :param parameter_values: parameter values in (key, value) format in a dictionary
         :param profile: the profile to start the script with
         :param script: the script to start
         :return: the process with the started script, raises a ValueError if the files in the folder do not match the
         profile, raises an Exception if a CLAM error occurred
         """
+        if parameter_values is None:
+            parameter_values = dict()
+
         if (
             self.current_process is not None
             and self.current_process.script == script
@@ -890,9 +1101,14 @@ class Project(Model):
         )
         self.save()
         try:
-            self.current_process.start_safe(profile)
+            self.current_process.start_safe(
+                profile, parameter_values=parameter_values
+            )
             return self.current_process
         except ValueError as e:
+            self.cleanup()
+            raise e
+        except BaseParameter.ParameterException as e:
             self.cleanup()
             raise e
         except Exception as e:
@@ -918,3 +1134,501 @@ class Project(Model):
         """Meta class for Project model."""
 
         unique_together = ("name", "user")
+
+
+class BaseParameter(Model):
+    """Base model for a parameter object."""
+
+    BOOLEAN_TYPE = 0
+    STATIC_TYPE = 1
+    STRING_TYPE = 2
+    CHOICE_TYPE = 3
+    TEXT_TYPE = 4
+    INTEGER_TYPE = 5
+    FLOAT_TYPE = 6
+
+    TYPES = (
+        (BOOLEAN_TYPE, "Boolean"),
+        (STATIC_TYPE, "Static"),
+        (STRING_TYPE, "String"),
+        (CHOICE_TYPE, "Choice"),
+        (TEXT_TYPE, "Text"),
+        (INTEGER_TYPE, "Integer"),
+        (FLOAT_TYPE, "Float"),
+    )
+
+    name = CharField(max_length=1024)
+    corresponding_script = ForeignKey(Script, on_delete=SET_NULL, null=True)
+    preset = BooleanField(default=False)
+    type = IntegerField(choices=TYPES)
+
+    @staticmethod
+    def get_type(parameter):
+        """
+        Get the type of a CLAM parameter.
+
+        :param parameter: the CLAM parameter object
+        :return: the type of the CLAM parameter in BaseParameter.TYPES types
+        """
+        if parameter.__class__ == clam.common.parameters.BooleanParameter:
+            return BaseParameter.BOOLEAN_TYPE
+        elif parameter.__class__ == clam.common.parameters.StaticParameter:
+            return BaseParameter.STATIC_TYPE
+        elif parameter.__class__ == clam.common.parameters.StringParameter:
+            return BaseParameter.STRING_TYPE
+        elif parameter.__class__ == clam.common.parameters.ChoiceParameter:
+            return BaseParameter.CHOICE_TYPE
+        elif parameter.__class__ == clam.common.parameters.TextParameter:
+            return BaseParameter.TEXT_TYPE
+        elif parameter.__class__ == clam.common.parameters.IntegerParameter:
+            return BaseParameter.INTEGER_TYPE
+        elif parameter.__class__ == clam.common.parameters.FloatParameter:
+            return BaseParameter.FLOAT_TYPE
+        else:
+            raise TypeError("Type of parameter {} unknown".format(parameter))
+
+    def get_typed_parameter(self):
+        """
+        Get the corresponding typed parameter for this object.
+
+        :return: a typed parameter object corresponding to this object
+        """
+        try:
+            if self.type == self.BOOLEAN_TYPE:
+                return BooleanParameter.objects.get(base=self)
+            elif self.type == self.STATIC_TYPE:
+                return StaticParameter.objects.get(base=self)
+            elif self.type == self.STRING_TYPE:
+                return StringParameter.objects.get(base=self)
+            elif self.type == self.CHOICE_TYPE:
+                return ChoiceParameter.objects.get(base=self)
+            elif self.type == self.TEXT_TYPE:
+                return TextParameter.objects.get(base=self)
+            elif self.type == self.INTEGER_TYPE:
+                return IntegerParameter.objects.get(base=self)
+            elif self.type == self.FLOAT_TYPE:
+                return FloatParameter.objects.get(base=self)
+            else:
+                return None
+        except (
+            BooleanParameter.DoesNotExist,
+            StaticParameter.DoesNotExist,
+            StringParameter.DoesNotExist,
+            ChoiceParameter.DoesNotExist,
+            TextParameter.DoesNotExist,
+            IntegerParameter.DoesNotExist,
+            FloatParameter.DoesNotExist,
+        ) as e:
+            return None
+
+    def get_default_value(self):
+        """
+        Get the default value of a parameter.
+
+        :return: the default value of a parameter, None if the default value is not set
+        """
+        if not self.preset:
+            return None
+        else:
+            typed_parameter = self.get_typed_parameter()
+            if typed_parameter is not None:
+                return typed_parameter.get_value()
+            else:
+                return None
+
+    def remove_corresponding_presets(self):
+        """
+        Remove all typed parameters corresponding to this parameter.
+
+        :return: None
+        """
+        parameter_classes = [
+            BooleanParameter,
+            StaticParameter,
+            StringParameter,
+            ChoiceParameter,
+            TextParameter,
+            IntegerParameter,
+            FloatParameter,
+        ]
+        for parameter_class in parameter_classes:
+            try:
+                obj = parameter_class.objects.get(base=self)
+                if parameter_class.__class__ == ChoiceParameter:
+                    obj.remove_corresponding_choices()
+                obj.delete()
+            except parameter_class.DoesNotExist:
+                pass
+
+    def get_corresponding_value(self, value):
+        """
+        Get and check a value for this parameter.
+
+        This function receives a value and checks if it is of the same type as this parameter. If it is not, this
+        function will return None.
+        :param value: the value for this parameter, for choice types the value can either be the private key or a
+        Choice object
+        :return: the value for this parameter if the instance of the value is matching the parameter type. For
+        choice types the value is also checked against the choices and the value of the corresponding choice is
+        returned, None is returned if the type of the value does not match the type of the parameter
+        """
+        typed_parameter = self.get_typed_parameter()
+        return typed_parameter.get_corresponding_value(value)
+
+    def __str__(self):
+        """
+        Convert this model to string.
+
+        :return: the name of this model and the private key
+        """
+        return "{} ({})".format(self.name, self.pk)
+
+    class ParameterException(Exception):
+        """Exception to be thrown when a parameter error occurs."""
+
+        pass
+
+    class Meta:
+        """Meta class."""
+
+        verbose_name_plural = "Parameters"
+        verbose_name = "Parameter"
+
+
+class BooleanParameter(Model):
+    """Parameter for boolean values."""
+
+    base = OneToOneField(BaseParameter, on_delete=SET_NULL, null=True)
+    value = BooleanField(default=False, null=True, blank=True)
+
+    def get_value(self):
+        """
+        Get the current value.
+
+        :return: the current value of this parameter
+        """
+        return self.value
+
+    def get_corresponding_value(self, value):
+        """
+        Check if the value is valid for this parameter.
+
+        :param value: the value to check
+        :return: None if the value is not valid, the value otherwise
+        """
+        if isinstance(value, bool):
+            return value
+        else:
+            return None
+
+    def set_preset(self, value):
+        """
+        Set a preset for this parameter.
+
+        :param value: the value to set the preset to
+        :return: None
+        """
+        if isinstance(value, bool):
+            self.base.preset = True
+            self.base.save()
+            self.value = value
+            self.save()
+
+
+class StaticParameter(Model):
+    """Parameter for static values."""
+
+    base = OneToOneField(BaseParameter, on_delete=SET_NULL, null=True)
+    value = CharField(max_length=2048, null=True, blank=True)
+
+    def get_value(self):
+        """
+        Get the current value.
+
+        :return: the current value of this parameter
+        """
+        return self.value
+
+    def get_corresponding_value(self, value):
+        """
+        Check if the value is valid for this parameter.
+
+        :param value: the value to check
+        :return: the value of this parameter (as this is a static parameter which can not be set)
+        """
+        return self.value
+
+    def set_preset(self, value):
+        """
+        Set a preset for this parameter.
+
+        :param value: the value to set the preset to
+        :return: None
+        """
+        if isinstance(value, str):
+            self.base.preset = True
+            self.base.save()
+            self.value = value
+            self.save()
+
+
+class StringParameter(Model):
+    """Parameter for string values."""
+
+    base = OneToOneField(BaseParameter, on_delete=SET_NULL, null=True)
+    value = CharField(max_length=2048, null=True, blank=True)
+
+    def get_value(self):
+        """
+        Get the current value.
+
+        :return: the current value of this parameter
+        """
+        return self.value
+
+    def get_corresponding_value(self, value):
+        """
+        Check if the value is valid for this parameter.
+
+        :param value: the value to check
+        :return: None if the value is not valid, the value otherwise
+        """
+        if isinstance(value, str):
+            return value
+        else:
+            return None
+
+    def set_preset(self, value):
+        """
+        Set a preset for this parameter.
+
+        :param value: the value to set the preset to
+        :return: None
+        """
+        if isinstance(value, str):
+            self.base.preset = True
+            self.base.save()
+            self.value = value
+            self.save()
+
+
+class Choice(Model):
+    """Model for choices in ChoiceParameter."""
+
+    corresponding_choice_parameter = ForeignKey(
+        "ChoiceParameter", on_delete=SET_NULL, null=True
+    )
+    value = CharField(max_length=2048)
+
+    def get_value(self):
+        """
+        Get the current value.
+
+        :return: the current value of this parameter
+        """
+        return self.value
+
+    def __str__(self):
+        """
+        Convert this object to a string.
+
+        :return: the value of this object
+        """
+        return self.value
+
+    @staticmethod
+    def add_choices(choices, choice_parameter):
+        """
+        Add choices to a choice parameter.
+
+        :param choices: the choices to add as a list of values
+        :param choice_parameter: the choice parameter to add the choices to
+        :return: None
+        """
+        for value in choices:
+            Choice.objects.create(
+                corresponding_choice_parameter=choice_parameter, value=value
+            )
+
+
+class ChoiceParameter(Model):
+    """Parameter for choice values."""
+
+    base = OneToOneField(BaseParameter, on_delete=SET_NULL, null=True)
+    value = ForeignKey(Choice, on_delete=SET_NULL, null=True, blank=True)
+
+    def get_value(self):
+        """
+        Get the current value.
+
+        :return: the current value of this parameter
+        """
+        return self.value.get_value()
+
+    def get_corresponding_value(self, value):
+        """
+        Check if the value is valid for this parameter.
+
+        :param value: the value to check, can be either a Choice or a pk of a Choice
+        :return: None if the value is not valid, the value of the corresponding Choice object otherwise
+        """
+        if isinstance(value, Choice):
+            choice = value
+        else:
+            try:
+                choice = Choice.objects.get(pk=value)
+            except Choice.DoesNotExist:
+                return None
+        if choice.corresponding_choice_parameter == self:
+            return choice.value
+        else:
+            return None
+
+    def remove_corresponding_choices(self):
+        """
+        Remove the choices corresponding to this model from the database.
+
+        :return: None
+        """
+        choices = Choice.objects.filter(corresponding_choice_parameter=self)
+        for choice in choices:
+            choice.delete()
+
+    def set_preset(self, value):
+        """
+        Set a preset for this parameter.
+
+        :param value: the value to set the preset to
+        :return: None
+        """
+        if isinstance(value, str):
+            try:
+                choice = Choice.objects.get(
+                    corresponding_choice_parameter=self, value=value
+                )
+                self.value = choice
+                self.save()
+                self.base.preset = True
+                self.base.save()
+            except (Choice.MultipleObjectsReturned, Choice.DoesNotExist):
+                pass
+
+
+class TextParameter(Model):
+    """Parameter for text values."""
+
+    base = OneToOneField(BaseParameter, on_delete=SET_NULL, null=True)
+    value = TextField(null=True, blank=True)
+
+    def get_value(self):
+        """
+        Get the current value.
+
+        :return: the current value of this parameter
+        """
+        return self.value
+
+    def get_corresponding_value(self, value):
+        """
+        Check if the value is valid for this parameter.
+
+        :param value: the value to check
+        :return: None if the value is not valid, the value otherwise
+        """
+        if isinstance(value, str):
+            return value
+        else:
+            return None
+
+    def set_preset(self, value):
+        """
+        Set a preset for this parameter.
+
+        :param value: the value to set the preset to
+        :return: None
+        """
+        if isinstance(value, str):
+            self.base.preset = True
+            self.base.save()
+            self.value = value
+            self.save()
+
+
+class IntegerParameter(Model):
+    """Parameter for integer values."""
+
+    base = OneToOneField(BaseParameter, on_delete=SET_NULL, null=True)
+    value = IntegerField(null=True, blank=True)
+
+    def get_value(self):
+        """
+        Get the current value.
+
+        :return: the current value of this parameter
+        """
+        return self.value
+
+    def get_corresponding_value(self, value):
+        """
+        Check if the value is valid for this parameter.
+
+        :param value: the value to check
+        :return: None if the value is not valid, the value otherwise
+        """
+        if isinstance(value, int):
+            return value
+        else:
+            return None
+
+    def set_preset(self, value):
+        """
+        Set a preset for this parameter.
+
+        :param value: the value to set the preset to
+        :return: None
+        """
+        if isinstance(value, int):
+            self.base.preset = True
+            self.base.save()
+            self.value = value
+            self.save()
+
+
+class FloatParameter(Model):
+    """Parameter for float values."""
+
+    base = OneToOneField(BaseParameter, on_delete=SET_NULL, null=True)
+    value = FloatField(null=True, blank=True)
+
+    def get_value(self):
+        """
+        Get the current value.
+
+        :return: the current value of this parameter
+        """
+        return self.value
+
+    def get_corresponding_value(self, value):
+        """
+        Check if the value is valid for this parameter.
+
+        :param value: the value to check
+        :return: None if the value is not valid, the value otherwise
+        """
+        if isinstance(value, float):
+            return value
+        else:
+            return None
+
+    def set_preset(self, value):
+        """
+        Set a preset for this parameter.
+
+        :param value: the value to set the preset to
+        :return: None
+        """
+        if isinstance(value, float):
+            self.base.preset = True
+            self.base.save()
+            self.value = value
+            self.save()
