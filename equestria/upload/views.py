@@ -32,13 +32,13 @@ class UploadProjectView(LoginRequiredMixin, TemplateView):
         for file in files:
             if file.endswith(".txt") or file.endswith(".tg"):
                 wavname = os.path.splitext(file)[0] + ".wav"
-                if wavname not in files: 
+                if wavname not in files:
                     no_wav_list.append(file)
         for file in files:
             if file.endswith(".wav"):
                 txtname = os.path.splitext(file)[0] + ".txt"
                 tgname = os.path.splitext(file)[0] + ".tg"
-                if txtname not in files and tgname not in files: 
+                if txtname not in files and tgname not in files:
                     no_txt_list.append(file)
         context = {
             "project": project,
@@ -86,6 +86,7 @@ def upload_file_view(request, **kwargs):
             check_file_extension(project, file)
     return redirect("upload:upload_project", project=project)
 
+
 def check_file_extension(project, file):
     """
     Check the file extension of the given file.
@@ -101,6 +102,7 @@ def check_file_extension(project, file):
         save_file(project, file)
     else:
         print("Filetype not allowed")
+
 
 def save_zipped_files(project, file):
     """
