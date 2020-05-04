@@ -8,29 +8,6 @@ Equestria: Upload
 
 {% block prebody %}
 {% include "pipeline.html" with active="upload" %}
-
-
-<script>
-    $(document).ready ( function () {
-        $("#ImageHosting").click(function (event) {
-            event.preventDefault();
-            var formData = new FormData($(this).attr('class'))
-            console.log(formData);
-            $.ajax({
-                url: $(this).attr('action'),
-                type: $(this).attr('method'),
-                data: formData,
-                cache: false,
-                processData: false,
-                contentType: false,
-                success: function(data) {
-                    console.log("success");
-        }
-    });
-        });
-    });
-
-    </script>
 {% endblock %}
 
 {% block body %}
@@ -44,13 +21,14 @@ Equestria: Upload
                         <div class="custom-file">
                             {% crispy upload_form %}
                             {%csrf_token%}
-                            <input type="submit" id="ImageHosting" value="Upload files" class="btn btn-primary">
+                            <input type="submit" value="Upload files" class="btn btn-primary">
+                            {{ lol }}
                         </div>
                     </div>
                 </form>
             {% endif %}
             {% if can_start %}
-                <form class="md-form" action="" method="post" enctype="multipart/form-data">
+                <form class="md-form" method="post" enctype="multipart/form-data">
                     <div class="input-group mb-3">
                         <div class="custom-file">
                             {% csrf_token %}
@@ -65,14 +43,14 @@ Equestria: Upload
             {% if no_txt_list %}
                 Warning! These .wav files do not have a corresponding .txt or .tg file: <br/>
                 {% for file in no_txt_list %}
-                    {{ file }}
+                    {{ file }} <br/>
                 {% endfor %}
                 <br/>
             {% endif %}
             {% if no_wav_list %}
                 Warning! These .txt or .tg files do not have a corresponding .wav file: <br/>
                 {% for file in no_wav_list %}
-                {{  file }}
+                    {{ file }} <br/>
                 {% endfor %}
             {% endif %}
 
@@ -81,13 +59,12 @@ Equestria: Upload
     <br />
 	<div class="container-fluid">
 		<div class="rounded shadow lighter padding">
-            {% if files %}
-                {% for file in  files %}
-                    <p> {{ file }} </p>
-                {% endfor %}
-            {% else %}
+            <h2> Uploaded files: </h2>
+            {% for file in  files %}
+                <p> {{ file }} </p>
+            {% empty %}
                 <p> No files have been uploaded yet </p>
-            {% endif %}
+            {% endfor %}
 		</div>
 	</div>
 {% endblock %}
