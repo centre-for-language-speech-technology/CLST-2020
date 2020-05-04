@@ -174,6 +174,14 @@ version = "1.9.0"
 
 [[package]]
 category = "main"
+description = "Recursive nesting of inline forms for Django Admin"
+name = "django-nested-inline"
+optional = false
+python-versions = "*"
+version = "0.4.2"
+
+[[package]]
+category = "main"
 description = "Makes your Django tests simple and snappy"
 name = "django-nose"
 optional = false
@@ -474,7 +482,7 @@ dev = ["pytest", "pytest-timeout", "coverage", "tox", "sphinx", "pallets-sphinx-
 watchdog = ["watchdog"]
 
 [metadata]
-content-hash = "e8a721c42de09ad34fa7187723718243dd3ca8f87d5a2bb1b1b3223769ba275a"
+content-hash = "027ed51f2dc1283a210598bd4585ba13f454d78ceb1b32cf1492f85dc2ac36ac"
 python-versions = "^3.7"
 
 [metadata.files]
@@ -563,6 +571,10 @@ django-compat = [
 django-crispy-forms = [
     {file = "django-crispy-forms-1.9.0.tar.gz", hash = "sha256:67e73ac863d3159500029fbbcdcb788f287a3fd357becebc1a0b51f73896dce3"},
     {file = "django_crispy_forms-1.9.0-py2.py3-none-any.whl", hash = "sha256:50032184708ce351e3c9f0008ac35d659d9d5973fa2db218066f2e0a76eb41d9"},
+]
+django-nested-inline = [
+    {file = "django-nested-inline-0.4.2.tar.gz", hash = "sha256:45c3a91e530ec479359727be4a89ef2446e3dd6424f9574aac038ebfd55c38bf"},
+    {file = "django_nested_inline-0.4.2-py2.py3-none-any.whl", hash = "sha256:a54ea7c39ef5d82c536d2a8eb7ec375dd08f11c04853046bb24e5415a69cd3ed"},
 ]
 django-nose = [
     {file = "django-nose-1.4.6.tar.gz", hash = "sha256:58934a06a6932696e54c9e8af3fab49bf67ca9e9c840ad668cb7f51219808a07"},
