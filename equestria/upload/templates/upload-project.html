@@ -21,8 +21,7 @@ Equestria: Upload
                         <div class="custom-file">
                             {% crispy upload_form %}
                             {%csrf_token%}
-                            <input type="submit" value="Upload files" class="btn btn-primary">
-                            {{ lol }}
+                            <input id="upload" type="submit" value="Upload files" class="btn btn-primary">
                         </div>
                     </div>
                 </form>
@@ -41,14 +40,14 @@ Equestria: Upload
                     First, wait for the current process to finish and reload this page.</p>
             {% endif %}
             {% if no_txt_list %}
-                Warning! These .wav files do not have a corresponding .txt or .tg file: <br/>
+                <b> Warning! These .wav files do not have a corresponding .txt or .tg file: </b> <br/>
                 {% for file in no_txt_list %}
                     {{ file }} <br/>
                 {% endfor %}
                 <br/>
             {% endif %}
             {% if no_wav_list %}
-                Warning! These .txt or .tg files do not have a corresponding .wav file: <br/>
+                <b> Warning! These .txt or .tg files do not have a corresponding .wav file: </b> <br/>
                 {% for file in no_wav_list %}
                     {{ file }} <br/>
                 {% endfor %}
@@ -59,12 +58,14 @@ Equestria: Upload
     <br />
 	<div class="container-fluid">
 		<div class="rounded shadow lighter padding">
+            {% if files %}
             <h2> Uploaded files: </h2>
-            {% for file in  files %}
-                <p> {{ file }} </p>
-            {% empty %}
+                {% for file in  files %}
+                    <p> {{ file }} </p>
+                {% endfor %}
+            {% else %}
                 <p> No files have been uploaded yet </p>
-            {% endfor %}
+            {% endif %}
 		</div>
 	</div>
 {% endblock %}

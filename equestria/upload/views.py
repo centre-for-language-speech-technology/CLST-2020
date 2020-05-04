@@ -64,7 +64,6 @@ class UploadProjectView(LoginRequiredMixin, TemplateView):
         project = kwargs.get("project")
         if not project.can_start_new_process():
             return self.get(request, **kwargs)
-
         return redirect("scripts:fa_start_automatic", project=project)
 
 
