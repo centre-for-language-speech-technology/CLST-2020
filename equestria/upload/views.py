@@ -34,7 +34,6 @@ class UploadProjectView(LoginRequiredMixin, TemplateView):
                 wavname = os.path.splitext(file)[0] + ".wav"
                 if wavname not in files:
                     no_wav_list.append(file)
-        for file in files:
             if file.endswith(".wav"):
                 txtname = os.path.splitext(file)[0] + ".txt"
                 tgname = os.path.splitext(file)[0] + ".tg"
