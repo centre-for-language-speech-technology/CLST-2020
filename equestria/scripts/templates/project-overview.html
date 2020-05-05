@@ -30,7 +30,7 @@ Forced Alignment
             {% for project in projects %}
                 <div class="rounded shadow darker padding mb-3">
                     <h4>Name: {{ project.name }}</h4>
-                    <a class="btn btn-primary" href="{% url 'upload:upload_project' project=project %}">Go to project</a>
+                    <a class="btn btn-primary" href="{{ project.next_url }}">Go to project</a>
                 </div>
             {% endfor %}
         </div>
