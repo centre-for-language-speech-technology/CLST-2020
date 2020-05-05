@@ -5,8 +5,7 @@ from equestria.views import GenericTemplate
 from django.views.generic import TemplateView
 from django.contrib import messages
 from accounts.models import UserProfile
-from upload.models import File
-from upload.forms import UploadForm, UploadWAVForm
+from upload.forms import UploadForm
 from .forms import AudioSelectForm
 from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -172,14 +171,10 @@ class Overview(LoginRequiredMixin, GenericTemplate):
 
     def get(self, request):
         """Display files."""
-        files = File.objects.all().filter(owner=request.user.username)
-        audioSelectForm = AudioSelectForm(user=request.user)
-        wavForm = UploadWAVForm()
+        wavForm = UploadForm()
         txtForm = UploadForm()
         context = {
-            "files": files,
             "WAVform": wavForm,
             "TXTform": txtForm,
-            "audioSelect": audioSelectForm,
         }
         return render(request, self.template, context)

@@ -3,11 +3,10 @@ import os
 from django.http import Http404
 from django.shortcuts import render, redirect
 from django.views.generic import TemplateView
-from .models import File
 from .forms import UploadForm
 from django.core.files.storage import FileSystemStorage
 from django.contrib.auth.mixins import LoginRequiredMixin
-import mimetypes
+import zipfile
 
 
 class UploadProjectView(LoginRequiredMixin, TemplateView):
@@ -15,7 +14,7 @@ class UploadProjectView(LoginRequiredMixin, TemplateView):
 
     login_url = "/accounts/login/"
 
-    template_name = "upload/upload-project.html"
+    template_name = "upload-project.html"
 
     def get(self, request, **kwargs):
         """
@@ -27,12 +26,24 @@ class UploadProjectView(LoginRequiredMixin, TemplateView):
         project and a profile form if a new process can be started for the project
         """
         project = kwargs.get("project")
-        files = File.objects.filter(
-            owner=request.user.username, project=project
-        )
+        files = os.listdir(project.folder)
+        no_wav_list = []
+        no_txt_list = []
+        for file in files:
+            if file.endswith(".txt") or file.endswith(".tg"):
+                wavname = os.path.splitext(file)[0] + ".wav"
+                if wavname not in files:
+                    no_wav_list.append(file)
+            if file.endswith(".wav"):
+                txtname = os.path.splitext(file)[0] + ".txt"
+                tgname = os.path.splitext(file)[0] + ".tg"
+                if txtname not in files and tgname not in files:
+                    no_txt_list.append(file)
         context = {
             "project": project,
             "files": files,
+            "no_wav_list": no_wav_list,
+            "no_txt_list": no_txt_list,
         }
         if project.can_upload():
             context["upload_form"] = UploadForm()
@@ -52,7 +63,6 @@ class UploadProjectView(LoginRequiredMixin, TemplateView):
         project = kwargs.get("project")
         if not project.can_start_new_process():
             return self.get(request, **kwargs)
-
         return redirect("scripts:fa_start_automatic", project=project)
 
 
@@ -63,75 +73,64 @@ def upload_file_view(request, **kwargs):
     :param request: the request
     :param kwargs: keyword arguments
     :return: a redirect if the file upload succeeded, raises a StateException if the file can't be uploaded because the
-    project has a running process, raises a ValueError if the form is not valid
+    project has a running process
     """
     project = kwargs.get("project")
     if not project.can_upload():
         raise Http404("Can't upload files to this project")
     upload_form = UploadForm(request.POST, request.FILES)
-
     if upload_form.is_valid():
-        save_file(request, project)
-        return redirect("upload:upload_project", project=project)
-    else:
-        raise ValueError("File upload form invalid.")
+        uploaded_files = request.FILES.getlist("f")
+        for file in uploaded_files:
+            check_file_extension(project, file)
+    return redirect("upload:upload_project", project=project)
 
 
-def get_file_type(path):
+def check_file_extension(project, file):
     """
-    Get the file type of the uploaded file.
+    Check the file extension of the given file.
 
-    :param path: the path of the file
-    :return: the filetype
-    """
-    mime = mimetypes.guess_type(path)
-    return mime[0]
-
-
-def make_db_entry(request, path, use_for, project):
-    """
-    Create a database entry for an uploaded file.
-
-    :param request: the request
-    :param path: the path of the file
-    :param use_for: what to use the file for, either text or audio
-    :param project: the project the file belongs to
+    :param project: the project to save the file to
+    :param file: the file to be checked
     :return: None
     """
-    exists = File.objects.filter(path=path)
-    if len(exists) > 0:
-        exists[0].delete()
-    file = File()
-    file.owner = request.user.username
-    file.path = path
-    file.project = project
-    file.filetype = get_file_type(path)
-    file.usage = use_for
-    file.save()
+    ext = file.name.split(".")[-1]
+    if ext == "zip":
+        save_zipped_files(project, file)
+    elif ext in ["wav", "txt", "tg"]:
+        save_file(project, file)
+    else:
+        print("Filetype not allowed")
 
 
-def save_file(request, project):
+def save_zipped_files(project, file):
+    """
+    Save zipped files to a project.
+
+    :param project: the project to save the file to
+    :param file: the zip file
+    :return: None
+    """
+    with zipfile.ZipFile(file) as zip_file:
+        names = zip_file.namelist()
+        for name in names:
+            with zip_file.open(name) as file:
+                check_file_extension(project, file)
+
+
+def save_file(project, file):
     """
     Save a file to a project.
 
-    :param request: the request
     :param project: the project to save the file to
+    :param file: the file to be uploaded
     :return: None
     """
-    uploaded_file = request.FILES["f"]
     path = project.folder
-    save_location = os.path.join(path, uploaded_file.name)
+    save_location = os.path.join(path, file.name)
     fs = FileSystemStorage(location=path)
-
-    if fs.exists(uploaded_file.name):
+    if fs.exists(file.name):
         """Delete previously uploaded file with same name."""
         os.remove(save_location)
 
-    ext = uploaded_file.name.split(".")[-1]
-    if ext == "txt" or ext == "tg":
-        use_for = "text"
-    else:
-        use_for = "audio"
-
-    make_db_entry(request, save_location, use_for, project)
-    fs.save(uploaded_file.name, uploaded_file)
+    fs.save(file.name, file)
