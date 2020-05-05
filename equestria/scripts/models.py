@@ -901,6 +901,18 @@ class Pipeline(Model):
 class Project(Model):
     """Project model class."""
 
+    UPLOADING = 0
+    FA_RUNNING = 1
+    G2P_RUNNING = 2
+    CHECK_DICTIONARY = 3
+
+    TYPES = (
+        (UPLOADING, "Uploading"),
+        (FA_RUNNING, "FA running"),
+        (G2P_RUNNING, "G2P running"),
+        (CHECK_DICTIONARY, "Check dictionary"),
+    )
+
     name = CharField(max_length=512)
     folder = FilePathField(
         allow_folders=True, allow_files=False, path=settings.USER_DATA_FOLDER
@@ -942,6 +954,27 @@ class Project(Model):
                 os.makedirs(folder)
                 return Project.objects.create(
                     name=name, folder=folder, pipeline=pipeline, user=user
+                )
+
+    def get_next_step(self):
+        """
+        Get the project status.
+
+        :return: a value in self.TYPES indicating the project status
+        """
+        if self.current_process is None:
+            if self.finished_fa():
+                return self.CHECK_DICTIONARY
+            else:
+                return self.UPLOADING
+        else:
+            if self.current_process.script == self.pipeline.fa_script:
+                return self.FA_RUNNING
+            elif self.current_process.script == self.pipeline.g2p_script:
+                return self.G2P_RUNNING
+            else:
+                raise ValueError(
+                    "Current script process is not an FA or G2P script"
                 )
 
     def write_oov_dict_file_contents(self, content):
