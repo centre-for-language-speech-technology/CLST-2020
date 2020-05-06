@@ -14,7 +14,7 @@ class UploadProjectView(LoginRequiredMixin, TemplateView):
 
     login_url = "/accounts/login/"
 
-    template_name = "upload-project.html"
+    template_name = "upload/upload-project.html"
 
     def get(self, request, **kwargs):
         """
