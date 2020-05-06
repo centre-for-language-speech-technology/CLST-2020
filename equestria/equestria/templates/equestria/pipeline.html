@@ -6,20 +6,27 @@
 {% else %}
     {% check_project as project_status %}
 {% endif %}
-<nav class="container-fluid nav navbar-light navbar-expand-md">
-    <div class="container-fluid">
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#pipelineResponsive">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="pipelineResponsive">
+<nav class="pipeline-collapse">
+    <ul class="nav nav-justified">
+        <li class="nav-item icon-centered {% if active == "project" %} active {% endif %}">
             <a class="nav-link waves-effect waves-light" href="{% url 'scripts:projects' %}">Select project</a>
+        </li>
+        <li class="icon-centered">
             <i class="fas fa-arrow-right"></i>
+            <i class="fas fa-arrow-down"></i>
+        </li>
+        <li class="nav-item icon-centered {% if active == "upload" %} active {% endif %}">
             {% if project and active != "project" %}
                 <a class="nav-link waves-effect waves-light" href="{% url 'upload:upload_project' project=project %}">Upload files</a>
             {% else %}
                 <p class="non-link">Upload files</p>
             {% endif %}
+        </li>
+        <li class="icon-centered">
             <i class="fas fa-arrow-right"></i>
+            <i class="fas fa-arrow-down"></i>
+        </li>
+        <li class="nav-item icon-centered {% if active == "dictionary" %} active {% endif %}">
             {% if project and active != "project" and active != "upload" or project and project_status == "Finished" %}
                 <a class="nav-link waves-effect waves-light" href="{% url 'scripts:cd_screen' project=project %}">Check dictionary</a>
             {% elif project and project_status == "FA" %}
@@ -29,7 +36,12 @@
             {% else %}
                 <p class="non-link">Check dictionary</p>
             {% endif %}
+        </li>
+        <li class="icon-centered">
             <i class="fas fa-arrow-right"></i>
+            <i class="fas fa-arrow-down"></i>
+        </li>
+        <li class="nav-item icon-centered {% if active == "forced" %} active {% endif %}">
             {% if project and active != "project" and active != "upload" or project and project_status == "Finished" %}
                 <a class="nav-link waves-effect waves-light" href="{% url 'scripts:fa_overview' project=project %}">Forced Alignment</a>
             {% elif project and project_status == "FA" %}
@@ -39,19 +51,29 @@
             {% else %}
                 <p class="non-link">Forced Alignment</p>
             {% endif %}
+        </li>
+        <li class="icon-centered">
             <i class="fas fa-arrow-right"></i>
+            <i class="fas fa-arrow-down"></i>
+        </li>
+        <li class="nav-item icon-centered {% if active == "segmentation" %} active {% endif %}">
             {% if project and active != "project" and active != "upload" and active != "forced" and active != "dictionary" %}
                 <a class="nav-link waves-effect waves-light" href="{% url 'auto_segmentation' %}">Automatic Segmentation</a>
             {% else %}
                 <p class="non-link">Automatic Segmentation</p>
             {% endif %}
+        </li>
+        <li class="icon-centered">
             <i class="fas fa-arrow-right"></i>
+            <i class="fas fa-arrow-down"></i>
+        </li>
+        <li class="nav-item icon-centered {% if active == "analysis" %} active {% endif %}">
             {% if project and active != "project" and active != "upload" and active != "forced" and active != "dictionary" %}
                 <a class="nav-link waves-effect waves-light" href="#">Analysis</a>
             {% else %}
                 <p class="non-link">Analysis</p>
             {% endif %}
-        </div>
-    </div>
+        </li>
+    </ul>
 </nav>
 <link rel="stylesheet" href="{% static 'equestria/css/pipeline.css' %}">

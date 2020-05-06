@@ -10,3 +10,22 @@ p.non-link {
     padding: .5rem 1rem;
     margin: 0;
 }
+
+.pipeline-collapse ul li.icon-centered svg.fa-arrow-down {
+    display: none;
+}
+
+@media screen and (max-width: 800px) {
+    .pipeline-collapse ul li {
+        width: 100%;
+        font-size: 10pt;
+    }
+
+    .pipeline-collapse ul li.icon-centered svg.fa-arrow-right {
+        display: none;
+    }
+
+    .pipeline-collapse ul li.icon-centered svg.fa-arrow-down {
+        display: block;
+    }
+}
