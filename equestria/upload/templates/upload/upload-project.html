@@ -1,5 +1,4 @@
 {% extends 'equestria/base.html' %}
-{% load crispy_forms_tags %}
 {% load static %}
 
 {% block title %}
@@ -19,11 +18,11 @@ Equestria: Upload
                 <form class="md-form" action="{% url 'upload:upload_file' project=project %}" method="post" enctype="multipart/form-data">
                     <div class="input-group mb-3">
                         <div class="custom-file">
-                            {% crispy upload_form %}
-                            {%csrf_token%}
-                            <input id="upload" type="submit" value="Upload files" class="btn btn-primary">
+                            {{ upload_form }}
+                            {% csrf_token %}
                         </div>
                     </div>
+                    <input id="upload" type="submit" value="Upload files" class="btn btn-success">
                 </form>
             {% endif %}
             {% if can_start %}
@@ -36,7 +35,7 @@ Equestria: Upload
                     </div>
                 </form>
             {% else %}
-                <p style="background-color: red;">There is currently a running process. You cannot start a new process.
+                <p class="alert alert-danger">There is currently a running process. You cannot start a new process.
                     First, wait for the current process to finish and reload this page.</p>
             {% endif %}
             {% if no_txt_list %}
@@ -56,7 +55,7 @@ Equestria: Upload
         </div>
     </div>
     <br />
-	<div class="container-fluid">
+	<div class="container">
 		<div class="rounded lighter padding">
             {% if files %}
             <h2> Uploaded files: </h2>
