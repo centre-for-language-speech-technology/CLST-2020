@@ -616,6 +616,37 @@ class ProjectOverview(LoginRequiredMixin, TemplateView):
         )
 
 
+class ProjectDeleteView(LoginRequiredMixin, TemplateView):
+    """View for deleting projects."""
+
+    template_name = "project-delete.html"
+
+    def get(self, request, **kwargs):
+        """
+        GET request for ProjectDeleteView.
+
+        :param request: the request
+        :param kwargs: keyword arguments
+        :return: a render of the project-delete page
+        """
+        project = kwargs.get("project")
+
+        return render(request, self.template_name, {"project": project})
+
+    def post(self, request, **kwargs):
+        """
+        POST request for ProjectDeleteView.
+
+        Deletes a project and redirects to the project overview page
+        :param request: the request
+        :param kwargs: keyword arguments
+        :return: a redirect to the project overview page
+        """
+        project = kwargs.get("project")
+        project.delete()
+        return redirect("scripts:projects")
+
+
 def render_start_screen(
     request, template_name, parameter_form, script_to_start, project, profile
 ):

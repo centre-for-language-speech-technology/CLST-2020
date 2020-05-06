@@ -10,6 +10,11 @@ register_converter(ProcessConverter, "process")
 urlpatterns = [
     path("projects", ProjectOverview.as_view(), name="projects"),
     path(
+        "projects/<project:project>/delete",
+        ProjectDeleteView.as_view(),
+        name="delete_project",
+    ),
+    path(
         "fa/status/<project:project>",
         FALoadScreen.as_view(),
         name="fa_loading",
