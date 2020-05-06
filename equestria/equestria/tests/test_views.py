@@ -113,7 +113,7 @@ class TestForcedAlignment(RestrictedViewTest):
         """Test a get request."""
         self.redirects_to_login()
         self.login()
-        self.get_uses_template_and_defaults("project-overview.html")
+        self.get_uses_template_and_defaults("scripts/project-overview.html")
 
 
 class TestUpdateDictionary(RestrictedViewTest):

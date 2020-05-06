@@ -1,4 +1,6 @@
 """Module to define db models related to the upload app."""
+import shutil
+
 import pytz
 from django.core.exceptions import ValidationError
 from django.db.models import *
@@ -1157,6 +1159,17 @@ class Project(Model):
         """
         self.current_process = None
         self.save()
+
+    def delete(self, **kwargs):
+        """
+        Delete a Project.
+
+        :param kwargs: keyword arguments
+        :return: None, deletes a project and removes the folder of that project
+        """
+        if os.path.exists(self.folder):
+            shutil.rmtree(self.folder, ignore_errors=True)
+        super(Project, self).delete(**kwargs)
 
     class StateException(Exception):
         """Exception to be thrown when the project has an incorrect state."""
