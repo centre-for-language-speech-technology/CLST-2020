@@ -4,7 +4,7 @@ register = template.Library()
 
 
 @register.simple_tag
-def check_project(**kwargs):
+def project_status(**kwargs):
     """
     Check the status of a current project.
 
@@ -14,12 +14,5 @@ def check_project(**kwargs):
     """
     project = kwargs.get("project", None)
     if project is not None:
-        if project.current_process is not None:
-            if project.current_process == project.pipeline.fa_script:
-                return "FA"
-            elif project.current_process == project.pipeline.g2p_script:
-                return "G2P"
-        else:
-            if project.finished_fa():
-                return "Finished"
-    return "None"
+        return project.get_next_step()
+    return -1

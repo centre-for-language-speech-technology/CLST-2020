@@ -1,53 +1,52 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en" class="full-height">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
 
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="description" content="A Forced Alignment Pipeline">
+        <meta name="author" content="GipHouse">
 
-    <meta name="description" content="A Forced Alignment Pipeline">
-    <meta name="author" content="GipHouse">
+        <link rel="icon" type="image/png" sizes="64x64" href="{% static 'equestria/favicon/favicon-64x64.png' %}">
+        <link rel="icon" type="image/png" sizes="32x32" href="{% static 'equestria/favicon/favicon-32x32.png' %}">
 
-    <link rel="icon" type="image/png" sizes="64x64" href="{% static 'equestria/favicon/favicon-64x64.png' %}">
-    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'equestria/favicon/favicon-32x32.png' %}">
+        <title>
+        {% block title %}
+            Equestria
+        {% endblock %}
+        </title>
 
-    <title>
-      {% block title %}
-      Equestria
-      {% endblock %}
-    </title>
+        <script src="{% static 'equestria/fontawesome/js/all.min.js' %}" crossorigin="anonymous"></script>
+        <link href="https://fonts.googleapis.com/css?family=Roboto:300,400&amp;subset=cyrillic,cyrillic-ext,greek,greek-ext,latin-ext,vietnamese"
+        rel="stylesheet">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
 
-    <script src="{% static 'equestria/fontawesome/js/all.min.js' %}" crossorigin="anonymous"></script>
-    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400&amp;subset=cyrillic,cyrillic-ext,greek,greek-ext,latin-ext,vietnamese"
-    rel="stylesheet">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+        {% block style %}
+        {% endblock %}
+    </head>
+    <body id="page-top">
+        {% block header %}
+            {% include 'equestria/header.html' %}
+        {% endblock %}
+        {% block prebody %}
+        {% endblock %}
 
-    {% block style %}
-    {% endblock %}
-  </head>
-  <body id="page-top">
-  {% block header %}
-    {% include 'equestria/header.html' %}
-  {% endblock %}
-    {% block prebody %}
-    {% endblock %}
+        {% block body %}
+        {% endblock %}
 
-    {% block body %}
-    {% endblock %}
+        <script src="http://code.jquery.com/jquery-3.4.1.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
 
-    <script src="http://code.jquery.com/jquery-3.4.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
-
-    <script>
-        // Workaround for security update of jQuery 3.5.0
-        jQuery.htmlPrefilter = function( html ) {
-            return html;
-        };
-    </script>
-    {% block scripts %}
-    {% endblock %}
-  </body>
+        <script>
+            // Workaround for security update of jQuery 3.5.0
+            jQuery.htmlPrefilter = function( html ) {
+                return html;
+            };
+        </script>
+        {% block scripts %}
+        {% endblock %}
+    </body>
 </html>

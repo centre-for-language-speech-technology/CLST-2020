@@ -1,13 +1,8 @@
 {% extends 'equestria/base.html' %}
-{% load crispy_forms_tags %}
 {% load static %}
 
 {% block title %}
 Equestria: Upload
-{% endblock %}
-
-{% block prebody %}
-{% include "equestria/pipeline.html" with active="upload" %}
 {% endblock %}
 
 {% block body %}
@@ -19,8 +14,8 @@ Equestria: Upload
                 <form class="md-form" action="{% url 'upload:upload_file' project=project %}" method="post" enctype="multipart/form-data">
                     <div class="input-group mb-3">
                         <div class="custom-file">
-                            {% crispy upload_form %}
-                            {%csrf_token%}
+                            {{ upload_form }}
+                            {% csrf_token %}
                             <input id="upload" type="submit" value="Upload files" class="btn btn-primary">
                         </div>
                     </div>
