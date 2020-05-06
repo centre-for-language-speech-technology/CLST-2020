@@ -1,31 +1,33 @@
-{% extends 'base.html' %}
+{% extends 'equestria/base.html' %}
 {% load static %}
 
 {% block title %}
-Equestria: G2P status
+    Equestria: G2P status
 {% endblock %}
 
+{% block header %}
+    {% include 'equestria/header.html' with active="g2p" %}
+{% endblock %}
 
 {% block body %}
-<div class="container">
-  <div class="row">
-        <div class="col-md-7 rounded lighter padding">
-            <h3>G2P is running</h3>
-            <p class="">Status:</p>
-            <strong><p id="process-django-status"></p></strong>
-            <form class="md-form" action="" method="post">
-                    {% csrf_token %}
-                    <input type="submit" value="Continue" style="display: none;" class="btn btn-primary" id="process-continue-button">
-            </form>
-        </div>
-        <div class="col-md-1">
-        </div>
-        <div class="col-md-4 rounded lighter padding">
-            {% include "console_output.html" %}
-        </div>
-  </div>
-</div>
-
+    <div class="container">
+      <div class="row">
+            <div class="col-md-7 rounded lighter padding">
+                <h3>G2P is running</h3>
+                <p class="">Status:</p>
+                <strong><p id="process-django-status"></p></strong>
+                <form class="md-form" action="" method="post">
+                        {% csrf_token %}
+                        <input type="submit" value="Continue" style="display: none;" class="btn btn-primary" id="process-continue-button">
+                </form>
+            </div>
+            <div class="col-md-1">
+            </div>
+            <div class="col-md-4 rounded lighter padding">
+                {% include "scripts/console_output.html" %}
+            </div>
+      </div>
+    </div>
 {% endblock %}
 
 {% block scripts %}

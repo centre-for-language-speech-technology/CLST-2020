@@ -2,11 +2,11 @@
 {% load static %}
 
 {% block title %}
-Check dictionary
+    Equestria: Check dictionary
 {% endblock %}
 
-{% block prebody %}
-{% include "equestria/pipeline.html" with active="dictionary" %}
+{% block header %}
+    {% include 'equestria/header.html' with active="cd" %}
 {% endblock %}
 
 {% block body %}

@@ -2,11 +2,11 @@
 {% load static %}
 
 {% block title %}
-Equestria: Forced alignment
+    Equestria: Forced alignment overview
 {% endblock %}
 
-{% block prebody %}
-{% include "equestria/pipeline.html" with active="forced" %}
+{% block header %}
+    {% include 'equestria/header.html' with active="fa_done" %}
 {% endblock %}
 
 {% block body %}
@@ -24,9 +24,7 @@ Equestria: Forced alignment
                 <a class="btn btn-primary" href="{% url 'upload:upload_project' project=project %}">Go back to upload files</a>
                 <a class="btn btn-primary" href="{% url 'scripts:cd_screen' project=project %}">Go back to alter dictionary</a>
                 <a class="btn btn-primary" href="{% url 'scripts:project_download' project=project %}">Download project archive</a>
-                {% if success %}
-                    <a class="btn btn-green" href="{% url 'auto_segmentation' %}">Continue</a>
-                {% endif %}
+                <a class="btn btn-danger" href="{% url '' %}">Remove project</a>
             </div>
         </div>
     </div>

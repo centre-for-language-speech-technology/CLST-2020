@@ -6,7 +6,7 @@
 {% else %}
     {% project_status as project_status %}
 {% endif %}
-<nav class="navbar navbar-expand-md navbar-dark bg-dark">
+<nav class="navbar navbar-expand-md navbar-dark bg-dark mb-5">
     <a class="navbar-brand" href="/">Equestria</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive">
         <span class="navbar-toggler-icon"></span>
@@ -41,6 +41,11 @@
             <li class="nav-item">
                 <a class="nav-link {% if active == "cd" %}active{% elif project_status < 3 %}disabled{% endif %}" href="{% if project_status >= 3 %}{% url 'scripts:cd_screen' project=project %}{% endif %}">
                     5. Check dictionary
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if active == "fa_done" %}active{% elif project_status < 3 %}disabled{% endif %}" href="{% if project_status >= 3 %}{% url 'scripts:fa_overview' project=project %}{% endif %}">
+                    6. Overview
                 </a>
             </li>
             <li class="nav-item dropdown pull-right">

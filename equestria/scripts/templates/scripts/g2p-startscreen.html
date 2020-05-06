@@ -2,11 +2,11 @@
 {% load static %}
 
 {% block title %}
-Equestria: G2P Error
+    Equestria: G2P Error
 {% endblock %}
 
-{% block prebody %}
-{% include "equestria/pipeline.html" with active="dictionary" %}
+{% block header %}
+    {% include "equestria/header.html" with active="g2p" %}
 {% endblock %}
 
 {% block body %}

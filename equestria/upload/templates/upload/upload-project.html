@@ -2,7 +2,11 @@
 {% load static %}
 
 {% block title %}
-Equestria: Upload
+    Equestria: Upload files
+{% endblock %}
+
+{% block header %}
+    {% include 'equestria/header.html' with active="upload" %}
 {% endblock %}
 
 {% block body %}
