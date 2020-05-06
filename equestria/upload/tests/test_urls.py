@@ -7,8 +7,10 @@ from equestria.settings import BASE_DIR
 import wave
 import os
 
+
 class TestUrls(TestCase):
     """Check if all defined urls resolve."""
+
     fixtures = ["uploadDB"]
 
     def setUp(self):
@@ -30,7 +32,7 @@ class TestUrls(TestCase):
     def test_upload_page(self):
         """Check if upload resolves."""
         self.assertEqual(resolve(self.url).func.view_class, UploadProjectView)
-        #self.assertEquals(resolve("/upload/2/upload", upload_file_view))
+        # self.assertEquals(resolve("/upload/2/upload", upload_file_view))
         # self.name_resolves_to_class("welcome", WelcomePage)
 
     def test_redirect_before_auth(self):
@@ -64,9 +66,7 @@ class TestUrls(TestCase):
         """Test whether uploading valid files fails properly."""
         self.client.login(username="admin", password="admin")
 
-        invalid_file = open(
-            os.path.join(BASE_DIR, "test-files/test.xml"), "r"
-        )
+        invalid_file = open(os.path.join(BASE_DIR, "test-files/test.xml"), "r")
 
         data = {"f": invalid_file}
 
