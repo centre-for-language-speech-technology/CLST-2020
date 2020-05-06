@@ -31,7 +31,7 @@ Equestria: Upload
                     </div>
                 </form>
             {% else %}
-                <p style="background-color: red;">There is currently a running process. You cannot start a new process.
+                <p class="alert alert-danger">There is currently a running process. You cannot start a new process.
                     First, wait for the current process to finish and reload this page.</p>
             {% endif %}
             {% if no_txt_list %}
@@ -51,7 +51,7 @@ Equestria: Upload
         </div>
     </div>
     <br />
-	<div class="container-fluid">
+	<div class="container">
 		<div class="rounded lighter padding">
             {% if files %}
             <h2> Uploaded files: </h2>
