@@ -1,6 +1,0 @@
-
-#This is a generic configuration file for the webservice.
-#It will only be used when there is no host-specific configuration file
-#(FAclam.\$HOSTNAME.yml)
-root: /tmp/FAclam-userdata
-port: 8080
