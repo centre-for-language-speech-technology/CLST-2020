@@ -550,7 +550,7 @@ class ProjectOverview(LoginRequiredMixin, TemplateView):
 
     login_url = "/accounts/login/"
 
-    template_name = "project-overview.html"
+    template_name = "scripts/project-overview.html"
 
     @staticmethod
     def convert_to_view(project):

@@ -1,5 +1,5 @@
 {% load static %}
-<nav class="navbar navbar-expand-md navbar-dark sticky-top site-header mb-5" style="background-color: #292929;">
+<nav class="navbar navbar-expand-md navbar-light sticky-top site-header mb-5">
     <div class="container-fluid">
         <a class="navbar-brand" href="/"><img src="{% static 'equestria/img/princess_twilight2.png' %}" height="50"/></a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive">
@@ -21,14 +21,14 @@
                     {% endif %}
                 </a>
                 {% if user.is_authenticated %}
-                    <div class="dropdown-menu" style="background-color: #292929" aria-labelledby="navbarAccountMenuLink">
-                        <a class="dropdown-item" href="#">My projects</a>
+                    <div class="dropdown-menu" aria-labelledby="navbarAccountMenuLink">
+                        <a class="dropdown-item" href="{% url 'scripts:projects' %">My projects</a>
                         <a class="dropdown-item" href="{% url 'accounts:logout' %}">Log out</a>
                     </div>
                 {% else %}
-                    <div class="dropdown-menu" style="background-color: #292929" aria-labelledby="navbarAccountMenuLink">
+                    <div class="dropdown-menu" aria-labelledby="navbarAccountMenuLink">
                         <a class="dropdown-item" href="{% url 'accounts:login' %}">Log in</a>
-                        <a class="dropdown-item" href="#">Forgot password</a>
+                        <a class="dropdown-item" href="{% url 'accounts:forgot' %}">Forgot password</a>
                     </div>
                 {% endif %}
             </ul>
