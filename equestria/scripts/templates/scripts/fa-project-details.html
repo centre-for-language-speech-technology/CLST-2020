@@ -10,9 +10,9 @@ Forced Alignment: Project
 {% endblock %}
 
 {% block body %}
-<div class="container-fluid">
+<div class="container">
   <div class="row">
-    <div class="col-md-7 rounded shadow lighter padding">
+    <div class="col-md-7 rounded lighter padding">
       <h3>{{ process.name }}</h3>
       <p class="">Status:</p>
       <strong><p id="process-django-status"></p></strong>
@@ -20,14 +20,14 @@ Forced Alignment: Project
     </div>
     <div id="process-profiles" style="display: none;">
       {% for profile in profiles %}
-      <div class="rounded shadow lighter padding">
+      <div class="rounded lighter padding">
 	{% include "profile.html" with profile=profile %}
       </div>
       {% endfor %}
     </div>
     <div class="col-md-1">
     </div>
-    <div class="col-md-4 rounded shadow lighter padding">
+    <div class="col-md-4 rounded lighter padding">
       {% include "console_output.html" %}
     </div>
   </div>

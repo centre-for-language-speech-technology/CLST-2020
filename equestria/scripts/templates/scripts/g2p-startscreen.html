@@ -10,15 +10,15 @@ Equestria: G2P Error
 {% endblock %}
 
 {% block body %}
-<div class="container-fluid">
+<div class="container">
     <div class="row">
-        <div class="col rounded shadow lighter padding">
+        <div class="col rounded lighter padding">
             <h1>Failed to start G2P</h1>
             <p>{{ error }}</p>
             <a class="btn btn-primary" href="{% url "upload:upload_project" project=project %}">Go back to uploading files</a>
             {% if parameter_form %}
                 <h3>Set parameters</h3>
-                <div class="rounded shadow lighter padding mb-3">
+                <div class="rounded lighter padding mb-3">
                   <form class="md-form" method="POST">
                     {% csrf_token %}
                     <div class="input-group mb-3">

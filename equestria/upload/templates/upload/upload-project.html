@@ -11,8 +11,8 @@ Equestria: Upload
 {% endblock %}
 
 {% block body %}
-    <div class="container-fluid">
-        <div class="rounded shadow lighter padding">
+    <div class="container">
+        <div class="rounded lighter padding">
             <h1>Upload files</h1>
             {% if upload_form %}
                 <h3>Upload your files (.txt .tg .wav or .zip):</h3>
@@ -57,7 +57,7 @@ Equestria: Upload
     </div>
     <br />
 	<div class="container-fluid">
-		<div class="rounded shadow lighter padding">
+		<div class="rounded lighter padding">
             {% if files %}
             <h2> Uploaded files: </h2>
                 {% for file in  files %}

@@ -6,9 +6,9 @@ Equestria: Forced Alignment status
 {% endblock %}
 
 {% block body %}
-<div class="container-fluid">
+<div class="container">
   <div class="row">
-        <div class="col-md-7 rounded shadow lighter padding">
+        <div class="col-md-7 rounded lighter padding">
             <h3>Forced alignment is running</h3>
             <p class="">Status:</p>
             <strong><p id="process-django-status"></p></strong>
@@ -19,7 +19,7 @@ Equestria: Forced Alignment status
         </div>
         <div class="col-md-1">
         </div>
-        <div class="col-md-4 rounded shadow lighter padding">
+        <div class="col-md-4 rounded lighter padding">
             {% include "scripts/console_output.html" %}
         </div>
   </div>
