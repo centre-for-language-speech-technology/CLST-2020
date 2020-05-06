@@ -10,31 +10,33 @@ Forced Alignment
 {% endblock %}
 
 {% block body %}
-    {% if form %}
-        <div class="rounded shadow lighter padding mb-3">
-            <h3>Forced Alignment scripts</h3>
-            <div class="rounded shadow lighter padding mb-3">
-              <form class="md-form" method="POST">
-                {% csrf_token %}
-                <div class="input-group mb-3">
-                  {{ form }}
-                  <input type="submit" value="Create" class="btn btn-primary"/>
+    <div class="container">
+        {% if form %}
+            <div class="lighter padding mb-3">
+                <h3>Forced Alignment scripts</h3>
+                <div class="lighter padding mb-3">
+                  <form class="md-form" method="POST">
+                    {% csrf_token %}
+                    <div class="input-group mb-3">
+                      {{ form }}
+                      <input type="submit" value="Create" class="btn btn-primary"/>
+                    </div>
+                  </form>
                 </div>
-              </form>
             </div>
-        </div>
-    {% endif %}
-    {% if projects %}
-        <div class="rounded shadow lighter padding mb-3">
-            <h3>My projects</h3>
-            {% for project in projects %}
-                <div class="rounded shadow darker padding mb-3">
-                    <h4>Name: {{ project.name }}</h4>
-                    <a class="btn btn-primary" href="{{ project.next_url }}">Go to project</a>
-                </div>
-            {% endfor %}
-        </div>
-    {% endif %}
+        {% endif %}
+        {% if projects %}
+            <div class="lighter padding mb-3">
+                <h3>My projects</h3>
+                {% for project in projects %}
+                    <div class="darker padding mb-3">
+                        <h4>Name: {{ project.name }}</h4>
+                        <a class="btn btn-primary" href="{{ project.next_url }}">Go to project</a>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
 {% endblock %}
 
 {% block scripts %}

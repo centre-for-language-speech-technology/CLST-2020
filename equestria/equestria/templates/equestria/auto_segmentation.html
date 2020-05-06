@@ -1,4 +1,4 @@
-{% extends 'progbase.html' %}
+{% extends 'equestria/base.html' %}
 {% load static %}
 
 {% block title %}
@@ -6,7 +6,7 @@ Equestria: Automatic Segmentation
 {% endblock %}
 
 {% block prebody %}
-    {% include "pipeline.html" with active="segmentation" %}
+    {% include "equestria/pipeline.html" with active="segmentation" %}
 {% endblock %}
 
 {% block body %}

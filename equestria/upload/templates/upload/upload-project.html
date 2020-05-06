@@ -1,4 +1,4 @@
-{% extends 'progbase.html' %}
+{% extends 'equestria/base.html' %}
 {% load crispy_forms_tags %}
 {% load static %}
 
@@ -7,7 +7,7 @@ Equestria: Upload
 {% endblock %}
 
 {% block prebody %}
-{% include "pipeline.html" with active="upload" %}
+{% include "equestria/pipeline.html" with active="upload" %}
 {% endblock %}
 
 {% block body %}

@@ -70,7 +70,7 @@ class FAStartView(LoginRequiredMixin, TemplateView):
 
     login_url = "/accounts/login/"
 
-    template_name = "fa-start.html"
+    template_name = "scripts/fa-start.html"
 
     def get(self, request, **kwargs):
         """
@@ -146,7 +146,7 @@ class FAStartAutomaticView(LoginRequiredMixin, TemplateView):
 
     login_url = "/accounts/login/"
 
-    template_name = "fa-start-automatic.html"
+    template_name = "scripts/fa-start-automatic.html"
 
     def get(self, request, **kwargs):
         """
@@ -239,7 +239,7 @@ class FALoadScreen(LoginRequiredMixin, TemplateView):
 
     login_url = "/accounts/login/"
 
-    template_name = "fa-loadingscreen.html"
+    template_name = "scripts/fa-loadingscreen.html"
 
     def get(self, request, **kwargs):
         """
@@ -292,7 +292,7 @@ class FAOverview(LoginRequiredMixin, TemplateView):
 
     login_url = "/accounts/login/"
 
-    template_name = "fa-overviewpage.html"
+    template_name = "scripts/fa-overviewpage.html"
 
     def get(self, request, **kwargs):
         """
@@ -323,7 +323,7 @@ class G2PStartScreen(LoginRequiredMixin, TemplateView):
 
     login_url = "/accounts/login/"
 
-    template_name = "g2p-startscreen.html"
+    template_name = "scripts/g2p-startscreen.html"
 
     def get(self, request, **kwargs):
         """
@@ -396,7 +396,7 @@ class G2PLoadScreen(LoginRequiredMixin, TemplateView):
 
     login_url = "/accounts/login/"
 
-    template_name = "g2p-loadingscreen.html"
+    template_name = "scripts/g2p-loadingscreen.html"
 
     def get(self, request, **kwargs):
         """
@@ -449,7 +449,7 @@ class CheckDictionaryScreen(LoginRequiredMixin, TemplateView):
 
     login_url = "/accounts/login/"
 
-    template_name = "check-dictionary-screen.html"
+    template_name = "scripts/check-dictionary-screen.html"
 
     def get(self, request, **kwargs):
         """
