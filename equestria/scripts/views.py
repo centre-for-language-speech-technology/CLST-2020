@@ -81,6 +81,7 @@ class AutomaticScriptStartView(LoginRequiredMixin, TemplateView):
                     " that can be applied to this"
                     " project, please select one.",
                     "project": project,
+                    "script": script
                 },
             )
         elif len(valid_profiles) == 0:
@@ -91,6 +92,7 @@ class AutomaticScriptStartView(LoginRequiredMixin, TemplateView):
                     "message": "There are no profiles that can be applied to this"
                     " project, did you upload all required files?",
                     "project": project,
+                    "script": script
                 },
             )
         else:
@@ -135,6 +137,7 @@ class AutomaticScriptStartView(LoginRequiredMixin, TemplateView):
                     " that can be applied to this"
                     " project, please select one.",
                     "project": project,
+                    "script": script
                 },
             )
 
@@ -586,7 +589,7 @@ def render_start_screen(
     return render(
         request,
         template_name,
-        {"project": project, "error": error, "parameter_form": parameter_form,},
+        {"project": project, "error": error, "parameter_form": parameter_form, "script": script_to_start},
     )
 
 
