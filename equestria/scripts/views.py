@@ -440,26 +440,6 @@ class ProjectOverview(LoginRequiredMixin, TemplateView):
 
     template_name = "scripts/project-overview.html"
 
-    @staticmethod
-    def convert_to_view(project):
-        """
-        Get the view corresponding to the current project status of a project.
-
-        :param project: the project
-        :return: a reverse of the view that the user last left the project with
-        """
-        next_step = project.get_next_step()
-        if next_step == Project.UPLOADING:
-            return reverse("upload:upload_project", kwargs={"project": project})
-        elif next_step == Project.FA_RUNNING:
-            return reverse("scripts:loading", kwargs={"project": project, "script": project.pipeline.fa_script})
-        elif next_step == Project.G2P_RUNNING:
-            return reverse("scripts:loading", kwargs={"project": project, "script": project.pipeline.g2p_script})
-        elif next_step == Project.CHECK_DICTIONARY:
-            return reverse("scripts:cd_screen", kwargs={"project": project})
-        else:
-            raise ValueError("Value of next_step unknown")
-
     def get(self, request, **kwargs):
         """
         Handle requests to the project create page.
@@ -471,8 +451,6 @@ class ProjectOverview(LoginRequiredMixin, TemplateView):
         pipelines = Pipeline.objects.all()
         form = ProjectCreateForm(request.user, None, pipelines=pipelines)
         projects = Project.objects.filter(user=request.user.id)
-        for project in projects:
-            project.next_url = ProjectOverview.convert_to_view(project)
         return render(
             request, self.template_name, {"form": form, "projects": projects},
         )
