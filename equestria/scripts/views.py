@@ -540,20 +540,15 @@ def render_start_screen(
         else:
             project.start_script(profile, script_to_start)
         return redirect(redirect_link, project=project, script=script_to_start)
-    except BaseParameter.ParameterException as e:
-        logging.error(e)
+    except BaseParameter.ParameterException:
         error = "Not all script parameters are filled in"
-    except Project.StateException as e:
-        logging.error(e)
+    except Project.StateException:
         error = "There is already a running process for this project"
-    except Profile.IncorrectProfileException as e:
-        logging.error(e)
+    except Profile.IncorrectProfileException:
         error = "Invalid profile for running this script"
-    except ValueError as e:
-        logging.error(e)
+    except ValueError:
         error = "Error while starting the process, make sure all input files are specified"
-    except Exception as e:
-        logging.error(e)
+    except Exception:
         error = "Error while uploading files to CLAM, please try again later"
 
     return render(

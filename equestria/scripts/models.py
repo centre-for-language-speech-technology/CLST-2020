@@ -436,11 +436,7 @@ class Process(Model):
         CLAM server, raises a ParameterException if one or more parameters are not satisfied
         """
         try:
-            if self.start(profile, parameter_values=parameter_values):
-                update_script(self.pk)
-                return True
-            else:
-                return False
+            return self.start(profile, parameter_values=parameter_values)
         except ValueError as e:
             # Input template error
             self.cleanup()
@@ -496,6 +492,7 @@ class Process(Model):
 
             clamclient.startsafe(self.clam_id, **merged_parameters)
             self.set_status(STATUS_RUNNING)
+            update_script(self.pk)
             return True
         else:
             return False
@@ -1119,15 +1116,9 @@ class Project(Model):
         :return: the process with the started script, raises a ValueError if the files in the folder do not match the
         profile, raises an Exception if a CLAM error occurred
         """
-        if parameter_values is None:
-            parameter_values = dict()
+        parameter_values = dict() if parameter_values is None else parameter_values
 
-        if (
-            self.current_process is not None
-            and self.current_process.script == script
-        ):
-            return self.current_process
-        elif not self.can_start_new_process():
+        if not self.can_start_new_process():
             raise Project.StateException
         elif profile.script != script:
             raise Profile.IncorrectProfileException
@@ -1141,12 +1132,6 @@ class Project(Model):
                 profile, parameter_values=parameter_values
             )
             return self.current_process
-        except ValueError as e:
-            self.cleanup()
-            raise e
-        except BaseParameter.ParameterException as e:
-            self.cleanup()
-            raise e
         except Exception as e:
             self.cleanup()
             raise e
