@@ -180,15 +180,19 @@ class ScriptStartView(LoginRequiredMixin, TemplateView):
         )
         parameter_form = ParameterForm(variable_parameters)
 
-        return render_start_screen(
-            request,
-            self.template_name,
-            parameter_form,
+        started, error = start_script_get_error(
             script,
             project,
             profile,
-            redirect_link
         )
+        if started:
+            return redirect(redirect_link, project=project, script=script)
+        else:
+            return render(
+                request,
+                self.template_name,
+                {"project": project, "error": error, "parameter_form": parameter_form, "script": script},
+            )
 
     def post(self, request, **kwargs):
         """
@@ -216,15 +220,20 @@ class ScriptStartView(LoginRequiredMixin, TemplateView):
         else:
             parameter_form = None
 
-        return render_start_screen(
-            request,
-            self.template_name,
-            parameter_form,
+        started, error = start_script_get_error(
             script,
             project,
             profile,
-            redirect_link
+            parameters=parameter_form.cleaned_data if parameter_form.is_valid() else None
         )
+        if started:
+            return redirect(redirect_link, project=project, script=script)
+        else:
+            return render(
+                request,
+                self.template_name,
+                {"project": project, "error": error, "parameter_form": parameter_form, "script": script},
+            )
 
 
 class ScriptLoadScreen(LoginRequiredMixin, TemplateView):
@@ -513,17 +522,15 @@ class ProjectDeleteView(LoginRequiredMixin, TemplateView):
         return redirect("scripts:projects")
 
 
-def render_start_screen(
-    request, template_name, parameter_form, script_to_start, project, profile, redirect_link
+def start_script_get_error(
+    script_to_start, project, profile, parameters=None
 ):
     """
     Render a start screen.
 
     This method is used by the FA start screen and the G2P start screen. This method tries to start a script and return
     the process on success.
-    :param request: the request
-    :param template_name: the template to render (this must be a start screen template)
-    :param parameter_form: a form for setting variable parameters
+    :param parameters: a form for setting variable parameters
     :param script_to_start: the script to start
     :param project: the project to use
     :param profile: the profile to use
@@ -531,15 +538,15 @@ def render_start_screen(
     corresponding error message if starting of the script failed
     """
     try:
-        if parameter_form is not None and parameter_form.is_valid():
+        if parameters is not None:
             project.start_script(
                 profile,
                 script_to_start,
-                parameter_values=parameter_form.cleaned_data,
+                parameter_values=parameters,
             )
         else:
             project.start_script(profile, script_to_start)
-        return redirect(redirect_link, project=project, script=script_to_start)
+        return True, ""
     except BaseParameter.ParameterException:
         error = "Not all script parameters are filled in"
     except Project.StateException:
@@ -551,11 +558,7 @@ def render_start_screen(
     except Exception:
         error = "Error while uploading files to CLAM, please try again later"
 
-    return render(
-        request,
-        template_name,
-        {"project": project, "error": error, "parameter_form": parameter_form, "script": script_to_start},
-    )
+    return False, error
 
 
 def download_project_archive(request, **kwargs):
