@@ -810,18 +810,16 @@ class InputTemplate(Model):
         :param folder: the folder to search for the file
         :return: True if at least one file is found with the extension from this object, False otherwise
         """
-        # Optional: File type not required
-        # Unique: Only one file of that type in dir
-        # Accept Archive: can upload .zip
-        if self.unique:
-            i = 0
-            for file in os.listdir(folder):
-                if file.endswith(self.extension):
-                    i += 1
-            if self.optional:
-                return i == 1 or i == 0
-            else:
-                return i == 1
+        matching_files = 0
+        for file in os.listdir(folder):
+            if file.endswith(self.extension):
+                matching_files += 1
+        if matching_files == 0 and not self.optional:
+            return False
+        elif matching_files > 1 and self.unique:
+            return False
+        else:
+            return True
 
     def is_valid_for(self, folder):
         """
@@ -1168,6 +1166,15 @@ class Project(Model):
         if os.path.exists(self.folder):
             shutil.rmtree(self.folder, ignore_errors=True)
         super(Project, self).delete(**kwargs)
+
+    def is_project_script(self, script):
+        """
+        Check if a script corresponds to this project.
+
+        :param script: the script to check
+        :return: True if it corresponds to this project, False otherwise
+        """
+        return script == self.pipeline.fa_script or script == self.pipeline.g2p_script
 
     class StateException(Exception):
         """Exception to be thrown when the project has an incorrect state."""

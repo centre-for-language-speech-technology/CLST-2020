@@ -29,12 +29,12 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link {% if active == "fa" %}active{% elif project_status < 1 %}disabled{% endif %}" href="{% if project_status >= 1 %}{% url 'scripts:fa_loading' project=project %}{% endif %}">
+                <a class="nav-link {% if active == "fa" %}active{% elif project_status < 1 %}disabled{% endif %}" href="{% if project_status >= 1 %}{% url 'scripts:loading' project=project script=project.pipeline.fa_script %}{% endif %}">
                     3. Forced Alignment
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link {% if active == "g2p" %}active{% elif project_status < 2 %}disabled{% endif %}" href="{% if project_status >= 2 %}{% url 'scripts:g2p_loading' project=project %}{% endif %}">
+                <a class="nav-link {% if active == "g2p" %}active{% elif project_status < 2 %}disabled{% endif %}" href="{% if project_status >= 2 %}{% url 'scripts:loading' project=project script=project.pipeline.g2p_script %}{% endif %}">
                     4. Grapheen to Phoneme
                 </a>
             </li>

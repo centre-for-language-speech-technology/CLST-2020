@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block title %}
-    Equestria: Forced Alignment Automatic start Error
+    Equestria: Start automatic Error
 {% endblock %}
 
 {% block header %}
@@ -14,7 +14,7 @@
         <div class="row">
             <div class="col rounded lighter padding">
                 <h1>Failed to automatically start Forced Alignment</h1>
-                <p style="background-color: red;">{{ message }}</p>
+                <p class="alert alert-danger">{{ message }}</p>
                 {% if form %}
                     <form class="md-form" action="" method="post">
                         <div class="input-group mb-3">

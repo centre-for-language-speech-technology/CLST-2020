@@ -35,113 +35,20 @@ class FARedirect(LoginRequiredMixin, TemplateView):
         """
         project = kwargs.get("project")
 
-        if project.can_start_new_process():
-            if project.has_non_empty_extension_file([".oov"]):
-                try:
-                    profile = Profile.objects.get(
-                        script=project.pipeline.g2p_script
-                    )
-                except Profile.MultipleObjectsReturned:
-                    # TODO: Make a nice error screen
-                    raise Profile.MultipleObjectsReturned
-                return redirect(
-                    "scripts:g2p_start", project=project, profile=profile,
-                )
-            else:
-                return redirect("scripts:cd_screen", project=project)
-        elif (
-            project.current_process is not None
-            and project.current_process.script == project.pipeline.g2p_script
-        ):
-            return redirect(
-                "scripts:g2p_loading", project=project
-            )
+        if project.has_non_empty_extension_file([".oov"]) and project.can_start_new_process():
+            return redirect("scripts:start_automatic", project, project.pipeline.g2p_script)
+        elif project.can_start_new_process():
+            return redirect("scripts:cd_screen", project=project)
         else:
-            raise Project.StateException
+            return render(request, self.template_name)
 
 
-class FAStartView(LoginRequiredMixin, TemplateView):
-    """Start view for Forced Alignment."""
+class AutomaticScriptStartView(LoginRequiredMixin, TemplateView):
+    """Automatic start view for scripts."""
 
-    login_url = "/accounts/login/"
+    login_url = "/accounts/login"
 
-    template_name = "scripts/fa-start.html"
-
-    def get(self, request, **kwargs):
-        """
-        GET method for the start screen of FA.
-
-        :param request: the request
-        :param kwargs: the keyword arguments
-        :return: a redirect to the fa loading screen if the process could be started successfully, returns a render of
-        the fa-startscreen.html template with an error message if an error occurred
-        """
-        project = kwargs.get("project")
-        profile = kwargs.get("profile")
-
-        variable_parameters = (
-            project.pipeline.fa_script.get_variable_parameters()
-        )
-        if len(variable_parameters) > 0:
-            parameter_form = ParameterForm(variable_parameters)
-        else:
-            parameter_form = None
-
-        process_or_view = render_start_screen(
-            request,
-            self.template_name,
-            parameter_form,
-            project.pipeline.fa_script,
-            project,
-            profile,
-        )
-        if isinstance(process_or_view, Process):
-            update_script(process_or_view.id)
-            return redirect("scripts:fa_loading", project=project)
-        else:
-            return process_or_view
-
-    def post(self, request, **kwargs):
-        """
-        POST method for the start screen of FA.
-
-        :param request: the request
-        :param kwargs: the keyword arguments
-        :return: a redirect to the fa loading screen if the process could be started successfully, returns a render of
-        the fa-startscreen.html template with an error message if an error occurred
-        """
-        project = kwargs.get("project")
-        profile = kwargs.get("profile")
-
-        variable_parameters = (
-            project.pipeline.fa_script.get_variable_parameters()
-        )
-        if len(variable_parameters) > 0:
-            parameter_form = ParameterForm(variable_parameters, request.POST)
-        else:
-            parameter_form = None
-
-        process_or_view = render_start_screen(
-            request,
-            self.template_name,
-            parameter_form,
-            project.pipeline.fa_script,
-            project,
-            profile,
-        )
-        if isinstance(process_or_view, Process):
-            update_script(process_or_view.id)
-            return redirect("scripts:fa_loading", project=project)
-        else:
-            return process_or_view
-
-
-class FAStartAutomaticView(LoginRequiredMixin, TemplateView):
-    """Automatic start view for Forced Alignment."""
-
-    login_url = "/accounts/login/"
-
-    template_name = "scripts/fa-start-automatic.html"
+    template_name = "scripts/start-automatic.html"
 
     def get(self, request, **kwargs):
         """
@@ -149,11 +56,16 @@ class FAStartAutomaticView(LoginRequiredMixin, TemplateView):
 
         :param request: the request
         :param kwargs: the keyword arguments
-        :return: a redirect to the fa start view if only one profile matches, otherwise a form to select a profile for
-        the user
+        :return: a redirect to the script start view if only one profile matches, otherwise a form to select a profile
+        for the user
         """
         project = kwargs.get("project")
-        valid_profiles = project.pipeline.fa_script.get_valid_profiles(
+        script = kwargs.get("script")
+
+        if not project.is_project_script(script):
+            raise ValueError("Script is not a project script")
+
+        valid_profiles = script.get_valid_profiles(
             project.folder
         )
         if len(valid_profiles) > 1:
@@ -184,7 +96,7 @@ class FAStartAutomaticView(LoginRequiredMixin, TemplateView):
         else:
             profile = valid_profiles[0]
             return redirect(
-                "scripts:fa_start", project=project, profile=profile
+                "scripts:start", project=project, profile=profile, script=script
             )
 
     def post(self, request, **kwargs):
@@ -197,17 +109,21 @@ class FAStartAutomaticView(LoginRequiredMixin, TemplateView):
         for the user
         """
         project = kwargs.get("project")
+        script = kwargs.get("script")
+
+        if not project.is_project_script(script):
+            raise ValueError("Script is not a project script")
+
         valid_profiles = project.pipeline.fa_script.get_valid_profiles(
             project.folder
         )
-
         profile_form = ProfileSelectForm(request.POST, profiles=valid_profiles)
         if profile_form.is_valid():
             profile = Profile.objects.get(
                 pk=profile_form.cleaned_data.get("profile")
             )
             return redirect(
-                "scripts:fa_start", project=project, profile=profile
+                "scripts:start", project=project, profile=profile, script=script
             )
         else:
             return render(
@@ -223,7 +139,101 @@ class FAStartAutomaticView(LoginRequiredMixin, TemplateView):
             )
 
 
-class FALoadScreen(LoginRequiredMixin, TemplateView):
+class ScriptStartView(LoginRequiredMixin, TemplateView):
+    """Start screen for a script."""
+
+    login_url = "/accounts/login/"
+
+    template_name = "scripts/start-screen.html"
+
+    @staticmethod
+    def get_redirect_link(project, script):
+        if script == project.pipeline.fa_script:
+            return "scripts:loading"
+        elif script == project.pipeline.g2p_script:
+            return "scripts:loading"
+        else:
+            raise ValueError("Script is not FA script or G2P script")
+
+    def get(self, request, **kwargs):
+        """
+        GET method for the start screen of G2P.
+
+        :param request: the request
+        :param kwargs: the keyword arguments
+        :return: a redirect to the g2p loading screen if the process could be started successfully, returns a render of
+        the g2p-start-screen.html template with an error message if an error occurred
+        """
+        project = kwargs.get("project")
+        profile = kwargs.get("profile")
+        script = kwargs.get("script")
+
+        if not project.is_project_script(script):
+            raise ValueError("Script is not a project script")
+
+        redirect_link = self.get_redirect_link(project, script)
+
+        variable_parameters = (
+            script.get_variable_parameters()
+        )
+        parameter_form = ParameterForm(variable_parameters)
+
+        process_or_view = render_start_screen(
+            request,
+            self.template_name,
+            parameter_form,
+            script,
+            project,
+            profile,
+        )
+        if isinstance(process_or_view, Process):
+            update_script(process_or_view.id)
+            return redirect(redirect_link, project=project, script=script)
+        else:
+            return process_or_view
+
+    def post(self, request, **kwargs):
+        """
+        POST method for the start screen of G2P.
+
+        :param request: the request
+        :param kwargs: the keyword arguments
+        :return: a redirect to the g2p loading screen if the process could be started successfully, returns a render of
+        the g2p-start-screen.html template with an error message if an error occurred
+        """
+        project = kwargs.get("project")
+        profile = kwargs.get("profile")
+        script = kwargs.get("script")
+
+        if not project.is_project_script(script):
+            raise ValueError("Script is not a project script")
+
+        redirect_link = self.get_redirect_link(project, script)
+
+        variable_parameters = (
+            script.get_variable_parameters()
+        )
+        if len(variable_parameters) > 0:
+            parameter_form = ParameterForm(variable_parameters, request.POST)
+        else:
+            parameter_form = None
+
+        process_or_view = render_start_screen(
+            request,
+            self.template_name,
+            parameter_form,
+            script,
+            project,
+            profile,
+        )
+        if isinstance(process_or_view, Process):
+            update_script(process_or_view.id)
+            return redirect(redirect_link, project=project)
+        else:
+            return process_or_view
+
+
+class ScriptLoadScreen(LoginRequiredMixin, TemplateView):
     """
     Loading indicator for Forced Alignment.
 
@@ -234,7 +244,16 @@ class FALoadScreen(LoginRequiredMixin, TemplateView):
 
     login_url = "/accounts/login/"
 
-    template_name = "scripts/fa-loadingscreen.html"
+    template_name = "scripts/loadingscreen.html"
+
+    @staticmethod
+    def get_continue_link(project, script):
+        if script == project.pipeline.fa_script:
+            return "scripts:fa_redirect"
+        elif script == project.pipeline.g2p_script:
+            return "scripts:cd_screen"
+        else:
+            raise ValueError("Script does not correspond to project")
 
     def get(self, request, **kwargs):
         """
@@ -245,11 +264,15 @@ class FALoadScreen(LoginRequiredMixin, TemplateView):
         :return: a render of the fa loading screen
         """
         project = kwargs.get("project")
+        script = kwargs.get("script")
+
+        if not project.is_project_script(script):
+            raise ValueError("Script is not a project script")
 
         return render(
             request,
             self.template_name,
-            {"project": project},
+            {"project": project, "script": script},
         )
 
     def post(self, request, **kwargs):
@@ -263,16 +286,23 @@ class FALoadScreen(LoginRequiredMixin, TemplateView):
         process of the project is not finished yet, this function raises a Project.StateException
         """
         project = kwargs.get("project")
+        script = kwargs.get("script")
+
+        if not project.is_project_script(script):
+            raise ValueError("Script is not a project script")
+
+        continue_link = self.get_continue_link(project, script)
+
         if project.current_process is None:
-            return redirect("scripts:fa_redirect", project=project)
-        if project.current_process.script != project.pipeline.fa_script:
+            return redirect(continue_link, project=project)
+        if project.current_process.script != script:
             raise Project.StateException(
-                "Current project script is no forced alignment script"
+                "Current project script is not the corresponding script"
             )
 
         if project.current_process.is_finished():
             project.cleanup()
-            return redirect("scripts:fa_redirect", project=project)
+            return redirect(continue_link, project=project)
         else:
             raise Project.StateException("Current process is not finished yet")
 
@@ -306,127 +336,6 @@ class FAOverview(LoginRequiredMixin, TemplateView):
                 self.template_name,
                 {"success": False, "project": project},
             )
-
-
-class G2PStartScreen(LoginRequiredMixin, TemplateView):
-    """Start screen of the g2p."""
-
-    login_url = "/accounts/login/"
-
-    template_name = "scripts/g2p-startscreen.html"
-
-    def get(self, request, **kwargs):
-        """
-        GET method for the start screen of G2P.
-
-        :param request: the request
-        :param kwargs: the keyword arguments
-        :return: a redirect to the g2p loading screen if the process could be started successfully, returns a render of
-        the g2p-startscreen.html template with an error message if an error occurred
-        """
-        project = kwargs.get("project")
-        profile = kwargs.get("profile")
-
-        variable_parameters = (
-            project.pipeline.g2p_script.get_variable_parameters()
-        )
-        parameter_form = ParameterForm(variable_parameters)
-
-        process_or_view = render_start_screen(
-            request,
-            self.template_name,
-            parameter_form,
-            project.pipeline.g2p_script,
-            project,
-            profile,
-        )
-        if isinstance(process_or_view, Process):
-            update_script(process_or_view.id)
-            return redirect("scripts:g2p_loading", project=project)
-        else:
-            return process_or_view
-
-    def post(self, request, **kwargs):
-        """
-        POST method for the start screen of G2P.
-
-        :param request: the request
-        :param kwargs: the keyword arguments
-        :return: a redirect to the g2p loading screen if the process could be started successfully, returns a render of
-        the g2p-startscreen.html template with an error message if an error occurred
-        """
-        project = kwargs.get("project")
-        profile = kwargs.get("profile")
-
-        variable_parameters = (
-            project.pipeline.g2p_script.get_variable_parameters()
-        )
-        if len(variable_parameters) > 0:
-            parameter_form = ParameterForm(variable_parameters, request.POST)
-        else:
-            parameter_form = None
-
-        process_or_view = render_start_screen(
-            request,
-            self.template_name,
-            parameter_form,
-            project.pipeline.g2p_script,
-            project,
-            profile,
-        )
-        if isinstance(process_or_view, Process):
-            update_script(process_or_view.id)
-            return redirect("scripts:g2p_loading", project=project)
-        else:
-            return process_or_view
-
-
-class G2PLoadScreen(LoginRequiredMixin, TemplateView):
-    """Loading screen, where the g2p is run as well."""
-
-    login_url = "/accounts/login/"
-
-    template_name = "scripts/g2p-loadingscreen.html"
-
-    def get(self, request, **kwargs):
-        """
-        GET request for loading page.
-
-        :param request: the request
-        :param kwargs: keyword arguments
-        :return: a render of the fa loading screen
-        """
-        project = kwargs.get("project")
-
-        return render(
-            request,
-            self.template_name,
-            {"project": project},
-        )
-
-    def post(self, request, **kwargs):
-        """
-        POST request for the loading page.
-
-        :param request: the request
-        :param kwargs: keyword arguments
-        :return: removes a finished process from a project and then redirects to the change dictionary screen. If the
-        project has no running process, the user will be redirected to the change dictionary screen as well. If the
-        process of the project is not finished yet, this function raises a Project.StateException
-        """
-        project = kwargs.get("project")
-        if project.current_process is None:
-            return redirect("scripts:cd_screen", project=project)
-        if project.current_process.script != project.pipeline.g2p_script:
-            raise Project.StateException(
-                "Current project script is no g2p script"
-            )
-
-        if project.current_process.is_finished():
-            project.cleanup()
-            return redirect("scripts:cd_screen", project=project)
-        else:
-            raise Project.StateException("Current process is not finished yet")
 
 
 class CheckDictionaryScreen(LoginRequiredMixin, TemplateView):
@@ -549,9 +458,9 @@ class ProjectOverview(LoginRequiredMixin, TemplateView):
         if next_step == Project.UPLOADING:
             return reverse("upload:upload_project", kwargs={"project": project})
         elif next_step == Project.FA_RUNNING:
-            return reverse("scripts:fa_loading", kwargs={"project": project})
+            return reverse("scripts:loading", kwargs={"project": project, "script": project.pipeline.fa_script})
         elif next_step == Project.G2P_RUNNING:
-            return reverse("scripts:g2p_loading", kwargs={"project": project})
+            return reverse("scripts:loading", kwargs={"project": project, "script": project.pipeline.g2p_script})
         elif next_step == Project.CHECK_DICTIONARY:
             return reverse("scripts:cd_screen", kwargs={"project": project})
         else:

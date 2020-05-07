@@ -63,7 +63,7 @@ class UploadProjectView(LoginRequiredMixin, TemplateView):
         project = kwargs.get("project")
         if not project.can_start_new_process():
             return self.get(request, **kwargs)
-        return redirect("scripts:fa_start_automatic", project=project)
+        return redirect("scripts:start_automatic", project=project, script=project.pipeline.fa_script)
 
 
 def upload_file_view(request, **kwargs):

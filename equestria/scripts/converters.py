@@ -1,5 +1,30 @@
 from django.urls.converters import IntConverter
-from .models import Project, Profile, Process
+from .models import Project, Profile, Process, Script
+
+
+class ScriptConverter(IntConverter):
+    """Converter for Script model."""
+
+    def to_python(self, value):
+        """
+        Cast integer to Script.
+
+        :param value: the public key of the Script
+        :return: a Script or ValueError
+        """
+        try:
+            return Script.objects.get(id=int(value))
+        except Script.DoesNotExist:
+            raise ValueError
+
+    def to_url(self, obj):
+        """
+        Cast an object of Script to a string.
+
+        :param obj: the Script object
+        :return: the public key of the Script object in string format
+        """
+        return str(obj.pk)
 
 
 class ProjectConverter(IntConverter):
