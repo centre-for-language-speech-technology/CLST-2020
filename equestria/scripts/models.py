@@ -16,6 +16,7 @@ import secrets
 from django.contrib.auth import get_user_model
 import zipfile
 from .services import zip_dir
+from .tasks import update_script
 
 # Create your models here.
 
@@ -435,7 +436,11 @@ class Process(Model):
         CLAM server, raises a ParameterException if one or more parameters are not satisfied
         """
         try:
-            return self.start(profile, parameter_values=parameter_values)
+            if self.start(profile, parameter_values=parameter_values):
+                update_script(self.pk)
+                return True
+            else:
+                return False
         except ValueError as e:
             # Input template error
             self.cleanup()
@@ -1084,7 +1089,7 @@ class Project(Model):
         """
         return self.current_process is None
 
-    def start_fa_script(self, profile):
+    def start_fa_script(self, profile, **kwargs):
         """
         Start the FA script with a given profile.
 
@@ -1092,9 +1097,9 @@ class Project(Model):
         :return: the process with the started script, raises a ValueError if the files in the folder do not match the
         profile, raises an Exception if a CLAM error occurred
         """
-        return self.start_script(profile, self.pipeline.fa_script)
+        return self.start_script(profile, self.pipeline.fa_script, **kwargs)
 
-    def start_g2p_script(self, profile):
+    def start_g2p_script(self, profile, **kwargs):
         """
         Start the G2P script with a given profile.
 
@@ -1102,7 +1107,7 @@ class Project(Model):
         :return: the process with the started script, raises a ValueError if the files in the folder do not match the
         profile, raises an Exception if a CLAM error occurred
         """
-        return self.start_script(profile, self.pipeline.g2p_script)
+        return self.start_script(profile, self.pipeline.g2p_script, **kwargs)
 
     def start_script(self, profile, script, parameter_values=None):
         """

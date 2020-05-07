@@ -12,7 +12,6 @@ from .forms import (
     ProfileSelectForm,
     ParameterForm,
 )
-from .tasks import update_script
 import logging
 from django.urls import reverse
 
@@ -181,19 +180,15 @@ class ScriptStartView(LoginRequiredMixin, TemplateView):
         )
         parameter_form = ParameterForm(variable_parameters)
 
-        process_or_view = render_start_screen(
+        return render_start_screen(
             request,
             self.template_name,
             parameter_form,
             script,
             project,
             profile,
+            redirect_link
         )
-        if isinstance(process_or_view, Process):
-            update_script(process_or_view.id)
-            return redirect(redirect_link, project=project, script=script)
-        else:
-            return process_or_view
 
     def post(self, request, **kwargs):
         """
@@ -221,19 +216,15 @@ class ScriptStartView(LoginRequiredMixin, TemplateView):
         else:
             parameter_form = None
 
-        process_or_view = render_start_screen(
+        return render_start_screen(
             request,
             self.template_name,
             parameter_form,
             script,
             project,
             profile,
+            redirect_link
         )
-        if isinstance(process_or_view, Process):
-            update_script(process_or_view.id)
-            return redirect(redirect_link, project=project)
-        else:
-            return process_or_view
 
 
 class ScriptLoadScreen(LoginRequiredMixin, TemplateView):
@@ -545,7 +536,7 @@ class ProjectDeleteView(LoginRequiredMixin, TemplateView):
 
 
 def render_start_screen(
-    request, template_name, parameter_form, script_to_start, project, profile
+    request, template_name, parameter_form, script_to_start, project, profile, redirect_link
 ):
     """
     Render a start screen.
@@ -563,13 +554,14 @@ def render_start_screen(
     """
     try:
         if parameter_form is not None and parameter_form.is_valid():
-            return project.start_script(
+            project.start_script(
                 profile,
                 script_to_start,
                 parameter_values=parameter_form.cleaned_data,
             )
         else:
-            return project.start_script(profile, script_to_start)
+            project.start_script(profile, script_to_start)
+        return redirect(redirect_link, project=project, script=script_to_start)
     except BaseParameter.ParameterException as e:
         logging.error(e)
         error = "Not all script parameters are filled in"

@@ -13,9 +13,8 @@
 <div class="container">
     <div class="row">
         <div class="col rounded lighter padding">
-            <h1>Failed to start <a class="btn btn-primary" href="{% url "upload:upload_project" project=project %}">Go back to uploading files</a></h1>
+            <h1>Failed to start {% if script == project.pipeline.fa_script %}Forced Alignment{% else %}G2P{% endif %}</h1>
             <p>{{ error }}</p>
-            <a class="btn btn-primary" href="{% url "upload:upload_project" project=project %}">Go back to uploading files</a>
             {% if parameter_form %}
                 <h3>Set parameters</h3>
                 <div class="rounded lighter padding mb-3">
