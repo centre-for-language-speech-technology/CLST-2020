@@ -437,16 +437,7 @@ class Process(Model):
         """
         try:
             return self.start(profile, parameter_values=parameter_values)
-        except ValueError as e:
-            # Input template error
-            self.cleanup()
-            raise e
-        except BaseParameter.ParameterException as e:
-            # Not all parameters are satisfied
-            self.cleanup()
-            raise e
         except Exception as e:
-            # CLAM error
             self.cleanup()
             raise e
 
