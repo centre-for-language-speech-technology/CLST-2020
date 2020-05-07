@@ -4,27 +4,30 @@
 {% block title %}
     Equestria: Sign up
 {% endblock %}
+
 {% block style %}
     <link rel="stylesheet" href="{% static 'accounts/css/centered-container.css' %}">
 {% endblock %}
+
 {% block header %}
     {% include 'accounts/authentication-header.html' %}
 {% endblock %}
+
 {% block body %}
     <div class="container-sm flex-container">
-        <div class="container-centered shadow padding">
-            <h1>Signup</h1>
+        <div class="container-centered">
+            <h1>Sign up</h1>
             {% if messages %}
             <ul class="messages">
                 {% for message in messages %}
-                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
                 {% endfor %}
             </ul>
             {% endif %}
             <form class="site-form centered-form" action="{% url 'accounts:signup' %}" method="post">
                 {% csrf_token %}
                 {{ form }}
-                <input type="submit" value="Signup" class="btn btn-primary">
+                <input type="submit" value="Signup" class="btn btn-primary" id="_test-signup">
             </form>
             <div class="container-fluid mb-3">
                     <a class="text-center" href="{% url "accounts:login" %}">Log in</a> |

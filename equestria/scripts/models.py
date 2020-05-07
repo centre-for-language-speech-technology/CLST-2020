@@ -958,6 +958,10 @@ class Project(Model):
                     name=name, folder=folder, pipeline=pipeline, user=user
                 )
 
+    @property
+    def status(self):
+        return self.get_next_step()
+
     def get_next_step(self):
         """
         Get the project status.
@@ -1039,7 +1043,7 @@ class Project(Model):
             if os.path.isfile(full_file_path):
                 if file_name.endswith(
                     tuple(extensions)
-                ):  # a python tuple can be of any size btw.
+                ):
                     if os.stat(full_file_path).st_size != 0:
                         return True
 
@@ -1082,30 +1086,24 @@ class Project(Model):
         """
         return self.current_process is None
 
-    def start_fa_script(self, profile, parameter_values=None):
+    def start_fa_script(self, profile):
         """
         Start the FA script with a given profile.
 
-        :param parameter_values: parameter values in (key, value) format in a dictionary
         :param profile: the profile to start FA with
         :return: the process with the started script, raises a ValueError if the files in the folder do not match the
         profile, raises an Exception if a CLAM error occurred
         """
-        if parameter_values is None:
-            parameter_values = dict()
         return self.start_script(profile, self.pipeline.fa_script)
 
-    def start_g2p_script(self, profile, parameter_values=None):
+    def start_g2p_script(self, profile):
         """
         Start the G2P script with a given profile.
 
-        :param parameter_values: parameter values in (key, value) format in a dictionary
         :param profile: the profile to start G2P with
         :return: the process with the started script, raises a ValueError if the files in the folder do not match the
         profile, raises an Exception if a CLAM error occurred
         """
-        if parameter_values is None:
-            parameter_values = dict()
         return self.start_script(profile, self.pipeline.g2p_script)
 
     def start_script(self, profile, script, parameter_values=None):

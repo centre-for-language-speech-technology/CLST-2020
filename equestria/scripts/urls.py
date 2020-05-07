@@ -57,5 +57,5 @@ urlpatterns = [
         "g2p/<project:project>/start/<profile:profile>",
         G2PStartScreen.as_view(),
         name="g2p_start",
-    ),
+    )
 ]

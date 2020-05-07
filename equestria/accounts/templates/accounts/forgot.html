@@ -2,17 +2,20 @@
 {% load static %}
 
 {% block title %}
-    Equestria: Sign up
+    Equestria: Forgot password
 {% endblock %}
+
 {% block style %}
     <link rel="stylesheet" href="{% static 'accounts/css/centered-container.css' %}">
 {% endblock %}
+
 {% block header %}
     {% include 'accounts/authentication-header.html' %}
 {% endblock %}
+
 {% block body %}
     <div class="container-sm flex-container">
-        <div class="container-centered shadow padding">
+        <div class="container-centered">
             <h1>Forgot password</h1>
             <p>Please send an email to <a href="mailto:{{ admin_email }}">{{ admin_email }}</a> to reset your password.</p>
             <div class="container-fluid mb-3">

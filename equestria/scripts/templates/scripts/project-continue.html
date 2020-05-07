@@ -1,0 +1,10 @@
+
+{% if project.status == project.UPLOADING %}
+    <a class="btn btn-primary" href="{% url 'upload:upload_project' project=project %}">Continue</a>
+{% elif project.status == project.FA_RUNNING %}
+    <a class="btn btn-primary" href="{% url 'scripts:fa_loading' project=project %}">Continue</a>
+{% elif project.status == project.G2P_RUNNING %}
+    <a class="btn btn-primary" href="{% url 'scripts:g2p_loading' project=project %}">Continue</a>
+{% else %}
+    <a class="btn btn-primary" href="{% url 'scripts:cd_screen' project=project %}">Continue</a>
+{% endif %}

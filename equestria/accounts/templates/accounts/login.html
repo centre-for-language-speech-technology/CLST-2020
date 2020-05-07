@@ -4,15 +4,18 @@
 {% block title %}
     Equestria: Log in
 {% endblock %}
+
 {% block style %}
     <link rel="stylesheet" href="{% static 'accounts/css/centered-container.css' %}">
 {% endblock %}
+
 {% block header %}
     {% include 'accounts/authentication-header.html' %}
 {% endblock %}
+
 {% block body %}
     <div class="container-sm flex-container">
-        <div class="container-centered shadow padding">
+        <div class="container-centered">
             <h1>Log in</h1>
             {% if messages %}
             <ul class="messages">
@@ -30,7 +33,7 @@
                 <input type="submit" value="Login" class="btn btn-primary" />
             </form>
             <div class="container-fluid mb-3">
-                <a class="text-center" href="{% url "accounts:signup" %}">Sign up</a> |
+                <a class="text-center" href="{% url "accounts:signup" %}" id="_test-signup">Sign up</a> |
                 <a class="text-center" href="{% url "accounts:forgot" %}">Forgotten password</a>
             </div>
             <a href="{% url 'welcome' %}"> ← Back to Equestria</a>

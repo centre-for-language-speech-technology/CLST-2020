@@ -12,14 +12,20 @@
 {% block body %}
     <div class="container">
       <div class="row">
-            <div class="col-md-7 rounded lighter padding">
-                <h3>Forced alignment is running</h3>
-                <p>Status:</p>
-                <strong><p id="process-django-status"></p></strong>
-                <form class="md-form" action="" method="post">
-                        {% csrf_token %}
-                        <input type="submit" value="Continue" style="display: none;" class="btn btn-primary" id="process-continue-button">
-                </form>
+            <div class="col-md-7">
+                {% if project.current_process and project.current_process.script == project.pipeline.fa_script %}
+                    <h3>Forced Alignment is running</h3>
+                    <p class="">Status:</p>
+                    <strong><p id="process-django-status"></p></strong>
+                    <form class="md-form" action="" method="post">
+                            {% csrf_token %}
+                            <input type="submit" value="Continue" style="display: none;" class="btn btn-primary" id="process-continue-button">
+                    </form>
+                {% else %}
+                    <h3>Forced Alignment is not running</h3>
+                    <p>There is no current FA process running.</p>
+                    {% include 'scripts/project-continue.html' with project=project %}
+                {% endif %}
             </div>
             <div class="col-md-1">
             </div>
@@ -31,11 +37,13 @@
 {% endblock %}
 
 {% block scripts %}
-    <script>
-        var CSRF_TOKEN = "{{ csrf_token }}";
-        var PROCESS_STATUS_URL = "{% url 'scripts:process_details' process=process %}";
-    </script>
-    <script src="{% static "scripts/js/process-update.js" %}"></script>
-    <script src="{% static "scripts/js/validate.js" %}"></script>
-    <script src="{% static "scripts/js/clock.js" %}"></script>
+    {% if project.current_process and project.current_process.script == project.pipeline.fa_script %}
+        <script>
+            var CSRF_TOKEN = "{{ csrf_token }}";
+            var PROCESS_STATUS_URL = "{% url 'scripts:process_details' process=project.current_process %}";
+        </script>
+        <script src="{% static "scripts/js/process-update.js" %}"></script>
+        <script src="{% static "scripts/js/validate.js" %}"></script>
+        <script src="{% static "scripts/js/clock.js" %}"></script>
+    {% endif %}
 {% endblock %}

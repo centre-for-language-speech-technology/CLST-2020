@@ -6,7 +6,7 @@ from django.urls import reverse
 class GenericViewTest(TestCase):
     """Defines utility methods for testing views."""
 
-    default_templates = ["progbase.html", "base.html", "pipeline.html"]
+    default_templates = ["equestria/base.html", "equestria/pipeline.html"]
     name = ""  # name of url as defined in urls.py
 
     def setUp(self):
@@ -33,7 +33,7 @@ class GenericViewTest(TestCase):
         The view may also use additional unspecified files
         :param template: template file that renders request
         """
-        self.get_uses_templates([template,] + self.default_templates)
+        self.get_uses_templates([template] + self.default_templates)
 
 
 class RestrictedViewTest(GenericViewTest):
@@ -92,18 +92,6 @@ class TestLoginSystem(RestrictedViewTest):
         # self.assertTrue(self.response.user.is_authenticated())
 
 
-class TestPraatScripts(RestrictedViewTest):
-    """Test the PraatScripts view."""
-
-    name = "praat_scripts"
-
-    def test_get(self):
-        """Test a get request."""
-        self.redirects_to_login()
-        self.login()
-        self.get_uses_template_and_defaults("praat_scripts.html")
-
-
 class TestForcedAlignment(RestrictedViewTest):
     """Test the ForcedAlignment view."""
 
@@ -114,27 +102,3 @@ class TestForcedAlignment(RestrictedViewTest):
         self.redirects_to_login()
         self.login()
         self.get_uses_template_and_defaults("scripts/project-overview.html")
-
-
-class TestUpdateDictionary(RestrictedViewTest):
-    """Test the UpdateDictionary view."""
-
-    name = "update_dictionary"
-
-    def test_get(self):
-        """Test a get request."""
-        self.redirects_to_login()
-        self.login()
-        self.get_uses_template_and_defaults("update_dictionary.html")
-
-
-class TestAutoSegmentation(RestrictedViewTest):
-    """Test the AutoSegmentation view."""
-
-    name = "auto_segmentation"
-
-    def test_get(self):
-        """Test a get request."""
-        self.redirects_to_login()
-        self.login()
-        self.get_uses_template_and_defaults("auto_segmentation.html")

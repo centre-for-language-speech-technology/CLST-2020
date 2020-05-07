@@ -21,7 +21,8 @@
                 <a href="{% url 'scripts:projects' %}" class="btn btn-primary">Project overview</a>
             {% else %}
                 <h2>Log in to continue</h2>
-                <a href="{% url 'accounts:login' %}" class="btn btn-primary">Log in</a>
+                <p>Don't have an account? Please send an email to <a href="mailto:{{ admin_email }}">{{ admin_email }}</a> to get one.</p>
+                <a href="{% url 'accounts:login' %}" class="btn btn-primary" id="_test-login">Log in</a>
             {% endif %}
         </div>
     </div>

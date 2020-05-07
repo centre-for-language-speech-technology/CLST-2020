@@ -53,13 +53,8 @@ class FARedirect(LoginRequiredMixin, TemplateView):
             project.current_process is not None
             and project.current_process.script == project.pipeline.g2p_script
         ):
-            try:
-                profile = Profile.objects.get(process=project.current_process)
-            except Profile.MultipleObjectsReturned as e:
-                # TODO: Make a nice error screen
-                raise e
             return redirect(
-                "scripts:g2p_start", project=project, profile=profile
+                "scripts:g2p_loading", project=project
             )
         else:
             raise Project.StateException
@@ -251,15 +246,10 @@ class FALoadScreen(LoginRequiredMixin, TemplateView):
         """
         project = kwargs.get("project")
 
-        if project.current_process.script != project.pipeline.fa_script:
-            raise Project.StateException(
-                "Current project script is no forced alignment script"
-            )
-
         return render(
             request,
             self.template_name,
-            {"process": project.current_process, "project": project},
+            {"project": project},
         )
 
     def post(self, request, **kwargs):
@@ -408,15 +398,10 @@ class G2PLoadScreen(LoginRequiredMixin, TemplateView):
         """
         project = kwargs.get("project")
 
-        if project.current_process.script != project.pipeline.g2p_script:
-            raise Project.StateException(
-                "Current project script is no g2p script"
-            )
-
         return render(
             request,
             self.template_name,
-            {"process": project.current_process, "project": project},
+            {"project": project},
         )
 
     def post(self, request, **kwargs):

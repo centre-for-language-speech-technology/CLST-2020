@@ -37,6 +37,7 @@
             {% else %}
                 <p class="alert alert-danger">There is currently a running process. You cannot start a new process.
                     First, wait for the current process to finish and reload this page.</p>
+                {% include 'scripts/project-continue.html' with project=project %}
             {% endif %}
             {% if no_txt_list %}
                 <b> Warning! These .wav files do not have a corresponding .txt or .tg file: </b> <br/>

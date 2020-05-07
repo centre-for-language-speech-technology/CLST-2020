@@ -21,18 +21,6 @@ class TestUrls(SimpleTestCase):
         """Check if homepage resolves."""
         self.name_resolves_to_class("welcome", WelcomePage)
 
-    def test_praat_scripts_resolves(self):
-        """Check if praat_scripts resolves."""
-        self.name_resolves_to_class("praat_scripts", PraatScripts)
-
     def test_forced_alignment_resolves(self):
         """Check if forced_alignment resolves."""
         self.name_resolves_to_class("scripts:projects", ProjectOverview)
-
-    def test_update_dictionary_resolves(self):
-        """Check if update_dictionary resolves."""
-        self.name_resolves_to_class("update_dictionary", UpdateDictionary)
-
-    def test_auto_segmentation_resolves(self):
-        """Check if auto_segmentation resolves."""
-        self.name_resolves_to_class("auto_segmentation", AutoSegmentation)
