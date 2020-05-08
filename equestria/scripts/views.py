@@ -49,6 +49,32 @@ class AutomaticScriptStartView(LoginRequiredMixin, TemplateView):
 
     template_name = "scripts/start-automatic.html"
 
+    def get_render_multiple_profiles(self, request, project, script, profile_form):
+        return render(
+            request,
+            self.template_name,
+            {
+                "form": profile_form,
+                "message": "There are multiple profiles"
+                           " that can be applied to this"
+                           " project, please select one.",
+                "project": project,
+                "script": script
+            },
+        )
+
+    def get_render_no_profiles(self, request, project, script):
+        return render(
+            request,
+            self.template_name,
+            {
+                "message": "There are no profiles that can be applied to this"
+                           " project, did you upload all required files?",
+                "project": project,
+                "script": script
+            },
+        )
+
     def get(self, request, **kwargs):
         """
         GET method for the automatic start screen of FA.
@@ -71,29 +97,9 @@ class AutomaticScriptStartView(LoginRequiredMixin, TemplateView):
             profile_form = ProfileSelectForm(
                 request.POST, profiles=valid_profiles
             )
-            return render(
-                request,
-                self.template_name,
-                {
-                    "form": profile_form,
-                    "message": "There are multiple profiles"
-                    " that can be applied to this"
-                    " project, please select one.",
-                    "project": project,
-                    "script": script
-                },
-            )
+            return self.get_render_multiple_profiles(request, project, script, profile_form)
         elif len(valid_profiles) == 0:
-            return render(
-                request,
-                self.template_name,
-                {
-                    "message": "There are no profiles that can be applied to this"
-                    " project, did you upload all required files?",
-                    "project": project,
-                    "script": script
-                },
-            )
+            return self.get_render_no_profiles(request, project, script)
         else:
             profile = valid_profiles[0]
             return redirect(
@@ -127,18 +133,7 @@ class AutomaticScriptStartView(LoginRequiredMixin, TemplateView):
                 "scripts:start", project=project, profile=profile, script=script
             )
         else:
-            return render(
-                request,
-                self.template_name,
-                {
-                    "form": profile_form,
-                    "message": "There are multiple profiles"
-                    " that can be applied to this"
-                    " project, please select one.",
-                    "project": project,
-                    "script": script
-                },
-            )
+            return self.get_render_multiple_profiles(request, project, script, profile_form)
 
 
 class ScriptStartView(LoginRequiredMixin, TemplateView):
