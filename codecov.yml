@@ -8,9 +8,9 @@ coverage:
         # basic
         target: auto
         threshold: 90%
-	round: down
-	precision: 9
-	range: "90...100"
+        round: down
+        precision: 9
+        range: "90...100"
         base: auto 
         flags: 
           - unit
@@ -36,4 +36,3 @@ comment:
   layout: "reach,diff,flags,tree"
   behavior: default
   require_changes: no
-
