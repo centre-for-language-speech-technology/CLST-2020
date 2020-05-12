@@ -5,6 +5,10 @@
     Equestria: Check dictionary
 {% endblock %}
 
+{% block scripts %}
+    <link rel="stylesheet" href="{% static 'scripts/css/buttonstyle.css' %}">
+{% endblock %}
+
 {% block header %}
     {% include 'equestria/header.html' with active="cd" %}
 {% endblock %}
@@ -18,7 +22,7 @@
                     {{ form }}
                     <input type="submit" class="btn btn-primary" value="Update dictionary and rerun FA">
                 </form>
-            <a class="btn btn-primary" href="{% url 'scripts:fa_overview' project=project %}">Continue to FA overview</a>
+            <a class="btn btn-primary btn-style" href="{% url 'scripts:fa_overview' project=project %}">Continue to FA overview</a>
         </div>
     </div>
 {% endblock %}
