@@ -6,7 +6,7 @@ from django.urls import reverse
 class GenericViewTest(TestCase):
     """Defines utility methods for testing views."""
 
-    default_templates = ["equestria/base.html", "equestria/pipeline.html"]
+    default_templates = ["equestria/base.html", "equestria/header.html"]
     name = ""  # name of url as defined in urls.py
 
     def setUp(self):

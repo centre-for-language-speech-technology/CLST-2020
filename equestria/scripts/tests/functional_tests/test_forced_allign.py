@@ -22,22 +22,3 @@ class TestUI(GenericFuncTest):
             subtext.text,
             "A Forced Alignment Pipeline",
         )
-
-    def test_create_project(self):
-        """Test if creating a project displays that project."""
-        self.login_and_go_to_start()
-        # Click start adventure button
-        self.get('//*[@id="inputGroupFileAddon02"]').click()
-        self.get_id("id_project_name").send_keys("testproject")
-        # Click create button
-        self.get("/html/body/div[1]/div/form/div/input[2]").click()
-        print(self.driver.current_url)
-        self.assertTrue("upload/" in self.driver.current_url)
-        # Click on Select Project button in navbar to go a step back
-        self.get("/html/body/nav[2]/ul/li[1]/a").click()
-        new_project_on_page = False
-        for h4 in self.driver.find_elements_by_tag_name("h4"):
-            new_project_on_page = (
-                new_project_on_page or "Name: testproject" == h4.text
-            )
-        self.assertTrue(new_project_on_page)

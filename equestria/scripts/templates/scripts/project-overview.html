@@ -17,8 +17,8 @@
                 <div class="lighter padding mb-3">
                   <form class="md-form" method="POST">
                     {% csrf_token %}
-                    <div class="input-group mb-3">
-                      {{ form }}
+                    <div class="mb-3">
+                      {{ form.as_p }}
                       <input type="submit" value="Create" class="btn btn-primary"/>
                     </div>
                   </form>

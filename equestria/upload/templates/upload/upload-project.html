@@ -16,7 +16,7 @@
             {% if upload_form %}
                 <h3>Upload your files (.txt .tg .wav or .zip):</h3>
                 <form class="md-form" action="{% url 'upload:upload_file' project=project %}" method="post" enctype="multipart/form-data">
-                    <div class="input-group mb-3">
+                    <div class="mb-3">
                         <div class="custom-file">
                             {{ upload_form }}
                             {% csrf_token %}
