@@ -1,0 +1,41 @@
+{% extends 'equestria/base.html' %}
+{% load static %}
+
+{% block title %}
+    Equestria: Projects
+{% endblock %}
+
+{% block style %}
+    <link rel="stylesheet" href="{% static 'scripts/css/formstyle.css' %}">
+{% endblock %}
+
+{% block body %}
+    <div class="container">
+        {% if form %}
+            <div class="lighter padding mb-3">
+                <h3>Forced Alignment scripts</h3>
+                <div class="lighter padding mb-3">
+                  <form class="md-form" method="POST">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                      {{ form.as_p }}
+                      <input type="submit" value="Create" class="btn btn-primary"/>
+                    </div>
+                  </form>
+                </div>
+            </div>
+        {% endif %}
+        {% if projects %}
+            <div class="lighter padding mb-3">
+                <h3>My projects</h3>
+                {% for project in projects %}
+                    <div class="darker padding mb-3">
+                        <h4>Name: {{ project.name }}</h4>
+                        {% include 'scripts/project-continue.html' with project=project %}
+                        <a class="btn btn-danger" href="{% url "scripts:delete_project" project=project %}">Delete {{ project.name }}</a>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

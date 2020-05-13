@@ -1,0 +1,71 @@
+{% extends 'equestria/base.html' %}
+{% load static %}
+
+{% block title %}
+    Equestria: Upload files
+{% endblock %}
+
+{% block header %}
+    {% include 'equestria/header.html' with active="upload" %}
+{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <div class="rounded lighter padding">
+            <h1>Upload files</h1>
+            {% if upload_form %}
+                <h3>Upload your files (.txt .tg .wav or .zip):</h3>
+                <form class="md-form" action="{% url 'upload:upload_file' project=project %}" method="post" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <div class="custom-file">
+                            {{ upload_form }}
+                            {% csrf_token %}
+                            <input id="upload" type="submit" value="Upload files" class="btn btn-primary">
+                        </div>
+                    </div>
+                </form>
+            {% endif %}
+            {% if can_start %}
+                <form class="md-form" method="post" enctype="multipart/form-data">
+                    <div class="input-group mb-3">
+                        <div class="custom-file">
+                            {% csrf_token %}
+                            <input type="submit" value="Continue" class="btn btn-primary">
+                        </div>
+                    </div>
+                </form>
+            {% else %}
+                <p class="alert alert-danger">There is currently a running process. You cannot start a new process.
+                    First, wait for the current process to finish and reload this page.</p>
+                {% include 'scripts/project-continue.html' with project=project %}
+            {% endif %}
+            {% if no_txt_list %}
+                <b> Warning! These .wav files do not have a corresponding .txt or .tg file: </b> <br/>
+                {% for file in no_txt_list %}
+                    {{ file }} <br/>
+                {% endfor %}
+                <br/>
+            {% endif %}
+            {% if no_wav_list %}
+                <b> Warning! These .txt or .tg files do not have a corresponding .wav file: </b> <br/>
+                {% for file in no_wav_list %}
+                    {{ file }} <br/>
+                {% endfor %}
+            {% endif %}
+
+        </div>
+    </div>
+    <br />
+	<div class="container">
+		<div class="rounded lighter padding">
+            {% if files %}
+            <h2> Uploaded files: </h2>
+                {% for file in  files %}
+                    <p> {{ file }} </p>
+                {% endfor %}
+            {% else %}
+                <p> No files have been uploaded yet </p>
+            {% endif %}
+		</div>
+	</div>
+{% endblock %}

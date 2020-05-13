@@ -1,0 +1,31 @@
+{% extends 'equestria/base.html' %}
+{% load static %}
+
+{% block title %}
+    Equestria: Start automatic Error
+{% endblock %}
+
+{% block header %}
+    {% include "equestria/header.html" with active="fa" %}
+{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <div class="row">
+            <div class="col rounded lighter padding">
+                <h1>Failed to automatically start {% if script == project.pipeline.fa_script %}Forced Alignment{% else %}G2P{% endif %}</h1>
+                <p class="alert alert-danger">{{ message }}</p>
+                {% if form %}
+                    <form class="md-form" action="" method="post">
+                        <div class="input-group mb-3">
+                            {% csrf_token %}
+                            {{ form }}
+                            <input type="submit" value="Continue" class="btn btn-primary">
+                        </div>
+                    </form>
+                {% endif %}
+                {% if script == project.pipeline.fa_script %}<a class="btn btn-primary" href="{% url "upload:upload_project" project=project %}">Go back to uploading files</a>{% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
