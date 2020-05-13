@@ -37,7 +37,7 @@ class TestAccounts(TestCase):
             "/accounts/login/", invalid_credentials, follow=True
         )
         self.assertFalse(response.context["user"].is_active)
-        self.assertEquals(len(response.content), 7208)
+        self.assertEquals(len(response.content), 4437)
 
     def test_logout(self):
         """Test logout."""
@@ -71,23 +71,9 @@ class TestAccounts(TestCase):
         response = self.client.post(
             "/accounts/signup/", credentials, follow=True
         )
-        self.assertEquals(len(response.content), 7930)
+        self.assertEquals(len(response.content), 5164)
 
     def test_forgot_password(self):
         """Test the forgot password page."""
         response = self.client.get("/accounts/forgot/")
-        self.assertEquals(response.status_code, 200)
-
-    def test_overview_page(self):
-        """Test the user overview page."""
-        self.client.post("/accounts/login/", self.credentials, follow=True)
-        response = self.client.get("/accounts/overview/")
-        self.assertEquals(response.status_code, 200)
-
-    def test_settings_page(self):
-        """Tests the functionality of the settings page."""
-        self.client.post("/accounts/login/", self.credentials, follow=True)
-        get_response = self.client.get("/accounts/settings/")
-        self.assertEquals(get_response.status_code, 200)
-        response = self.client.post("/accounts/settings/")
         self.assertEquals(response.status_code, 200)

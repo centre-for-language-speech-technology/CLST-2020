@@ -9,4 +9,5 @@ class UploadForm(forms.Form):
     f = forms.FileField(
         widget=forms.ClearableFileInput(attrs={"multiple": True}),
         allow_empty_file=True,
+        label="File",
     )

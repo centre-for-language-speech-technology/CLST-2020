@@ -78,17 +78,17 @@ class GenericFuncTest(StaticLiveServerTestCase):
         """Sign in as new user and go to home screen."""
         self.get_page()
         # Click start adventure button
-        self.get('//*[@id="inputGroupFileAddon02"]').click()
+        self.get('//*[@id="_test-login"]').click()
         self.assertTrue(
             self.driver.current_url.endswith(
                 "/accounts/login/?next=/scripts/projects"
             )
         )
         # Click on signup link
-        self.get("/html/body/div/div/div/a[1]").click()
+        self.get('//*[@id="_test-signup"]').click()
         self.get_id("id_username").send_keys("testuser")
         self.get_id("id_password1").send_keys("X07@!nhubY8agly9")
         self.get_id("id_password2").send_keys("X07@!nhubY8agly9")
         # Confirm Signup button
-        self.get("/html/body/div/div/form/input[5]").click()
+        self.get('//*[@id="_test-signup"]').click()
         self.assertEqual(self.driver.current_url, self.live_server_url + "/")

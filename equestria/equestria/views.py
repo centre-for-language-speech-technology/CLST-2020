@@ -1,26 +1,18 @@
 from equestria.view_generic import *
-from django.contrib.auth.mixins import LoginRequiredMixin
 
 
-class WelcomePage(GenericTemplate):
+class WelcomePage(TemplateView):
     """Page to greet the user."""
 
-    template_name = "welcome.html"
+    template_name = "equestria/welcome.html"
 
+    def get(self, request, **kwargs):
+        """
+        GET request for WelcomePage.
 
-class PraatScripts(RestrictedTemplate):
-    """Page to list all non-primary (praat) scripts."""
-
-    template_name = "praat_scripts.html"
-
-
-class UpdateDictionary(RestrictedTemplate):
-    """Page to update dictionary."""
-
-    template_name = "update_dictionary.html"
-
-
-class AutoSegmentation(RestrictedTemplate):
-    """Page to run auto-segmentation."""
-
-    template_name = "auto_segmentation.html"
+        :param request: the request
+        :param kwargs: keyword arguments
+        :return: a render of the welcome page
+        """
+        context = {"admin_email": settings.ADMIN_EMAIL}
+        return render(request, self.template_name, context)
