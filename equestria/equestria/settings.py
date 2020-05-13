@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     "equestria",
     "colorfield",
     "django_nose",
+    "guardian",
 ]
 
 # Use nose to run all tests

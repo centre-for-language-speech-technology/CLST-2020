@@ -5,16 +5,18 @@ from django.shortcuts import render, redirect
 from django.views.generic import TemplateView
 from .forms import UploadForm
 from django.core.files.storage import FileSystemStorage
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 import zipfile
 
 
-class UploadProjectView(LoginRequiredMixin, TemplateView):
+class UploadProjectView(LoginRequiredMixin, PermissionRequiredMixin, TemplateView):
     """View for initial upload of files to a project."""
 
     login_url = "/accounts/login/"
 
     template_name = "upload-project.html"
+
+    permission_required = 'access'
 
     def get(self, request, **kwargs):
         """

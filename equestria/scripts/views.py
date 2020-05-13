@@ -15,6 +15,7 @@ from .forms import (
 from .tasks import update_script
 import logging
 from django.urls import reverse
+from guardian.shortcuts import assign_perm
 
 
 class FARedirect(LoginRequiredMixin, TemplateView):
@@ -606,6 +607,11 @@ class ProjectOverview(LoginRequiredMixin, TemplateView):
             pipeline_id = form.cleaned_data.get("pipeline")
             project_name = form.cleaned_data.get("project_name")
             pipeline = Pipeline.objects.get(id=pipeline_id)
+            assign_perm(
+                    "access",
+                    request.user,
+                    request,
+                )
 
             project = Project.create_project(
                 project_name, pipeline, request.user
