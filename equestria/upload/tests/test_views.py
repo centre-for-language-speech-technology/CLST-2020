@@ -31,7 +31,7 @@ class TestView(TestCase):
         )
         path = self.project.folder
         fs = FileSystemStorage(location=path)
-        #fs.save(self.existing_file.name, self.existing_file)
+        # fs.save(self.existing_file.name, self.existing_file)
 
         # self.zipfile = zipfile.ZipFile(path + '/coolzip.zip', 'w')
         # f = open(path + "/acoolfile.txt", "w+")
@@ -42,11 +42,11 @@ class TestView(TestCase):
     def tearDown(self):
         pass
         # we created these files for testing, but we should remove it afterward to leave no traces behind.
-        #path = self.project.folder
-       # fs = FileSystemStorage(location=path)
-      #  fs.delete(self.existing_file.name)
-        # fs.delete(self.zipfile.filename)
+        # path = self.project.folder
 
+    # fs = FileSystemStorage(location=path)
+    #  fs.delete(self.existing_file.name)
+    # fs.delete(self.zipfile.filename)
 
     def test_valid_file_ext_upload(self):
         """Test whether uploading valid files works properly."""
@@ -157,7 +157,9 @@ AAACAAIAsgAAANcAAAAAAA=="
         assert fsDeleteMock.call_count == 0
         assert fsSaveMock.call_count == 1
 
-    @patch("django.core.files.storage.FileSystemStorage.exists", return_value=True)
+    @patch(
+        "django.core.files.storage.FileSystemStorage.exists", return_value=True
+    )
     @patch("django.core.files.storage.FileSystemStorage.save")
     @patch("django.core.files.storage.FileSystemStorage.delete")
     def test_save_file_existing(self, fsDeleteMock, fsSaveMock, fsExistsMock):
