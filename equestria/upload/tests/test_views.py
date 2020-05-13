@@ -1,9 +1,8 @@
 from zipfile import BadZipFile
 
 from django.test import TestCase, Client
-from django.urls import reverse, resolve
+from django.urls import reverse
 from scripts.models import Project
-from equestria.views import *
 from upload.views import *
 from equestria.settings import BASE_DIR
 import wave
@@ -29,24 +28,6 @@ class TestView(TestCase):
         self.existing_file = SimpleUploadedFile(
             "existingFile.wav", b"file_content", content_type="video/wav"
         )
-        path = self.project.folder
-        fs = FileSystemStorage(location=path)
-        # fs.save(self.existing_file.name, self.existing_file)
-
-        # self.zipfile = zipfile.ZipFile(path + '/coolzip.zip', 'w')
-        # f = open(path + "/acoolfile.txt", "w+")
-        # f.write("Now the file looks even cooler.")
-        # f.close()
-        # self.zipfile.write(f.name, "coolfile.txt")
-
-    def tearDown(self):
-        pass
-        # we created these files for testing, but we should remove it afterward to leave no traces behind.
-        # path = self.project.folder
-
-    # fs = FileSystemStorage(location=path)
-    #  fs.delete(self.existing_file.name)
-    # fs.delete(self.zipfile.filename)
 
     def test_valid_file_ext_upload(self):
         """Test whether uploading valid files works properly."""
