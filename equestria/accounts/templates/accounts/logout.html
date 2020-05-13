@@ -1,18 +1,21 @@
-{% extends 'base.html' %}
+{% extends 'equestria/base.html' %}
 {% load static %}
 
 {% block title %}
     Equestria: Log in
 {% endblock %}
+
 {% block style %}
     <link rel="stylesheet" href="{% static 'accounts/css/centered-container.css' %}">
 {% endblock %}
+
 {% block header %}
     {% include 'accounts/authentication-header.html' %}
 {% endblock %}
+
 {% block body %}
     <div class="container-sm flex-container">
-        <div class="container-centered shadow padding">
+        <div class="container-centered">
             <h1>You are logged out</h1>
             <div class="container-fluid mb-3">
                 <a class="text-center" href="{% url "accounts:login" %}">Log in</a> |

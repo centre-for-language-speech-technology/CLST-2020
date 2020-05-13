@@ -14,7 +14,7 @@ class UploadProjectView(LoginRequiredMixin, TemplateView):
 
     login_url = "/accounts/login/"
 
-    template_name = "upload-project.html"
+    template_name = "upload/upload-project.html"
 
     def get(self, request, **kwargs):
         """
@@ -63,7 +63,11 @@ class UploadProjectView(LoginRequiredMixin, TemplateView):
         project = kwargs.get("project")
         if not project.can_start_new_process():
             return self.get(request, **kwargs)
-        return redirect("scripts:fa_start_automatic", project=project)
+        return redirect(
+            "scripts:start_automatic",
+            project=project,
+            script=project.pipeline.fa_script,
+        )
 
 
 def upload_file_view(request, **kwargs):

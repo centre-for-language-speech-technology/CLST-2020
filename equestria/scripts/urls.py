@@ -1,11 +1,17 @@
 """Module to parse URL and direct accordingly."""
 from django.urls import path, register_converter
 from .views import *
-from .converters import ProjectConverter, ProfileConverter, ProcessConverter
+from .converters import (
+    ProjectConverter,
+    ProfileConverter,
+    ProcessConverter,
+    ScriptConverter,
+)
 
 register_converter(ProjectConverter, "project")
 register_converter(ProfileConverter, "profile")
 register_converter(ProcessConverter, "process")
+register_converter(ScriptConverter, "script")
 
 urlpatterns = [
     path("projects", ProjectOverview.as_view(), name="projects"),
@@ -15,19 +21,9 @@ urlpatterns = [
         name="delete_project",
     ),
     path(
-        "fa/status/<project:project>",
-        FALoadScreen.as_view(),
-        name="fa_loading",
-    ),
-    path(
         "redirect/<project:project>", FARedirect.as_view(), name="fa_redirect",
     ),
     path("fa/<project:project>", FAOverview.as_view(), name="fa_overview",),
-    path(
-        "g2p/status/<project:project>",
-        G2PLoadScreen.as_view(),
-        name="g2p_loading",
-    ),
     path(
         "cd/<project:project>",
         CheckDictionaryScreen.as_view(),
@@ -44,18 +40,18 @@ urlpatterns = [
         name="project_download",
     ),
     path(
-        "fa/<project:project>/start",
-        FAStartAutomaticView.as_view(),
-        name="fa_start_automatic",
+        "<project:project>/autostart/<script:script>",
+        AutomaticScriptStartView.as_view(),
+        name="start_automatic",
     ),
     path(
-        "fa/<project:project>/start/<profile:profile>",
-        FAStartView.as_view(),
-        name="fa_start",
+        "<project:project>/start/<script:script>/<profile:profile>",
+        ScriptStartView.as_view(),
+        name="start",
     ),
     path(
-        "g2p/<project:project>/start/<profile:profile>",
-        G2PStartScreen.as_view(),
-        name="g2p_start",
+        "<project:project>/status/<script:script>",
+        ScriptLoadScreen.as_view(),
+        name="loading",
     ),
 ]
