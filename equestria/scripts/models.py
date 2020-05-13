@@ -68,7 +68,7 @@ class Script(Model):
     username = CharField(max_length=200, blank=True)
     password = CharField(max_length=200, blank=True)
 
-    def save(self, *args, **kwargs):
+    def refresh(self):
         """
         Save function to load profile data from CLAM.
 
@@ -85,7 +85,6 @@ class Script(Model):
             clamclient.delete(random_token)
         except Exception as e:
             # If CLAM can't be reached, the credentials are most likely not valid
-            logging.error(e)
             raise ValidationError(
                 "There was a problem contacting the CLAM server, did you enter the right username and"
                 " password?"
@@ -110,9 +109,6 @@ class Script(Model):
         # Create new profiles associated with this script
         for profile in data.profiles:
             self.create_templates_from_data(profile.input)
-
-        # Call the super method
-        super(Script, self).save(*args, **kwargs)
 
     def generate_parameters_from_clam_data(
         self, parameter_names, clam_data, default_values

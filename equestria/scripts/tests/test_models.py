@@ -109,6 +109,7 @@ class ScriptModelTest(TestCase):
         raises_validation_error = False
         try:
             self.dfa.save()
+            self.dfa.refresh()
         except ValidationError:
             raises_validation_error = True
         self.assertTrue(raises_validation_error)
