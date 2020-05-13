@@ -34,8 +34,13 @@ class FARedirect(LoginRequiredMixin, TemplateView):
         """
         project = kwargs.get("project")
 
-        if project.has_non_empty_extension_file([".oov"]) and project.can_start_new_process():
-            return redirect("scripts:start_automatic", project, project.pipeline.g2p_script)
+        if (
+            project.has_non_empty_extension_file([".oov"])
+            and project.can_start_new_process()
+        ):
+            return redirect(
+                "scripts:start_automatic", project, project.pipeline.g2p_script
+            )
         elif project.can_start_new_process():
             return redirect("scripts:cd_screen", project=project)
         else:
@@ -49,29 +54,48 @@ class AutomaticScriptStartView(LoginRequiredMixin, TemplateView):
 
     template_name = "scripts/start-automatic.html"
 
-    def get_render_multiple_profiles(self, request, project, script, profile_form):
+    def get_render_multiple_profiles(
+        self, request, project, script, profile_form
+    ):
+        """
+        GET request for Automatic script start view for a render with multiple profiles.
+
+        :param request: the request
+        :param project: the project
+        :param script: the script
+        :param profile_form: the profile form
+        :return: a render of the page with a profile form included
+        """
         return render(
             request,
             self.template_name,
             {
                 "form": profile_form,
                 "message": "There are multiple profiles"
-                           " that can be applied to this"
-                           " project, please select one.",
+                " that can be applied to this"
+                " project, please select one.",
                 "project": project,
-                "script": script
+                "script": script,
             },
         )
 
     def get_render_no_profiles(self, request, project, script):
+        """
+        GET request for Automatic script start view for a render with no profiles.
+
+        :param request: the request
+        :param project: the project
+        :param script: the script
+        :return: a render of the page without a profile form included
+        """
         return render(
             request,
             self.template_name,
             {
                 "message": "There are no profiles that can be applied to this"
-                           " project, did you upload all required files?",
+                " project, did you upload all required files?",
                 "project": project,
-                "script": script
+                "script": script,
             },
         )
 
@@ -90,14 +114,14 @@ class AutomaticScriptStartView(LoginRequiredMixin, TemplateView):
         if not project.is_project_script(script):
             raise ValueError("Script is not a project script")
 
-        valid_profiles = script.get_valid_profiles(
-            project.folder
-        )
+        valid_profiles = script.get_valid_profiles(project.folder)
         if len(valid_profiles) > 1:
             profile_form = ProfileSelectForm(
                 request.POST, profiles=valid_profiles
             )
-            return self.get_render_multiple_profiles(request, project, script, profile_form)
+            return self.get_render_multiple_profiles(
+                request, project, script, profile_form
+            )
         elif len(valid_profiles) == 0:
             return self.get_render_no_profiles(request, project, script)
         else:
@@ -133,7 +157,9 @@ class AutomaticScriptStartView(LoginRequiredMixin, TemplateView):
                 "scripts:start", project=project, profile=profile, script=script
             )
         else:
-            return self.get_render_multiple_profiles(request, project, script, profile_form)
+            return self.get_render_multiple_profiles(
+                request, project, script, profile_form
+            )
 
 
 class ScriptStartView(LoginRequiredMixin, TemplateView):
@@ -145,6 +171,13 @@ class ScriptStartView(LoginRequiredMixin, TemplateView):
 
     @staticmethod
     def get_redirect_link(project, script):
+        """
+        Get the redirect link for a specific project or script (the page of the project status).
+
+        :param project: the project
+        :param script: the script
+        :return: a tag for the redirect link
+        """
         if script == project.pipeline.fa_script:
             return "scripts:loading"
         elif script == project.pipeline.g2p_script:
@@ -170,23 +203,22 @@ class ScriptStartView(LoginRequiredMixin, TemplateView):
 
         redirect_link = self.get_redirect_link(project, script)
 
-        variable_parameters = (
-            script.get_variable_parameters()
-        )
+        variable_parameters = script.get_variable_parameters()
         parameter_form = ParameterForm(variable_parameters)
 
-        started, error = start_script_get_error(
-            script,
-            project,
-            profile,
-        )
+        started, error = start_script_get_error(script, project, profile,)
         if started:
             return redirect(redirect_link, project=project, script=script)
         else:
             return render(
                 request,
                 self.template_name,
-                {"project": project, "error": error, "parameter_form": parameter_form, "script": script},
+                {
+                    "project": project,
+                    "error": error,
+                    "parameter_form": parameter_form,
+                    "script": script,
+                },
             )
 
     def post(self, request, **kwargs):
@@ -207,9 +239,7 @@ class ScriptStartView(LoginRequiredMixin, TemplateView):
 
         redirect_link = self.get_redirect_link(project, script)
 
-        variable_parameters = (
-            script.get_variable_parameters()
-        )
+        variable_parameters = script.get_variable_parameters()
         if len(variable_parameters) > 0:
             parameter_form = ParameterForm(variable_parameters, request.POST)
         else:
@@ -219,7 +249,9 @@ class ScriptStartView(LoginRequiredMixin, TemplateView):
             script,
             project,
             profile,
-            parameters=parameter_form.cleaned_data if parameter_form.is_valid() else None
+            parameters=parameter_form.cleaned_data
+            if parameter_form.is_valid()
+            else None,
         )
         if started:
             return redirect(redirect_link, project=project, script=script)
@@ -227,7 +259,12 @@ class ScriptStartView(LoginRequiredMixin, TemplateView):
             return render(
                 request,
                 self.template_name,
-                {"project": project, "error": error, "parameter_form": parameter_form, "script": script},
+                {
+                    "project": project,
+                    "error": error,
+                    "parameter_form": parameter_form,
+                    "script": script,
+                },
             )
 
 
@@ -246,6 +283,13 @@ class ScriptLoadScreen(LoginRequiredMixin, TemplateView):
 
     @staticmethod
     def get_continue_link(project, script):
+        """
+        Get a continue link for a project and script.
+
+        :param project: the project
+        :param script: the script
+        :return: a tag for the next page
+        """
         if script == project.pipeline.fa_script:
             return "scripts:fa_redirect"
         elif script == project.pipeline.g2p_script:
@@ -268,9 +312,7 @@ class ScriptLoadScreen(LoginRequiredMixin, TemplateView):
             raise ValueError("Script is not a project script")
 
         return render(
-            request,
-            self.template_name,
-            {"project": project, "script": script},
+            request, self.template_name, {"project": project, "script": script},
         )
 
     def post(self, request, **kwargs):
@@ -517,9 +559,7 @@ class ProjectDeleteView(LoginRequiredMixin, TemplateView):
         return redirect("scripts:projects")
 
 
-def start_script_get_error(
-    script_to_start, project, profile, parameters=None
-):
+def start_script_get_error(script_to_start, project, profile, parameters=None):
     """
     Render a start screen.
 
@@ -535,9 +575,7 @@ def start_script_get_error(
     try:
         if parameters is not None:
             project.start_script(
-                profile,
-                script_to_start,
-                parameter_values=parameters,
+                profile, script_to_start, parameter_values=parameters,
             )
         else:
             project.start_script(profile, script_to_start)

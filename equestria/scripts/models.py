@@ -951,6 +951,11 @@ class Project(Model):
 
     @property
     def status(self):
+        """
+        GET the status of this project.
+
+        :return: the next step of this project
+        """
         return self.get_next_step()
 
     def get_next_step(self):
@@ -1032,9 +1037,7 @@ class Project(Model):
         for file_name in os.listdir(self.folder):
             full_file_path = os.path.join(self.folder, file_name)
             if os.path.isfile(full_file_path):
-                if file_name.endswith(
-                    tuple(extensions)
-                ):
+                if file_name.endswith(tuple(extensions)):
                     if os.stat(full_file_path).st_size != 0:
                         return True
 
@@ -1107,7 +1110,9 @@ class Project(Model):
         :return: the process with the started script, raises a ValueError if the files in the folder do not match the
         profile, raises an Exception if a CLAM error occurred
         """
-        parameter_values = dict() if parameter_values is None else parameter_values
+        parameter_values = (
+            dict() if parameter_values is None else parameter_values
+        )
 
         if not self.can_start_new_process():
             raise Project.StateException
@@ -1155,7 +1160,10 @@ class Project(Model):
         :param script: the script to check
         :return: True if it corresponds to this project, False otherwise
         """
-        return script == self.pipeline.fa_script or script == self.pipeline.g2p_script
+        return (
+            script == self.pipeline.fa_script
+            or script == self.pipeline.g2p_script
+        )
 
     class StateException(Exception):
         """Exception to be thrown when the project has an incorrect state."""

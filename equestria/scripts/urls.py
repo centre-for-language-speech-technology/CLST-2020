@@ -1,7 +1,12 @@
 """Module to parse URL and direct accordingly."""
 from django.urls import path, register_converter
 from .views import *
-from .converters import ProjectConverter, ProfileConverter, ProcessConverter, ScriptConverter
+from .converters import (
+    ProjectConverter,
+    ProfileConverter,
+    ProcessConverter,
+    ScriptConverter,
+)
 
 register_converter(ProjectConverter, "project")
 register_converter(ProfileConverter, "profile")
@@ -48,5 +53,5 @@ urlpatterns = [
         "<project:project>/status/<script:script>",
         ScriptLoadScreen.as_view(),
         name="loading",
-    )
+    ),
 ]

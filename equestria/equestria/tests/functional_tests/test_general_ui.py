@@ -11,6 +11,5 @@ class TestUI(GenericFuncTest):
         subtext = self.get("/html/body/div/div/h4")
         self.assertEquals(text.text, "Equestria")
         self.assertEquals(
-            subtext.text,
-            "A Forced Alignment Pipeline",
+            subtext.text, "A Forced Alignment Pipeline",
         )
