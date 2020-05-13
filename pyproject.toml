@@ -21,6 +21,7 @@ codecov = "^2.0.22"
 django-background-tasks = "^1.2.5"
 selenium-wire = "^1.0.11"
 django-nested-inline = "^0.4.2"
+django-guardian = "^2.2.0"
 
 
 [tool.poetry.dev-dependencies]
