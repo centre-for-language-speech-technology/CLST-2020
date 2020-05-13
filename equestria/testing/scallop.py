@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 from http.server import HTTPServer, BaseHTTPRequestHandler
-import sys
 from io import BytesIO
 import os
 from threading import Thread
