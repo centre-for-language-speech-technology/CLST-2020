@@ -167,3 +167,4 @@ AAACAAIAsgAAANcAAAAAAA=="
         save_file(self.project, self.existing_file)
         assert fsDeleteMock.call_count == 1
         assert fsSaveMock.call_count == 1
+        assert fsExistsMock.call_count == 1
