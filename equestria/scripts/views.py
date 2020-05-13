@@ -15,6 +15,7 @@ from .forms import (
 import logging
 from django.urls import reverse
 from guardian.shortcuts import assign_perm
+from guardian.mixins import PermissionRequiredMixin
 
 
 class FARedirect(LoginRequiredMixin, TemplateView):
@@ -379,12 +380,14 @@ class FAOverview(LoginRequiredMixin, TemplateView):
             )
 
 
-class CheckDictionaryScreen(LoginRequiredMixin, TemplateView):
+class CheckDictionaryScreen(LoginRequiredMixin, PermissionRequiredMixin, TemplateView):
     """Check dictionary page."""
 
     login_url = "/accounts/login/"
 
     template_name = "scripts/check-dictionary-screen.html"
+
+    permission_required = "access_project"
 
     def get(self, request, **kwargs):
         """
@@ -523,6 +526,7 @@ class ProjectOverview(LoginRequiredMixin, TemplateView):
             project = Project.create_project(
                 project_name, pipeline, request.user
             )
+            assign_perm("access_project", request.user, project)
             return redirect("upload:upload_project", project=project)
         return render(
             request, self.template_name, {"form": form, "projects": projects},

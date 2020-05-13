@@ -28,7 +28,7 @@ class Signup(GenericTemplate):
         if form.is_valid():
             user = form.save()
             #  log in the user
-            login(request, user)
+            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
             return redirect("welcome")
         else:
             # implement error handling here
