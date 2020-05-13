@@ -46,7 +46,6 @@ INSTALLED_APPS = [
     "nested_inline",
     "scripts",
     "upload",
-    "crispy_forms",
     "background_task",
     "accounts",
     "equestria",

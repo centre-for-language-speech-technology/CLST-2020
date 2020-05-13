@@ -16,6 +16,7 @@ import secrets
 from django.contrib.auth import get_user_model
 import zipfile
 from .services import zip_dir
+from .tasks import update_script
 
 # Create your models here.
 
@@ -436,16 +437,7 @@ class Process(Model):
         """
         try:
             return self.start(profile, parameter_values=parameter_values)
-        except ValueError as e:
-            # Input template error
-            self.cleanup()
-            raise e
-        except BaseParameter.ParameterException as e:
-            # Not all parameters are satisfied
-            self.cleanup()
-            raise e
         except Exception as e:
-            # CLAM error
             self.cleanup()
             raise e
 
@@ -491,6 +483,7 @@ class Process(Model):
 
             clamclient.startsafe(self.clam_id, **merged_parameters)
             self.set_status(STATUS_RUNNING)
+            update_script(self.pk)
             return True
         else:
             return False
@@ -810,18 +803,16 @@ class InputTemplate(Model):
         :param folder: the folder to search for the file
         :return: True if at least one file is found with the extension from this object, False otherwise
         """
-        # Optional: File type not required
-        # Unique: Only one file of that type in dir
-        # Accept Archive: can upload .zip
-        if self.unique:
-            i = 0
-            for file in os.listdir(folder):
-                if file.endswith(self.extension):
-                    i += 1
-            if self.optional:
-                return i == 1 or i == 0
-            else:
-                return i == 1
+        matching_files = 0
+        for file in os.listdir(folder):
+            if file.endswith(self.extension):
+                matching_files += 1
+        if matching_files == 0 and not self.optional:
+            return False
+        elif matching_files > 1 and self.unique:
+            return False
+        else:
+            return True
 
     def is_valid_for(self, folder):
         """
@@ -958,6 +949,15 @@ class Project(Model):
                     name=name, folder=folder, pipeline=pipeline, user=user
                 )
 
+    @property
+    def status(self):
+        """
+        GET the status of this project.
+
+        :return: the next step of this project
+        """
+        return self.get_next_step()
+
     def get_next_step(self):
         """
         Get the project status.
@@ -1037,9 +1037,7 @@ class Project(Model):
         for file_name in os.listdir(self.folder):
             full_file_path = os.path.join(self.folder, file_name)
             if os.path.isfile(full_file_path):
-                if file_name.endswith(
-                    tuple(extensions)
-                ):  # a python tuple can be of any size btw.
+                if file_name.endswith(tuple(extensions)):
                     if os.stat(full_file_path).st_size != 0:
                         return True
 
@@ -1082,31 +1080,25 @@ class Project(Model):
         """
         return self.current_process is None
 
-    def start_fa_script(self, profile, parameter_values=None):
+    def start_fa_script(self, profile, **kwargs):
         """
         Start the FA script with a given profile.
 
-        :param parameter_values: parameter values in (key, value) format in a dictionary
         :param profile: the profile to start FA with
         :return: the process with the started script, raises a ValueError if the files in the folder do not match the
         profile, raises an Exception if a CLAM error occurred
         """
-        if parameter_values is None:
-            parameter_values = dict()
-        return self.start_script(profile, self.pipeline.fa_script)
+        return self.start_script(profile, self.pipeline.fa_script, **kwargs)
 
-    def start_g2p_script(self, profile, parameter_values=None):
+    def start_g2p_script(self, profile, **kwargs):
         """
         Start the G2P script with a given profile.
 
-        :param parameter_values: parameter values in (key, value) format in a dictionary
         :param profile: the profile to start G2P with
         :return: the process with the started script, raises a ValueError if the files in the folder do not match the
         profile, raises an Exception if a CLAM error occurred
         """
-        if parameter_values is None:
-            parameter_values = dict()
-        return self.start_script(profile, self.pipeline.g2p_script)
+        return self.start_script(profile, self.pipeline.g2p_script, **kwargs)
 
     def start_script(self, profile, script, parameter_values=None):
         """
@@ -1118,15 +1110,11 @@ class Project(Model):
         :return: the process with the started script, raises a ValueError if the files in the folder do not match the
         profile, raises an Exception if a CLAM error occurred
         """
-        if parameter_values is None:
-            parameter_values = dict()
+        parameter_values = (
+            dict() if parameter_values is None else parameter_values
+        )
 
-        if (
-            self.current_process is not None
-            and self.current_process.script == script
-        ):
-            return self.current_process
-        elif not self.can_start_new_process():
+        if not self.can_start_new_process():
             raise Project.StateException
         elif profile.script != script:
             raise Profile.IncorrectProfileException
@@ -1140,12 +1128,6 @@ class Project(Model):
                 profile, parameter_values=parameter_values
             )
             return self.current_process
-        except ValueError as e:
-            self.cleanup()
-            raise e
-        except BaseParameter.ParameterException as e:
-            self.cleanup()
-            raise e
         except Exception as e:
             self.cleanup()
             raise e
@@ -1170,6 +1152,18 @@ class Project(Model):
         if os.path.exists(self.folder):
             shutil.rmtree(self.folder, ignore_errors=True)
         super(Project, self).delete(**kwargs)
+
+    def is_project_script(self, script):
+        """
+        Check if a script corresponds to this project.
+
+        :param script: the script to check
+        :return: True if it corresponds to this project, False otherwise
+        """
+        return (
+            script == self.pipeline.fa_script
+            or script == self.pipeline.g2p_script
+        )
 
     class StateException(Exception):
         """Exception to be thrown when the project has an incorrect state."""

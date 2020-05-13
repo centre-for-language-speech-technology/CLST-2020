@@ -4,7 +4,7 @@ import os
 import multiprocessing
 from django.core.exceptions import ValidationError
 
-# from testing import scallop
+from testing import scallop
 
 GOOD_SERVER = "http://localhost:12345"
 BAD_500_SERVER = "http://localhost:12346"
