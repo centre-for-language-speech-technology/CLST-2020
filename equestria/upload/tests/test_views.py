@@ -29,7 +29,28 @@ class TestView(TestCase):
             "existingFile.wav", b"file_content", content_type="video/wav"
         )
 
-    def test_valid_file_ext_upload(self):
+    def test_get(self):
+        self.client.login(username="admin", password="admin")
+        audio_file = wave.open(
+            os.path.join(BASE_DIR, "test-files/test.wav"), "rb"
+        )
+        data = {"f": audio_file}
+        response = self.client.get(self.url, data)
+        self.assertEqual(response.status_code, 200)
+
+    @patch(
+        "os.listdir", return_value=['test.wav']
+    )
+    def test_get2(self, listdirMock):
+        self.client.login(username="admin", password="admin")
+        audio_file = wave.open(
+            os.path.join(BASE_DIR, "test-files/test.wav"), "rb"
+        )
+        data = {"f": audio_file}
+        response = self.client.get(self.url, data)
+        self.assertEqual(response.status_code, 200)
+
+    def test_POST1(self):
         """Test whether uploading valid files works properly."""
 
         self.client.login(username="admin", password="admin")
@@ -40,6 +61,18 @@ class TestView(TestCase):
         data = {"f": audio_file}
         response = self.client.post(self.url, data, format="multipart")
         self.assertEqual(response.status_code, 302)
+
+    @patch(
+        "scripts.models.Project.can_start_new_process", return_value=False
+    )
+    def test_POST2(self, can_start_new_mock):
+        self.client.login(username="admin", password="admin")
+        audio_file = wave.open(
+            os.path.join(BASE_DIR, "test-files/test.wav"), "rb"
+        )
+        data = {"f": audio_file}
+        response = self.client.post(self.url, data, format="multipart")
+        self.assertEqual(response.status_code, 200)
 
     def test_invalid_file_ext_upload(self):
         """Test whether uploading valid files fails properly."""
@@ -149,3 +182,4 @@ AAACAAIAsgAAANcAAAAAAA=="
         assert fsDeleteMock.call_count == 1
         assert fsSaveMock.call_count == 1
         assert fsExistsMock.call_count == 1
+
