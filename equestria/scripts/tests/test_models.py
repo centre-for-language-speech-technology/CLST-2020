@@ -1,8 +1,9 @@
 from django.test import TestCase
-from scripts.models import Script, Pipeline
+from scripts.models import Script, Pipeline, InputTemplate
 import os
 import multiprocessing
 from django.core.exceptions import ValidationError
+from unittest.mock import patch
 
 from testing import scallop
 
@@ -114,15 +115,151 @@ class ScriptModelTest(TestCase):
             raises_validation_error = True
         self.assertTrue(raises_validation_error)
 
-    def test_pipeline_good(self):
+    def test_pipeline_name(self):
         name = "test_pipeline"
         self.pipeline = Pipeline.objects.create(
-            name = "test_pipeline",
-            fa_script = self.dfa,
-            g2p_script = self.dfa,
+            name="test_pipeline", fa_script=self.dfa, g2p_script=self.dfa,
         )
         self.assertEquals(self.pipeline.__str__(), name)
         self.assertEquals(self.pipeline.fa_script, self.dfa)
 
-    def test_input_template(self):
-        pass
+    def test_input_template_name_unique_optional(self):
+        self.input_template = InputTemplate.objects.create(
+            template_id="123",
+            format="txt",
+            label="test",
+            mime="text/plain",
+            extension="txt",
+            optional=True,
+            unique=True,
+            accept_archive=False,
+            corresponding_profile=None,
+        )
+        name = "Unique optional file with extension txt"
+        self.assertEquals(self.input_template.__str__(), name)
+
+    def test_input_template_name_unique_not_optional(self):
+        self.input_template = InputTemplate.objects.create(
+            template_id="123",
+            format="txt",
+            label="test",
+            mime="text/plain",
+            extension="txt",
+            optional=False,
+            unique=True,
+            accept_archive=False,
+            corresponding_profile=None,
+        )
+        name = "Unique file with extension txt"
+        self.assertEquals(self.input_template.__str__(), name)
+
+    def test_input_template_name_not_unique_optional(self):
+        self.input_template = InputTemplate.objects.create(
+            template_id="123",
+            format="txt",
+            label="test",
+            mime="text/plain",
+            extension="txt",
+            optional=True,
+            unique=False,
+            accept_archive=False,
+            corresponding_profile=None,
+        )
+        name = "Optional file with extension txt"
+        self.assertEquals(self.input_template.__str__(), name)
+
+    def test_input_template_name_not_unique_not_optional(self):
+        self.input_template = InputTemplate.objects.create(
+            template_id="123",
+            format="txt",
+            label="test",
+            mime="text/plain",
+            extension="txt",
+            optional=False,
+            unique=False,
+            accept_archive=False,
+            corresponding_profile=None,
+        )
+        name = "File with extension txt"
+        self.assertEquals(self.input_template.__str__(), name)
+
+    @patch("os.listdir", return_value="")
+    def test_input_template_is_valid_no_files_not_optional_not_unique(
+        self, a=""
+    ):
+        self.input_template = InputTemplate.objects.create(
+            template_id="123",
+            format="txt",
+            label="test",
+            mime="text/plain",
+            extension="txt",
+            optional=False,
+            unique=False,
+            accept_archive=False,
+            corresponding_profile=None,
+        )
+        self.assertEquals(self.input_template.is_valid("test"), False)
+
+    @patch("os.listdir", return_value="")
+    def test_input_template_is_valid_no_files_optional_not_unique(self, a=""):
+        self.input_template = InputTemplate.objects.create(
+            template_id="123",
+            format="txt",
+            label="test",
+            mime="text/plain",
+            extension="txt",
+            optional=True,
+            unique=False,
+            accept_archive=False,
+            corresponding_profile=None,
+        )
+        self.assertEquals(self.input_template.is_valid("test"), True)
+
+    @patch("os.listdir", return_value=["a.txt", "b.txt"])
+    def test_input_template_is_valid_some_files_not_optional_not_unique(
+        self, a=""
+    ):
+        self.input_template = InputTemplate.objects.create(
+            template_id="123",
+            format="txt",
+            label="test",
+            mime="text/plain",
+            extension="txt",
+            optional=False,
+            unique=False,
+            accept_archive=False,
+            corresponding_profile=None,
+        )
+        self.assertEquals(self.input_template.is_valid("test"), True)
+
+    @patch("os.listdir", return_value=["a.txt", "b.txt"])
+    def test_input_template_is_valid_some_files_not_optional_unique(self, a=""):
+        self.input_template = InputTemplate.objects.create(
+            template_id="123",
+            format="txt",
+            label="test",
+            mime="text/plain",
+            extension="txt",
+            optional=False,
+            unique=True,
+            accept_archive=False,
+            corresponding_profile=None,
+        )
+        self.assertEquals(self.input_template.is_valid("test"), False)
+
+    @patch("os.listdir", return_value=[])
+    def test_input_template_is_valid_for_no_files_not_optional_not_unique(
+        self, a=""
+    ):
+        self.input_template = InputTemplate.objects.create(
+            template_id="123",
+            format="txt",
+            label="test",
+            mime="text/plain",
+            extension="txt",
+            optional=False,
+            unique=True,
+            accept_archive=False,
+            corresponding_profile=None,
+        )
+        self.assertEquals(self.input_template.is_valid("test"), False)
