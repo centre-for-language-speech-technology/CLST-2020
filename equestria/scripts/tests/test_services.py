@@ -18,7 +18,7 @@ class TestServices(TestCase):
     def test_zip_dir(self, mockZipw, mockZipc, mockzippie):
         file = os.path.join(BASE_DIR, "test-files/test.zip")
         zip_dir(os.path.join(BASE_DIR, "test-files"), file, ignore=None)
-    
+
         assert mockZipw.call_count == 0
         assert mockZipc.call_count == 0
         assert mockzippie.call_count == 1
