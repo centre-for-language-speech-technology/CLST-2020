@@ -1,5 +1,5 @@
 from django.test import TestCase
-from scripts.models import Script
+from scripts.models import Script, Pipeline
 import os
 import multiprocessing
 from django.core.exceptions import ValidationError
@@ -113,3 +113,16 @@ class ScriptModelTest(TestCase):
         except ValidationError:
             raises_validation_error = True
         self.assertTrue(raises_validation_error)
+
+    def test_pipeline_good(self):
+        name = "test_pipeline"
+        self.pipeline = Pipeline.objects.create(
+            name = "test_pipeline",
+            fa_script = self.dfa,
+            g2p_script = self.dfa,
+        )
+        self.assertEquals(self.pipeline.__str__(), name)
+        self.assertEquals(self.pipeline.fa_script, self.dfa)
+
+    def test_input_template(self):
+        pass
