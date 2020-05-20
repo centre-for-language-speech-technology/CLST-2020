@@ -31,6 +31,7 @@ class TestView(TestCase):
         )
 
     def test_get(self):
+        """Test a get request as admin."""
         self.client.login(username="admin", password="admin")
 
         data = {"f": self.existing_file}
@@ -39,6 +40,8 @@ class TestView(TestCase):
 
     @patch("os.listdir", return_value=["test.wav"])
     def test_get2(self, listdirMock):
+        """Test a GET request with single wav file."""
+
         self.client.login(username="admin", password="admin")
 
         data = {"f": self.existing_file}
@@ -57,6 +60,8 @@ class TestView(TestCase):
 
     @patch("scripts.models.Project.can_start_new_process", return_value=False)
     def test_POST2(self, can_start_new_mock):
+        """Test whether uploading valid files works properly and starts new process."""
+
         self.client.login(username="admin", password="admin")
         data = {"f": self.existing_file}
         response = self.client.post(self.url, data, format="multipart")
@@ -77,6 +82,8 @@ class TestView(TestCase):
     @patch("upload.views.save_zipped_files")
     @patch("upload.views.save_file")
     def test_check_file_extension(self, mockSaveFile, mockZippFile):
+        """Test if file extension check works."""
+
         self.client.login(username="admin", password="admin")
 
         # mp4 is not allowed, thus we should not call any of the other extensions!
@@ -112,6 +119,7 @@ class TestView(TestCase):
 
     @patch("upload.views.check_file_extension")
     def test_save_zipped_files_fail(self, cfemock):
+        """Test if saving zipped files fails if uploading non zip file."""
         try:
             save_zipped_files(self.project, self.existing_file)
             self.fail(
@@ -123,6 +131,7 @@ class TestView(TestCase):
 
     @patch("upload.views.check_file_extension")
     def test_save_zipped_files(self, cfemock):
+        """Test if zip file upload works."""
         file = SimpleUploadedFile(
             "coolzip.zip",
             base64.b64decode(
@@ -147,6 +156,8 @@ AAACAAIAsgAAANcAAAAAAA=="
     @patch("django.core.files.storage.FileSystemStorage.save")
     @patch("django.core.files.storage.FileSystemStorage.delete")
     def test_save_file_new(self, fsDeleteMock, fsSaveMock):
+        """Test if saving a new file works."""
+
         self.client.login(username="admin", password="admin")
         file = SimpleUploadedFile(
             "newFile.wav", b"file_content", content_type="video/mp4"
@@ -164,6 +175,8 @@ AAACAAIAsgAAANcAAAAAAA=="
     @patch("django.core.files.storage.FileSystemStorage.save")
     @patch("django.core.files.storage.FileSystemStorage.delete")
     def test_save_file_existing(self, fsDeleteMock, fsSaveMock, fsExistsMock):
+        """Test if saving existing files work."""
+
         self.client.login(username="admin", password="admin")
         save_file(self.project, self.existing_file)
         assert fsDeleteMock.call_count == 1
