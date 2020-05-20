@@ -13,26 +13,12 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
+BASE_DIR = os.path.abspath(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..")
+)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "20!5%%x%+4j1un2v1p^cz!ld2fx00+jd!%!3%ax^d&mk4pl9w#"
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = [
-    "127.0.0.1",
-    "localhost",
-    "sermak.xyz",
-    "raspberrypi",
-    "192.168.2.38",
-]
-X_FRAME_OPTIONS = "SAMEORIGIN"
 
 # Application definition
 
@@ -53,18 +39,6 @@ INSTALLED_APPS = [
     "django_nose",
     "guardian",
 ]
-
-# Use nose to run all tests
-TEST_RUNNER = "django_nose.NoseTestSuiteRunner"
-
-NOSE_ARGS = [
-    "--with-coverage",
-    "--cover-package=equestria,accounts,scripts,upload",
-    "--cover-html",
-]
-
-
-CRISPY_TEMPLATE_PACK = "bootstrap4"
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -139,7 +113,7 @@ AUTHENTICATION_BACKENDS = (
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = "Europe/Amsterdam"
 
 USE_I18N = True
 
@@ -157,24 +131,12 @@ BACKGROUND_TASK_RUN_ASYNC = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
-
 STATIC_URL = "/static/"
-# Standard file path for uploaded/downloaded files
-FILE_PATH_FIELD_DIRECTORY = BASE_DIR
 STATIC_ROOT = os.path.join(BASE_DIR, "static/")
+
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 TMP_DIR = os.path.join(BASE_DIR, "tmp")
 DOWNLOAD_DIR = os.path.join(BASE_DIR, "outputs")
 USER_DATA_FOLDER = os.path.join(BASE_DIR, "userdata")
-
-
-if not os.path.exists(TMP_DIR):
-    os.makedirs(TMP_DIR)
-
-if not os.path.exists(DOWNLOAD_DIR):
-    os.makedirs(DOWNLOAD_DIR)
-
-if not os.path.exists(USER_DATA_FOLDER):
-    os.makedirs(USER_DATA_FOLDER)
