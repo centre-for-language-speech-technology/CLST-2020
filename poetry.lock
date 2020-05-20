@@ -166,6 +166,25 @@ six = ">=1.10.0"
 
 [[package]]
 category = "main"
+description = "Best way to have Django DRY forms"
+name = "django-crispy-forms"
+optional = false
+python-versions = "*"
+version = "1.9.0"
+
+[[package]]
+category = "main"
+description = "Implementation of per object permissions for Django."
+name = "django-guardian"
+optional = false
+python-versions = ">=3.5"
+version = "2.2.0"
+
+[package.dependencies]
+Django = ">=2.1"
+
+[[package]]
+category = "main"
 description = "Recursive nesting of inline forms for Django Admin"
 name = "django-nested-inline"
 optional = false
@@ -490,7 +509,7 @@ dev = ["pytest", "pytest-timeout", "coverage", "tox", "sphinx", "pallets-sphinx-
 watchdog = ["watchdog"]
 
 [metadata]
-content-hash = "41ed3184df18feba8c88ed4ac6acec9b3a82268fd6eaa02f74671d78b078e402"
+content-hash = "c4544be816a56457cc1c77c0b9b549d174099693492928d34b6f6fda62e7ab98"
 python-versions = "^3.7"
 
 [metadata.files]
@@ -575,6 +594,14 @@ django-colorfield = [
 ]
 django-compat = [
     {file = "django-compat-1.0.15.tar.gz", hash = "sha256:3ac9a3bedc56b9365d9eb241bc5157d0c193769bf995f9a78dc1bc24e7c2331b"},
+]
+django-crispy-forms = [
+    {file = "django-crispy-forms-1.9.0.tar.gz", hash = "sha256:67e73ac863d3159500029fbbcdcb788f287a3fd357becebc1a0b51f73896dce3"},
+    {file = "django_crispy_forms-1.9.0-py2.py3-none-any.whl", hash = "sha256:50032184708ce351e3c9f0008ac35d659d9d5973fa2db218066f2e0a76eb41d9"},
+]
+django-guardian = [
+    {file = "django-guardian-2.2.0.tar.gz", hash = "sha256:8cacf49ebcc1e545f0a8997971eec0fe109f5ed31fc2a569a7bf5615453696e2"},
+    {file = "django_guardian-2.2.0-py3-none-any.whl", hash = "sha256:ac81e88372fdf1795d84ba065550e739b42e9c6d07cdf201cf5bbf9efa7f396c"},
 ]
 django-nested-inline = [
     {file = "django-nested-inline-0.4.2.tar.gz", hash = "sha256:45c3a91e530ec479359727be4a89ef2446e3dd6424f9574aac038ebfd55c38bf"},

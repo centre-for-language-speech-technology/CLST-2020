@@ -1170,6 +1170,9 @@ class Project(Model):
         """Meta class for Project model."""
 
         unique_together = ("name", "user")
+        permissions = [
+            ("access_project", "Access project"),
+        ]
 
 
 class BaseParameter(Model):

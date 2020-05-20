@@ -8,7 +8,7 @@ from upload.views import *
 class TestUrls(TestCase):
     """Check if all defined urls resolve."""
 
-    fixtures = ["uploadDB"]
+    fixtures = ["uploadDB2"]
 
     def setUp(self):
         """Set up the data needed to perform tests below."""

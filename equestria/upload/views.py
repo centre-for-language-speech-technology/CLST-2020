@@ -7,6 +7,7 @@ from .forms import UploadForm
 from django.core.files.storage import FileSystemStorage
 from django.contrib.auth.mixins import LoginRequiredMixin
 import zipfile
+from django.core.exceptions import PermissionDenied
 
 
 class UploadProjectView(LoginRequiredMixin, TemplateView):
@@ -26,6 +27,8 @@ class UploadProjectView(LoginRequiredMixin, TemplateView):
         project and a profile form if a new process can be started for the project
         """
         project = kwargs.get("project")
+        if not request.user.has_perm("access_project", project):
+            raise PermissionDenied
         files = os.listdir(project.folder)
         no_wav_list = []
         no_txt_list = []
