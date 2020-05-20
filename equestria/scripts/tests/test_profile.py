@@ -1,6 +1,6 @@
 from django.test import TestCase
 from scripts.models import Profile, Process, Script, InputTemplate
-from equestria.settings import BASE_DIR
+from equestria.settings.base import BASE_DIR
 import os
 
 
