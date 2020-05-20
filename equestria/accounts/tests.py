@@ -36,7 +36,7 @@ class TestAccounts(TestCase):
             "/accounts/login/", invalid_credentials, follow=True
         )
         self.assertFalse(response.context["user"].is_active)
-        self.assertEquals(len(response.content), 4437)
+        self.assertTrue(b"Invalid username or password" in response.content)
 
     def test_logout(self):
         """Test logout."""
@@ -70,7 +70,9 @@ class TestAccounts(TestCase):
         response = self.client.post(
             "/accounts/signup/", credentials, follow=True
         )
-        self.assertEquals(len(response.content), 5164)
+        self.assertTrue(
+            b"Invalid password or already taken user name." in response.content
+        )
 
     def test_forgot_password(self):
         """Test the forgot password page."""
