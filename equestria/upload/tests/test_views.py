@@ -4,7 +4,6 @@ from django.test import TestCase, Client
 from django.urls import reverse
 from scripts.models import Project
 from upload.views import *
-from equestria.settings import BASE_DIR
 import wave
 import os
 from unittest.mock import patch
@@ -26,25 +25,24 @@ class TestView(TestCase):
 
         # NOTE! this file must not be a zip file, or else other tests may fail.
         self.existing_file = SimpleUploadedFile(
-            "existingFile.wav", b"file_content", content_type="video/wav"
+            "existingFile.wav", b"file_content", content_type="wav"
+        )
+        self.invalid_file = SimpleUploadedFile(
+            "invalid.xml", b"file_content", content_type="xml"
         )
 
     def test_get(self):
         self.client.login(username="admin", password="admin")
-        audio_file = wave.open(
-            os.path.join(BASE_DIR, "test-files/test.wav"), "rb"
-        )
-        data = {"f": audio_file}
+
+        data = {"f": self.existing_file}
         response = self.client.get(self.url, data)
         self.assertEqual(response.status_code, 200)
 
     @patch("os.listdir", return_value=["test.wav"])
     def test_get2(self, listdirMock):
         self.client.login(username="admin", password="admin")
-        audio_file = wave.open(
-            os.path.join(BASE_DIR, "test-files/test.wav"), "rb"
-        )
-        data = {"f": audio_file}
+
+        data = {"f": self.existing_file}
         response = self.client.get(self.url, data)
         self.assertEqual(response.status_code, 200)
         print(listdirMock.call_count)  # just for CI deadcode failing here
@@ -54,20 +52,14 @@ class TestView(TestCase):
 
         self.client.login(username="admin", password="admin")
 
-        audio_file = wave.open(
-            os.path.join(BASE_DIR, "test-files/test.wav"), "rb"
-        )
-        data = {"f": audio_file}
+        data = {"f": self.existing_file}
         response = self.client.post(self.url, data, format="multipart")
         self.assertEqual(response.status_code, 302)
 
     @patch("scripts.models.Project.can_start_new_process", return_value=False)
     def test_POST2(self, can_start_new_mock):
         self.client.login(username="admin", password="admin")
-        audio_file = wave.open(
-            os.path.join(BASE_DIR, "test-files/test.wav"), "rb"
-        )
-        data = {"f": audio_file}
+        data = {"f": self.existing_file}
         response = self.client.post(self.url, data, format="multipart")
         self.assertEqual(response.status_code, 200)
         print(can_start_new_mock.call_count)  # Just for Ci deadcode analysis.
@@ -76,9 +68,7 @@ class TestView(TestCase):
         """Test whether uploading valid files fails properly."""
         self.client.login(username="admin", password="admin")
 
-        invalid_file = open(os.path.join(BASE_DIR, "test-files/test.xml"), "r")
-
-        data = {"f": invalid_file}
+        data = {"f":  self.invalid_file}
 
         response = self.client.post(self.url, data, format="multipart")
         self.assertEqual(response.status_code, 302)
