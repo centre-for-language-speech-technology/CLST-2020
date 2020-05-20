@@ -30,13 +30,15 @@ class TestView(TestCase):
             "invalid.xml", b"file_content", content_type="xml"
         )
 
-    def test_get(self):
+    @patch("os.listdir", return_value=["test.wav"])
+    def test_get(self, mock):
         """Test a get request as admin."""
         self.client.login(username="admin", password="admin")
 
         data = {"f": self.existing_file}
         response = self.client.get(self.url, data)
         self.assertEqual(response.status_code, 200)
+        print(mock.call_count)  # just for CI deadcode failing here
 
     @patch("os.listdir", return_value=["test.wav"])
     def test_get2(self, listdirMock):
@@ -49,7 +51,8 @@ class TestView(TestCase):
         self.assertEqual(response.status_code, 200)
         print(listdirMock.call_count)  # just for CI deadcode failing here
 
-    def test_POST1(self):
+    @patch("os.listdir", return_value=["test.wav"])
+    def test_POST1(self, mock):
         """Test whether uploading valid files works properly."""
 
         self.client.login(username="admin", password="admin")
@@ -57,16 +60,18 @@ class TestView(TestCase):
         data = {"f": self.existing_file}
         response = self.client.post(self.url, data, format="multipart")
         self.assertEqual(response.status_code, 302)
+        print(mock.call_count)  # just for CI deadcode failing here
 
+    @patch("os.listdir", return_value=["test.wav"])
     @patch("scripts.models.Project.can_start_new_process", return_value=False)
-    def test_POST2(self, can_start_new_mock):
+    def test_POST2(self, can_start_new_mock, mock):
         """Test whether uploading valid files works properly and starts new process."""
-
         self.client.login(username="admin", password="admin")
         data = {"f": self.existing_file}
         response = self.client.post(self.url, data, format="multipart")
         self.assertEqual(response.status_code, 200)
         print(can_start_new_mock.call_count)  # Just for Ci deadcode analysis.
+        print(mock.call_count)  # just for CI deadcode failing here
 
     def test_invalid_file_ext_upload(self):
         """Test whether uploading valid files fails properly."""
