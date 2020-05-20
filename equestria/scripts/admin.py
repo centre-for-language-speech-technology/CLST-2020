@@ -1,8 +1,12 @@
 """Module to register thing to be available in admin page."""
 from django.contrib import admin
+from django.core.exceptions import ValidationError
+from django.http import HttpResponseRedirect
 from scripts import models
 from .forms import ChoiceParameterAdminForm
 from nested_inline.admin import NestedStackedInline, NestedModelAdmin
+from django import forms
+from django.contrib import messages
 
 
 class BooleanParameterInline(NestedStackedInline):
@@ -96,6 +100,42 @@ class ScriptAdmin(NestedModelAdmin):
     """Profiles are displayed inline when creating/modifying processes."""
 
     inlines = [ProfileInline, BaseParameterInline]
+
+    def change_view(self, request, object_id, form_url="", extra_context=None):
+        """
+        Add a show_refresh to the context.
+
+        :param request: the request
+        :param object_id: object id
+        :param form_url: form url
+        :param extra_context: extra content
+        :return: changeform_view with added context
+        """
+        try:
+            extra_context["show_refresh"] = True
+        except TypeError:
+            extra_context = {"show_refresh": True}
+        return self.changeform_view(request, object_id, form_url, extra_context)
+
+    def response_change(self, request, obj):
+        """
+        Add refresh functionality to the django script admin.
+
+        :param request: the request
+        :param obj: object
+        :return: the super method of response_change if refresh is not set, otherwise refreshes the script and redirects
+        to the same page with a success or error message.
+        """
+        if "_refresh" in request.POST:
+            try:
+                obj.refresh()
+                self.message_user(request, "CLAM data refreshed successfully")
+            except ValidationError as e:
+                self.message_user(
+                    request, e.message, level=messages.ERROR,
+                )
+            return HttpResponseRedirect(".")
+        return super().response_change(request, obj)
 
 
 class InputTemplateInline(admin.StackedInline):
