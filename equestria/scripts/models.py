@@ -975,7 +975,7 @@ class Project(Model):
                     "Current script process is not an FA or G2P script"
                 )
 
-    def write_oov_dict_file_contents(self, content):
+    def write_oov_dict_file_contents(self, content, name=None):
         """
         Write content to .oov.dict file in project folder.
 
@@ -989,7 +989,10 @@ class Project(Model):
         else:
             # TODO: Change the way we handle writing to a .oov.dict that does not exist
             with open(
-                os.path.join(self.folder, "default.oov.dict"), "w"
+                os.path.join(
+                    self.folder, "default.oov.dict" if name == None else name
+                ),
+                "w",
             ) as file:
                 file.write(content)
 
