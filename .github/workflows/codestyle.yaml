@@ -38,15 +38,11 @@ jobs:
     - name: "Run PyDocStyle"
       run: "poetry run pydocstyle --explain --add-ignore=D100,D104 --match-dir='(?!migrations).*' equestria"
 
-    - name: "Check for dead code"
-      run: "poetry run vulture --min-confidence=90 equestria"
-      
+
     - name: Check server
       run: |
         poetry run python3 equestria/manage.py check
 
     - name: Perform tests
       run: |
-        poetry run equestria/testing/scallop.py &
         MOZ_HEADLESS=1 poetry run python3 equestria/manage.py test equestria --parallel
-        kill $(jobs -p) || true
