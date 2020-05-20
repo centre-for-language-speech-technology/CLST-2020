@@ -116,6 +116,7 @@ class ScriptModelTest(TestCase):
         self.assertTrue(raises_validation_error)
 
     def test_pipeline_name(self):
+        """Test str method of pipeline."""
         name = "test_pipeline"
         self.pipeline = Pipeline.objects.create(
             name="test_pipeline", fa_script=self.dfa, g2p_script=self.dfa,
@@ -124,6 +125,7 @@ class ScriptModelTest(TestCase):
         self.assertEquals(self.pipeline.fa_script, self.dfa)
 
     def test_input_template_name_unique_optional(self):
+        """Test input template name when optional and unique."""
         self.input_template = InputTemplate.objects.create(
             template_id="123",
             format="txt",
@@ -139,6 +141,7 @@ class ScriptModelTest(TestCase):
         self.assertEquals(self.input_template.__str__(), name)
 
     def test_input_template_name_unique_not_optional(self):
+        """Test input template name when not optional and unique."""
         self.input_template = InputTemplate.objects.create(
             template_id="123",
             format="txt",
@@ -154,6 +157,7 @@ class ScriptModelTest(TestCase):
         self.assertEquals(self.input_template.__str__(), name)
 
     def test_input_template_name_not_unique_optional(self):
+        "Test input template name when optional and not unique."
         self.input_template = InputTemplate.objects.create(
             template_id="123",
             format="txt",
@@ -169,6 +173,7 @@ class ScriptModelTest(TestCase):
         self.assertEquals(self.input_template.__str__(), name)
 
     def test_input_template_name_not_unique_not_optional(self):
+        "Test input template name when neither optional not unique."
         self.input_template = InputTemplate.objects.create(
             template_id="123",
             format="txt",
@@ -187,6 +192,7 @@ class ScriptModelTest(TestCase):
     def test_input_template_is_valid_no_files_not_optional_not_unique(
         self, a=""
     ):
+        """Test inputTemplate when no files."""
         self.input_template = InputTemplate.objects.create(
             template_id="123",
             format="txt",
@@ -202,6 +208,7 @@ class ScriptModelTest(TestCase):
 
     @patch("os.listdir", return_value="")
     def test_input_template_is_valid_no_files_optional_not_unique(self, a=""):
+        """Test for no files."""
         self.input_template = InputTemplate.objects.create(
             template_id="123",
             format="txt",
@@ -219,6 +226,7 @@ class ScriptModelTest(TestCase):
     def test_input_template_is_valid_some_files_not_optional_not_unique(
         self, a=""
     ):
+        """Test with some files."""
         self.input_template = InputTemplate.objects.create(
             template_id="123",
             format="txt",
@@ -234,6 +242,7 @@ class ScriptModelTest(TestCase):
 
     @patch("os.listdir", return_value=["a.txt", "b.txt"])
     def test_input_template_is_valid_some_files_not_optional_unique(self, a=""):
+        """Test valid with some files and unique."""
         self.input_template = InputTemplate.objects.create(
             template_id="123",
             format="txt",
@@ -251,6 +260,7 @@ class ScriptModelTest(TestCase):
     def test_input_template_is_valid_for_no_files_not_optional_not_unique(
         self, a=""
     ):
+        """Test valid for no files."""
         self.input_template = InputTemplate.objects.create(
             template_id="123",
             format="txt",
@@ -262,4 +272,24 @@ class ScriptModelTest(TestCase):
             accept_archive=False,
             corresponding_profile=None,
         )
-        self.assertEquals(self.input_template.is_valid("test"), False)
+        self.assertEquals(self.input_template.is_valid_for("test"), False)
+
+    @patch("os.listdir", return_value=["a.txt", "b.txt", "c.wav"])
+    def test_input_template_is_valid_for_some_files_not_optional_not_unique(
+        self, a=""
+    ):
+        """Test some files not optional not unique."""
+        self.input_template = InputTemplate.objects.create(
+            template_id="123",
+            format="txt",
+            label="test",
+            mime="text/plain",
+            extension="txt",
+            optional=False,
+            unique=False,
+            accept_archive=False,
+            corresponding_profile=None,
+        )
+        self.assertEquals(
+            self.input_template.is_valid_for("test"), ["a.txt", "b.txt"]
+        )
