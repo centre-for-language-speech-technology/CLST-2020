@@ -5,7 +5,10 @@ from os.path import basename, dirname
 from django.views.static import serve
 from .models import Project, Profile, Pipeline, BaseParameter, Process
 from django.http import JsonResponse
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import (
+    LoginRequiredMixin,
+    PermissionRequiredMixin,
+)
 from .forms import (
     ProjectCreateForm,
     AlterDictionaryForm,
@@ -15,7 +18,7 @@ from .forms import (
 import logging
 from django.urls import reverse
 from guardian.shortcuts import assign_perm
-from guardian.mixins import PermissionRequiredMixin
+from django.core.exceptions import PermissionDenied
 
 
 class FARedirect(LoginRequiredMixin, TemplateView):
@@ -35,6 +38,8 @@ class FARedirect(LoginRequiredMixin, TemplateView):
         things fail.
         """
         project = kwargs.get("project")
+        if not request.user.has_perm("access_project", project):
+            raise PermissionDenied
 
         if (
             project.has_non_empty_extension_file([".oov"])
@@ -113,6 +118,8 @@ class AutomaticScriptStartView(LoginRequiredMixin, TemplateView):
         project = kwargs.get("project")
         script = kwargs.get("script")
 
+        if not request.user.has_perm("access_project", project):
+            raise PermissionDenied
         if not project.is_project_script(script):
             raise ValueError("Script is not a project script")
 
@@ -200,6 +207,8 @@ class ScriptStartView(LoginRequiredMixin, TemplateView):
         profile = kwargs.get("profile")
         script = kwargs.get("script")
 
+        if not request.user.has_perm("access_project", project):
+            raise PermissionDenied
         if not project.is_project_script(script):
             raise ValueError("Script is not a project script")
 
@@ -310,6 +319,8 @@ class ScriptLoadScreen(LoginRequiredMixin, TemplateView):
         project = kwargs.get("project")
         script = kwargs.get("script")
 
+        if not request.user.has_perm("access_project", project):
+            raise PermissionDenied
         if not project.is_project_script(script):
             raise ValueError("Script is not a project script")
 
@@ -366,6 +377,9 @@ class FAOverview(LoginRequiredMixin, TemplateView):
         """
         project = kwargs.get("project")
 
+        if not request.user.has_perm("access_project", project):
+            raise PermissionDenied
+
         if project.finished_fa():
             return render(
                 request,
@@ -380,14 +394,12 @@ class FAOverview(LoginRequiredMixin, TemplateView):
             )
 
 
-class CheckDictionaryScreen(LoginRequiredMixin, PermissionRequiredMixin, TemplateView):
+class CheckDictionaryScreen(LoginRequiredMixin, TemplateView):
     """Check dictionary page."""
 
     login_url = "/accounts/login/"
 
     template_name = "scripts/check-dictionary-screen.html"
-
-    permission_required = "access_project"
 
     def get(self, request, **kwargs):
         """
@@ -399,6 +411,8 @@ class CheckDictionaryScreen(LoginRequiredMixin, PermissionRequiredMixin, Templat
         """
         project = kwargs.get("project")
 
+        if not request.user.has_perm("access_project", project):
+            raise PermissionDenied
         # Read content of file.
         content = project.get_oov_dict_file_contents()
         form = AlterDictionaryForm(initial={"dictionary": content})
@@ -547,6 +561,9 @@ class ProjectDeleteView(LoginRequiredMixin, TemplateView):
         :return: a render of the project-delete page
         """
         project = kwargs.get("project")
+
+        if not request.user.has_perm("access_project", project):
+            raise PermissionDenied
 
         return render(request, self.template_name, {"project": project})
 
