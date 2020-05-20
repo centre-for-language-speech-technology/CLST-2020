@@ -30,12 +30,14 @@ class TestView(TestCase):
             "invalid.xml", b"file_content", content_type="xml"
         )
 
-    def test_get(self):
+    @patch("os.listdir", return_value=["test.wav"])
+    def test_get(self, mock):
         self.client.login(username="admin", password="admin")
 
         data = {"f": self.existing_file}
         response = self.client.get(self.url, data)
         self.assertEqual(response.status_code, 200)
+        print(mock.call_count)  # just for CI deadcode failing here
 
     @patch("os.listdir", return_value=["test.wav"])
     def test_get2(self, listdirMock):
