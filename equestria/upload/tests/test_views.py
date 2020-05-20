@@ -68,7 +68,7 @@ class TestView(TestCase):
         """Test whether uploading valid files fails properly."""
         self.client.login(username="admin", password="admin")
 
-        data = {"f":  self.invalid_file}
+        data = {"f": self.invalid_file}
 
         response = self.client.post(self.url, data, format="multipart")
         self.assertEqual(response.status_code, 302)
