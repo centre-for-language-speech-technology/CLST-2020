@@ -2,7 +2,7 @@ from unittest.mock import patch
 from django.test import TestCase, Client
 from scripts.services import *
 import os
-from equestria.settings import BASE_DIR
+from equestria.settings.base import BASE_DIR
 
 
 class TestServices(TestCase):
