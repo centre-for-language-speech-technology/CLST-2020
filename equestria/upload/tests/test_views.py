@@ -4,8 +4,7 @@ from django.test import TestCase, Client
 from django.urls import reverse
 from scripts.models import Project
 from upload.views import *
-import wave
-import os
+
 from unittest.mock import patch
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.files.storage import FileSystemStorage
