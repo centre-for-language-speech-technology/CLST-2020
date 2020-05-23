@@ -1,11 +1,11 @@
 ---
 
-name: "Coding style and testing"
+name: "Linting"
 on: "pull_request"
 
 jobs:
   lint_and_test:
-    name: "Linting and testing"
+    name: "Linting"
     runs-on: "ubuntu-latest"
     steps:
 
@@ -17,18 +17,20 @@ jobs:
       with:
         python-version: '3.7'
 
-    # We now use another predifend action to install poetry. This works easily with caching.
-    - name: Install Poetry
-      uses: dschep/install-poetry-action@v1.2
-        
-    - name: Cache Poetry virtualenv
+    - name: "Install Poetry"
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install poetry
+
+    - name: "Restore any cached Poetry dependencies"
       uses: actions/cache@v1
-      id: cache
       with:
-          path: ~/.cache/pypoetry/
-          key: IdontLikeKeyspoetry-${{ hashFiles('**/poetry.lock') }}
+        path: ~/.cache/pypoetry/virtualenvs
+        key: ${{ runner.os }}-poetry-${{ hashFiles('poetry.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-poetry-
           
-    - name: Install Dependencies
+    - name: "Install any new dependencies"
       run: poetry install
       if: steps.cache.outputs.cache-hit != 'true'
         
@@ -37,12 +39,3 @@ jobs:
 
     - name: "Run PyDocStyle"
       run: "poetry run pydocstyle --explain --add-ignore=D100,D104 --match-dir='(?!migrations).*' equestria"
-
-
-    - name: Check server
-      run: |
-        poetry run python3 equestria/manage.py check
-
-    - name: Perform tests
-      run: |
-        MOZ_HEADLESS=1 poetry run python3 equestria/manage.py test equestria --parallel
