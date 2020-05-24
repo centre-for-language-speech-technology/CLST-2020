@@ -68,6 +68,7 @@ class FloatParameterInline(NestedStackedInline):
     extra = 0
 
 
+@admin.register(models.ChoiceParameter)
 class ChoiceParameterAdmin(NestedModelAdmin):
     """Admin screen for showing choices inline."""
 
@@ -96,10 +97,13 @@ class BaseParameterInline(admin.StackedInline):
     exclude = ["name", "type", "preset"]
 
 
+@admin.register(models.Script)
 class ScriptAdmin(NestedModelAdmin):
     """Profiles are displayed inline when creating/modifying processes."""
 
     inlines = [ProfileInline, BaseParameterInline]
+
+    list_display = ["name", "hostname"]
 
     def change_view(self, request, object_id, form_url="", extra_context=None):
         """
@@ -149,14 +153,21 @@ class InputTemplateInline(admin.StackedInline):
     extra = 0
 
 
+@admin.register(models.Profile)
 class ProfileAdmin(admin.ModelAdmin):
     """Input templates are displayed inline when creating/modifying profiles."""
 
     inlines = [InputTemplateInline]
+    list_display = ["__str__", "script"]
+    list_filter = ["script"]
 
 
+@admin.register(models.BaseParameter)
 class ParameterAdmin(NestedModelAdmin):
     """Admin screen for showing parameters inline."""
+
+    list_display = ["name", "type", "corresponding_script", "preset"]
+    list_filter = ["corresponding_script", "preset", "type"]
 
     inlines = [
         BooleanParameterInline,
@@ -169,11 +180,38 @@ class ParameterAdmin(NestedModelAdmin):
     ]
 
 
-admin.site.register(models.Script, ScriptAdmin)
-admin.site.register(models.Process)
-admin.site.register(models.Project)
-admin.site.register(models.Pipeline)
-admin.site.register(models.InputTemplate)
-admin.site.register(models.Profile, ProfileAdmin)
-admin.site.register(models.BaseParameter, ParameterAdmin)
-admin.site.register(models.ChoiceParameter, ChoiceParameterAdmin)
+@admin.register(models.InputTemplate)
+class InputTemplateAdmin(admin.ModelAdmin):
+    """Model admin for InputTemplates."""
+
+    list_display = [
+        "template_id",
+        "extension",
+        "corresponding_profile",
+        "optional",
+        "unique",
+    ]
+    list_filter = ["corresponding_profile", "extension"]
+
+
+@admin.register(models.Pipeline)
+class PipelineAdmin(admin.ModelAdmin):
+    """Model admin for Pipelines."""
+
+    list_display = ["name", "fa_script", "g2p_script"]
+
+
+@admin.register(models.Process)
+class ProcessAdmin(admin.ModelAdmin):
+    """Model admin for Processes."""
+
+    list_display = ["folder", "script", "status"]
+    list_filter = ["status", "script"]
+
+
+@admin.register(models.Project)
+class ProjectAdmin(admin.ModelAdmin):
+    """Model admin for Projects."""
+
+    list_display = ["name", "user", "pipeline", "current_process"]
+    list_filter = ["user", "pipeline"]
