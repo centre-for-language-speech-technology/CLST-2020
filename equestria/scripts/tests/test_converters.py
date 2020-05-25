@@ -1,7 +1,20 @@
 from django.test import TestCase
-from scripts.converters import ScriptConverter, ProjectConverter, ProfileConverter, ProcessConverter
-from scripts.models import Script, Pipeline, InputTemplate, Project, Process, Profile
+from scripts.converters import (
+    ScriptConverter,
+    ProjectConverter,
+    ProfileConverter,
+    ProcessConverter,
+)
+from scripts.models import (
+    Script,
+    Pipeline,
+    InputTemplate,
+    Project,
+    Process,
+    Profile,
+)
 from unittest.mock import patch
+
 
 class ConverterTest(TestCase):
     """Tests the script model."""
@@ -16,7 +29,7 @@ class ConverterTest(TestCase):
         self.p1 = Project.objects.filter(id=1)[0]
         self.pf = Profile.objects.filter(id=1)[0]
         self.ps = Process.objects.filter(id=1)[0]
-        
+
         self.sc = ScriptConverter()
         self.pc = ProjectConverter()
         self.pfc = ProfileConverter()
@@ -44,7 +57,6 @@ class ConverterTest(TestCase):
             self.assertTrue(True)
             return
         self.assertTrue(False)
-
 
     def test_p_to_python_good(self):
         """Test if to_python works on good script id"""
