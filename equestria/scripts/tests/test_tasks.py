@@ -10,7 +10,7 @@ from scripts.tasks import update_script
 
 
 class TestTasks(TestCase):
-    """Test the LogMessage model"""
+    """Test the background tasks in tasks.py."""
 
     fixtures = [
         "simple_pipelines.json",
