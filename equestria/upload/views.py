@@ -156,7 +156,6 @@ def save_zipped_files(project, file):
                 else:
                     save_file(project, file)
 
-
 def save_file(project, file):
     """
     Save a file to a project.
