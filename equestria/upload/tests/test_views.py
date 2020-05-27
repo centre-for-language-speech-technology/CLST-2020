@@ -1,6 +1,6 @@
 from zipfile import BadZipFile
 
-from django.test import TestCase, Client
+from django.test import TestCase, Client, RequestFactory
 from django.urls import reverse
 from scripts.models import Project
 from upload.views import *
@@ -134,7 +134,7 @@ class TestView(TestCase):
             pass
         assert cfemock.call_count == 0
 
-    @patch("upload.views.check_file_extension")
+    @patch("upload.views.save_file")
     def test_save_zipped_files(self, cfemock):
         """Test if zip file upload works."""
         file = SimpleUploadedFile(
@@ -154,6 +154,7 @@ AAACAAIAsgAAANcAAAAAAA=="
 
         save_zipped_files(self.project, file)
 
+        print(cfemock.call_count)
         assert (
             cfemock.call_count == 2
         )  # The number of files in our mocking return value.
@@ -187,3 +188,18 @@ AAACAAIAsgAAANcAAAAAAA=="
         assert fsDeleteMock.call_count == 1
         assert fsSaveMock.call_count == 1
         assert fsExistsMock.call_count == 1
+
+    @patch("scripts.models.Project.can_upload", return_value=False)
+    @patch("upload.views.check_file_extension")
+    def test_upload_file_view(self, cfeMock, canuploadMock):
+        self.client.login(username="admin", password="admin")
+        request = RequestFactory().get('/customer/details')
+        data = {"f": self.existing_file}
+        response = self.client.get(self.url, data)
+        try:
+            upload_file_view(request)
+            self.fail(
+                "Fail."
+            )
+        except:
+            pass

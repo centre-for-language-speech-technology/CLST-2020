@@ -160,17 +160,16 @@ def save_zipped_files(project, file):
 def save_file(project, file):
     """
     Save a file to a project.
-
     :param project: the project to save the file to
     :param file: the file to be uploaded
     :return: None
     """
     path = project.folder
-    save_location = os.path.join(path, file.name)
     fs = FileSystemStorage(location=path)
     if fs.exists(file.name):
         """Delete previously uploaded file with same name."""
-        os.remove(save_location)
+        fs.delete(file.name)
+
     fs.save(file.name, file)
 
 
