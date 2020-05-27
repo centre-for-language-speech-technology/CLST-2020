@@ -180,7 +180,7 @@ def delete_file_view(request, **kwargs):
     :param request: the request
     :param kwargs: keyword arguments
     :return: a redirect if the file deletion succeeded, raises a StateException if the file can't be deleted because the
-    file does not exits
+    file does not exist
     """
     project = kwargs.get("project")
     file = request.POST.get("file")
