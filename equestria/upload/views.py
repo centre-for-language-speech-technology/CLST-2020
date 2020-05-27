@@ -151,7 +151,6 @@ def save_zipped_files(project, file):
             with zip_file.open(name) as file:
                 fs = file.name.split(".")
                 ext = fs[-1]
-                print(fs)
                 if ext == "zip":
                     save_zipped_files(project, file)
                 elif len(fs) > 1:  # test if it is a folder or has no extension.
