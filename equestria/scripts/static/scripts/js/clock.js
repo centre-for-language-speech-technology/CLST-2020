@@ -8,7 +8,7 @@ function pad(num, size) {
 
 function update_clock() {
     var dNow = new Date();
-    var utc = new Date(dNow.getTime() + dNow.getTimezoneOffset() * 60000);
+    var utc = new Date(dNow.getTime());
     var utcdate = pad(utc.getFullYear(), 4) + '-' + pad(utc.getMonth()+1, 2) + '-' + pad(utc.getDate(),2) + ' ' + pad(utc.getHours(),2) + ':' + pad(utc.getMinutes(),2) + ':' + pad(utc.getSeconds(),2);
     $('.clock').text(utcdate);
     // execute every half a second
