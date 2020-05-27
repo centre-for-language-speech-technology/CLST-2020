@@ -437,11 +437,10 @@ class CheckDictionaryScreen(LoginRequiredMixin, TemplateView):
             dictionary_content = form.cleaned_data.get("dictionary")
             project.write_oov_dict_file_contents(dictionary_content)
 
-            profiles = Profile.objects.filter(script=project.pipeline.fa_script)
-
-            # TODO select correct profile
             return redirect(
-                "scripts:fa_start", project=project, profile=profiles[0],
+                "scripts:start_automatic",
+                project=project,
+                script=project.pipeline.fa_script,
             )
         else:
             return render(
