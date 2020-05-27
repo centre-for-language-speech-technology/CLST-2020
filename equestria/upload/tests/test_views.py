@@ -134,8 +134,9 @@ class TestView(TestCase):
             pass
         assert cfemock.call_count == 0
 
+    @patch("os.walk", return_value=["coolzip.zip"])
     @patch("upload.views.save_file")
-    def test_save_zipped_files(self, cfemock):
+    def test_save_zipped_files(self, cfemock, oswalkMock):
         """Test if zip file upload works."""
         file = SimpleUploadedFile(
             "coolzip.zip",
@@ -214,8 +215,9 @@ AAACAAIAsgAAANcAAAAAAA=="
 
         assert cfeMock.call_count == 1
 
+    @patch("os.walk", return_value=["coolzip.zip"])
     @patch("upload.views.save_file")
-    def test_save_zipped_files_recurse(self, cfemock):
+    def test_save_zipped_files_recurse(self, cfemock, oswalkMock):
         """Test if zip file upload works."""
         file = SimpleUploadedFile(
             "coolzip.zip",
