@@ -7,23 +7,7 @@
 
 {% block header %}
     {% include 'equestria/header.html' with active="upload" %}
-	<script>
-	    $(document).ready(function(){
-	        $("button").click(function(){
-	        	var file = $(this).attr('file');
-                var counter = $(this).attr('counter');
-                var filepara = document.getElementById("fileid_"+counter);
-                filepara.style.visibility = 'hidden';
-	        	$.ajax({
-			      	url: "{% url 'upload:delete_file' project=project %}",
-			      	data: { csrfmiddlewaretoken: "{{ csrf_token }}",
-            				file:file,
-          			},
-			      	type: 'post',
-			    });
-	        });
-	    });
-	</script>
+	
 {% endblock %}
 
 {% block body %}
@@ -80,3 +64,23 @@
 		</div>
 	</div>
 {% endblock %}
+{% block scripts %}
+<script>
+	    $(document).ready(function(){
+	        $("button").click(function(){
+	        	var file = $(this).attr('file');
+                var counter = $(this).attr('counter');
+                var filepara = document.getElementById("fileid_"+counter);
+                filepara.style.visibility = 'hidden';
+	        	$.ajax({
+			      	url: "{% url 'upload:delete_file' project=project %}",
+			      	data: { csrfmiddlewaretoken: "{{ csrf_token }}",
+            				file:file,
+          			},
+			      	type: 'post',
+			    });
+	        });
+	    });
+	</script>
+{% endblock %}
+
