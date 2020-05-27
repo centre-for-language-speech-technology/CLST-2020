@@ -54,6 +54,9 @@
             </a>
             {% if user.is_authenticated %}
                 <div class="dropdown-menu" aria-labelledby="navbarAccountMenuLink">
+                    {% if user.is_staff %}
+                        <a class="dropdown-item" href="{% url 'admin:index' %}">Site admin</a>
+                    {% endif %}
                     <a class="dropdown-item" href="{% url "scripts:projects" %}">My projects</a>
                     <a class="dropdown-item" href="{% url 'accounts:logout' %}">Log out</a>
                 </div>

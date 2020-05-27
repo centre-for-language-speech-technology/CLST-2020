@@ -43,6 +43,17 @@ STATUS = (
 User = get_user_model()
 
 
+def user_data_folder_path():
+    """
+    Get the user data folder path.
+
+    This function exists because otherwise the migrations for the Django Process and Project object
+    will not display the correct path
+    :return: settings.USER_DATA_FOLDER
+    """
+    return settings.USER_DATA_FOLDER
+
+
 class Script(Model):
     """
     Database model for scripts.
@@ -344,8 +355,12 @@ class Process(Model):
     clam_id = CharField(max_length=256, null=True, default=None)
     status = IntegerField(choices=STATUS, default=0)
     folder = FilePathField(
-        allow_folders=True, allow_files=False, path=settings.USER_DATA_FOLDER
+        allow_folders=True, allow_files=False, path=user_data_folder_path
     )
+
+    def __str__(self):
+        """Convert this object to string."""
+        return "Process for {} ({})".format(self.script, STATUS[self.status][1])
 
     @staticmethod
     def get_random_clam_id():
@@ -708,7 +723,7 @@ class Profile(Model):
 
         :return: string including the identifier of this object
         """
-        return str(self.id)
+        return "Profile {}".format(self.pk)
 
     def remove_corresponding_templates(self):
         """
@@ -904,13 +919,17 @@ class Project(Model):
 
     name = CharField(max_length=512)
     folder = FilePathField(
-        allow_folders=True, allow_files=False, path=settings.USER_DATA_FOLDER
+        allow_folders=True, allow_files=False, path=user_data_folder_path
     )
     pipeline = ForeignKey(Pipeline, on_delete=CASCADE, blank=False, null=False)
     user = ForeignKey(User, on_delete=SET_NULL, null=True)
     current_process = ForeignKey(
         Process, on_delete=SET_NULL, null=True, blank=True
     )
+
+    def __str__(self):
+        """Convert this object to string."""
+        return self.name
 
     @staticmethod
     def create_project(name, pipeline, user):
@@ -975,11 +994,12 @@ class Project(Model):
                     "Current script process is not an FA or G2P script"
                 )
 
-    def write_oov_dict_file_contents(self, content):
+    def write_oov_dict_file_contents(self, content, name="default.oov.dict"):
         """
         Write content to .oov.dict file in project folder.
 
         :param content: the content to write to the file
+        :param name: the name of the default file to write to
         :return: None
         """
         path = self.get_oov_dict_file_path()
@@ -987,10 +1007,7 @@ class Project(Model):
             with open(path, "w") as file:
                 file.write(content)
         else:
-            # TODO: Change the way we handle writing to a .oov.dict that does not exist
-            with open(
-                os.path.join(self.folder, "default.oov.dict"), "w"
-            ) as file:
+            with open(os.path.join(self.folder, name), "w") as file:
                 file.write(content)
 
     def get_oov_dict_file_contents(self):
@@ -1548,6 +1565,13 @@ class ChoiceParameter(Model):
                 self.base.save()
             except (Choice.MultipleObjectsReturned, Choice.DoesNotExist):
                 pass
+
+    def __str__(self):
+        """Convert this object to string."""
+        if self.base is not None:
+            return "Choice parameter for {}".format(self.base)
+        else:
+            return "Choice parameter ({})".format(self.pk)
 
 
 class TextParameter(Model):

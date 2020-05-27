@@ -8,6 +8,7 @@ from django.core.files.storage import FileSystemStorage
 from django.contrib.auth.mixins import LoginRequiredMixin
 import zipfile
 import shutil
+from django.core.exceptions import PermissionDenied
 
 
 class UploadProjectView(LoginRequiredMixin, TemplateView):
@@ -27,6 +28,8 @@ class UploadProjectView(LoginRequiredMixin, TemplateView):
         project and a profile form if a new process can be started for the project
         """
         project = kwargs.get("project")
+        if not request.user.has_perm("access_project", project):
+            raise PermissionDenied
         handle_folders(project)
         removed_list = handle_filetypes(project)
         files = os.listdir(project.folder)
