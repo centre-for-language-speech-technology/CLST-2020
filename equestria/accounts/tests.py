@@ -65,7 +65,7 @@ class TestAccounts(TestCase):
         self.assertEquals(response.status_code, 302)
 
     def test_logout_unauthenticated(self):
-        """Test unauthenticated user accessing log out with redirect"""
+        """Test unauthenticated user accessing log out with redirect."""
         response = self.client.get(
             "/accounts/logout/?next=/scripts/projects",
             self.credentials,
