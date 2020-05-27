@@ -1,10 +1,5 @@
-import os
-from django.test import TestCase, Client
-from django.urls import reverse, resolve
-from .views import *
+from django.test import TestCase
 from django.contrib.auth.models import User
-from django.contrib.auth import get_user_model
-from accounts.templates import *
 
 # Create your tests here.
 """Module to test upload app."""
@@ -12,8 +7,6 @@ from accounts.templates import *
 
 class TestAccounts(TestCase):
     """Class to test accounts app."""
-
-    # fixtures = ["equestria/accounts/db.json"]
 
     def setUp(self):
         """Set up the data needed to perform tests below."""

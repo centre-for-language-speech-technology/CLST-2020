@@ -4,10 +4,7 @@ from django.contrib.auth import login, logout
 from equestria.views import GenericTemplate
 from django.views.generic import TemplateView
 from django.contrib import messages
-from accounts.models import UserProfile
-from upload.forms import UploadForm
 from django.conf import settings
-from django.contrib.auth.mixins import LoginRequiredMixin
 
 """Module serving responses to user upon request."""
 
