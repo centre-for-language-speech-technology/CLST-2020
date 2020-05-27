@@ -160,6 +160,7 @@ def save_zipped_files(project, file):
 def save_file(project, file):
     """
     Save a file to a project.
+    
     :param project: the project to save the file to
     :param file: the file to be uploaded
     :return: None
