@@ -24,6 +24,7 @@ ALLOWED_HOSTS = [
     "staging.equestria.cls.ru.nl",
     "equestria.cls.ru.nl",
     "equestria.larsvanrhijn.nl",
+    "clst.giphouse.nl",
 ]
 
 SESSION_COOKIE_SECURE = True
