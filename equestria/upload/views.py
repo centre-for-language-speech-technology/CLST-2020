@@ -30,7 +30,6 @@ class UploadProjectView(LoginRequiredMixin, TemplateView):
         project = kwargs.get("project")
         if not request.user.has_perm("access_project", project):
             raise PermissionDenied
-        handle_folders(project)
         removed_list = handle_filetypes(project)
         files = os.listdir(project.folder)
         context = {
@@ -150,11 +149,15 @@ def save_zipped_files(project, file):
         names = zip_file.namelist()
         for name in names:
             with zip_file.open(name) as file:
-                ext = file.name.split(".")[-1]
+                fs = file.name.split(".")
+                ext = fs[-1]
+                print(fs)
                 if ext == "zip":
                     save_zipped_files(project, file)
-                else:
+                elif len(fs) > 1:  # test if it is a folder or has no extension.
                     save_file(project, file)
+
+    handle_folders(project)
 
 
 def save_file(project, file):
@@ -165,6 +168,8 @@ def save_file(project, file):
     :param file: the file to be uploaded
     :return: None
     """
+    print("\n\n\n\n\n\n\n\n\n\n")
+    print(file.name)
     path = project.folder
     fs = FileSystemStorage(location=path)
     if fs.exists(file.name):

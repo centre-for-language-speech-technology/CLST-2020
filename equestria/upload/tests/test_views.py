@@ -229,12 +229,11 @@ AAAA"
             ),
             content_type="zip",
         )
-
         save_zipped_files(self.project, file)
 
         print(cfemock.call_count)
         assert (
-            cfemock.call_count == 1
+            cfemock.call_count == 0
         )  # The number of files in our mocking return value.
 
     @patch("os.path.join", return_value="")
@@ -293,7 +292,6 @@ AAAA"
         assert osremoveMock.call_count == 1
 
     @patch("os.remove")
-    @patch("os.path.join", return_value="")
     @patch(
         "os.listdir",
         return_value=[
@@ -304,11 +302,11 @@ AAAA"
             "zippie.zip",
         ],
     )
-    def test_handle_filetypes(self, listdirMock, joinMock, osremoveMock):
+    def test_handle_filetypes(self, listdirMock, osremoveMock):
         rlist = handle_filetypes(self.project)
         assert rlist == ["file.ext"]
         assert listdirMock.call_count == 1
-        assert joinMock.call_count == 5  # the number of items in os.listdir
+
         assert (
             osremoveMock.call_count == 2
         )  # zip file and the ext file should be removed
