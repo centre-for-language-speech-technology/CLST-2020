@@ -1,8 +1,12 @@
+import time
 from django.test import TestCase
 from scripts.models import *
 import os
 from scripts.tasks import *
 from unittest.mock import patch, Mock
+from background_task import background
+from background_task.tasks import tasks
+from scripts.tasks import update_script
 
 
 class TestTasks(TestCase):
