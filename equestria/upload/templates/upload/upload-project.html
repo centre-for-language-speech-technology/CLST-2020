@@ -7,6 +7,7 @@
 
 {% block header %}
     {% include 'equestria/header.html' with active="upload" %}
+	
 {% endblock %}
 
 {% block body %}
@@ -20,7 +21,7 @@
                         <div class="custom-file">
                             {{ upload_form }}
                             {% csrf_token %}
-                            <input id="upload" type="submit" value="Upload files" class="btn btn-primary">
+                            <input type="submit" value="Upload files" class="btn btn-primary">
                         </div>
                     </div>
                 </form>
@@ -39,29 +40,23 @@
                     First, wait for the current process to finish and reload this page.</p>
                 {% include 'scripts/project-continue.html' with project=project %}
             {% endif %}
-            {% if no_txt_list %}
-                <b> Warning! These .wav files do not have a corresponding .txt or .tg file: </b> <br/>
-                {% for file in no_txt_list %}
-                    {{ file }} <br/>
-                {% endfor %}
-                <br/>
-            {% endif %}
-            {% if no_wav_list %}
-                <b> Warning! These .txt or .tg files do not have a corresponding .wav file: </b> <br/>
-                {% for file in no_wav_list %}
+            {% if removed_list %}
+                <b> Warning! These files you just attempted to upload had the wrong extensions: </b> <br/>
+                {% for file in removed_list %}
                     {{ file }} <br/>
                 {% endfor %}
             {% endif %}
-
         </div>
     </div>
     <br />
 	<div class="container">
 		<div class="rounded lighter padding">
             {% if files %}
-            <h2> Uploaded files: </h2>
-                {% for file in  files %}
-                    <p> {{ file }} </p>
+                <h2> Uploaded files: </h2>
+                {% for file in files %}
+                    <p id="fileid_{{ forloop.counter }}"> {{ file }} 
+                         <button class="btn-sm btn-danger" id="button" counter="{{ forloop.counter }}" file="{{ file }}">Delete</button>
+                    </p>
                 {% endfor %}
             {% else %}
                 <p> No files have been uploaded yet </p>
@@ -69,3 +64,23 @@
 		</div>
 	</div>
 {% endblock %}
+{% block scripts %}
+<script>
+	    $(document).ready(function(){
+	        $("button").click(function(){
+	        	var file = $(this).attr('file');
+                var counter = $(this).attr('counter');
+                var filepara = document.getElementById("fileid_"+counter);
+                filepara.style.visibility = 'hidden';
+	        	$.ajax({
+			      	url: "{% url 'upload:delete_file' project=project %}",
+			      	data: { csrfmiddlewaretoken: "{{ csrf_token }}",
+            				file:file,
+          			},
+			      	type: 'post',
+			    });
+	        });
+	    });
+	</script>
+{% endblock %}
+
