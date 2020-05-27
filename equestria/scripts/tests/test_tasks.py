@@ -48,6 +48,10 @@ class TestTasks(TestCase):
     @patch("scripts.models.Process.download_and_delete")
     def test_update_script(self, mockWaiting, mockRunning, mockStatus):
         """Tests the update_script function."""
-        update_script2(1)
+        update_script.now(1)
+        assert mockWaiting.call_count == 0
+        assert mockRunning.call_count == 1
+        update_script.now(1)
         assert mockWaiting.call_count == 1
         assert mockRunning.call_count == 1
+        update_script(1)

@@ -18,13 +18,3 @@ def update_script(process_id):
         update_script(process_id)
     elif status == scripts.models.STATUS_WAITING:
         process.download_and_delete()
-
-
-def update_script2(process_id):
-    """
-    Spawn a background task to update a script's status.
-
-    :param process_id: the id of the process to update (this is not the process itself as it is not JSON serializable)
-    :return: None
-    """
-    update_script(process_id)
