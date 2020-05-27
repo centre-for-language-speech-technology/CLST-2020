@@ -20,8 +20,6 @@ class TestTasks(TestCase):
         """Set up the data needed to perform tests below."""
         self.process1 = Process.objects.create(
             script=Script.objects.all()[0],
-            # clam_id=1337,
-            # status=STATUS_WAITING,
             folder=os.path.abspath(os.path.dirname(__file__)),
         )
         self.id1 = self.process1.get_random_clam_id()
@@ -29,8 +27,6 @@ class TestTasks(TestCase):
         self.process1.set_status(STATUS_WAITING)
         self.process2 = Process.objects.create(
             script=Script.objects.all()[1],
-            # clam_id=69420,
-            # status=STATUS_RUNNING,
             folder=os.path.abspath(os.path.dirname(__file__)),
         )
         self.id2 = self.process2.get_random_clam_id()
