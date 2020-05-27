@@ -1,6 +1,6 @@
 from zipfile import BadZipFile
 
-from django.test import TestCase, Client
+from django.test import TestCase, Client, RequestFactory
 from django.urls import reverse
 from scripts.models import Project
 from upload.views import *
@@ -134,8 +134,9 @@ class TestView(TestCase):
             pass
         assert cfemock.call_count == 0
 
-    @patch("upload.views.check_file_extension")
-    def test_save_zipped_files(self, cfemock):
+    @patch("os.walk", return_value=["coolzip.zip"])
+    @patch("upload.views.save_file")
+    def test_save_zipped_files(self, cfemock, oswalkMock):
         """Test if zip file upload works."""
         file = SimpleUploadedFile(
             "coolzip.zip",
@@ -154,6 +155,7 @@ AAACAAIAsgAAANcAAAAAAA=="
 
         save_zipped_files(self.project, file)
 
+        print(cfemock.call_count)
         assert (
             cfemock.call_count == 2
         )  # The number of files in our mocking return value.
@@ -187,3 +189,126 @@ AAACAAIAsgAAANcAAAAAAA=="
         assert fsDeleteMock.call_count == 1
         assert fsSaveMock.call_count == 1
         assert fsExistsMock.call_count == 1
+
+    @patch("scripts.models.Project.can_upload", return_value=False)
+    @patch("upload.views.check_file_extension")
+    def test_upload_file_view(self, cfeMock, canuploadMock):
+        self.client.login(username="admin", password="admin")
+
+        data = {"f": self.existing_file}
+        request = RequestFactory().post(self.url, data, format="multipart")
+        try:
+            upload_file_view(request, project=self.project)
+            self.fail("Should not be allowed to upload! should get 404")
+        except:
+            pass
+
+    @patch("scripts.models.Project.can_upload", return_value=True)
+    @patch("upload.views.check_file_extension")
+    def test_upload_file_view_true(self, cfeMock, canuploadMock):
+        self.client.login(username="admin", password="admin")
+
+        data = {"f": self.existing_file}
+        request = RequestFactory().post(self.url, data, format="multipart")
+
+        upload_file_view(request, project=self.project)
+
+        assert cfeMock.call_count == 1
+
+    @patch("os.walk", return_value=["coolzip.zip"])
+    @patch("upload.views.save_file")
+    def test_save_zipped_files_recurse(self, cfemock, oswalkMock):
+        """Test if zip file upload works."""
+        file = SimpleUploadedFile(
+            "coolzip.zip",
+            base64.b64decode(
+                "UEsDBBQACAAIAKUqu1AAAAAAAAAAALwAAAAIACAAZmlsZS56aXBVVA0ABzdbzl44W85eN1vOXnV4\
+CwABBOgDAAAE6AMAAAvwZmYRYeAAwoVauwMYkAALgwJDWmZOamgILwO7XvS5OCMgBtGlFdwMjCwv\
+mIFKQAQzQ4A3OwdIBxNUZ4A3I5MIM6qpTEimwsCSRhBJjB0B3qxsILWMQBgEpEPA+gFQSwcIGRa1\
+qV4AAAC8AAAAUEsBAhQDFAAIAAgApSq7UBkWtaleAAAAvAAAAAgAIAAAAAAAAAAAAKSBAAAAAGZp\
+bGUuemlwVVQNAAc3W85eOFvOXjdbzl51eAsAAQToAwAABOgDAABQSwUGAAAAAAEAAQBWAAAAtAAA\
+AAAA"
+            ),
+            content_type="zip",
+        )
+        save_zipped_files(self.project, file)
+
+        print(cfemock.call_count)
+        assert (
+            cfemock.call_count == 0
+        )  # The number of files in our mocking return value.
+
+    @patch("os.path.join", return_value="")
+    @patch("os.remove")
+    def test_Delete_file_view_non_exist(self, oremoveMock, pathjoinMock):
+        self.client.login(username="admin", password="admin")
+
+        data = {"file": self.existing_file}
+        request = RequestFactory().post(self.url, data)
+        try:
+            delete_file_view(request, project=self.project)
+            self.fail("file should not exist")
+        except:
+            pass
+
+    @patch("os.path.exists", return_value=True)
+    @patch("os.path.join", return_value="")
+    @patch("os.remove")
+    def test_Delete_file_view_exist(self, oremoveMock, joinMock, existMock):
+        self.client.login(username="admin", password="admin")
+
+        data = {"file": self.existing_file}
+        request = RequestFactory().post(self.url, data)
+
+        delete_file_view(request, project=self.project)
+
+    @patch("shutil.rmtree")
+    @patch("os.listdir", return_value=["dir1"])
+    @patch("os.walk", return_value=["file1", "file2"])
+    def test_handle_folders_no_file(self, walkMock, listdirMock, shutilRTMock):
+        handle_folders(self.project)
+        assert walkMock.call_count == 1
+        assert listdirMock.call_count == 1
+        assert shutilRTMock.call_count == 1
+
+    @patch("os.remove")
+    @patch("shutil.move")
+    @patch("os.path.isfile", return_value=True)
+    @patch("shutil.rmtree")
+    @patch("os.listdir", return_value=["dir1"])
+    @patch("os.walk", return_value=["file1", "file2"])
+    def test_handle_folders(
+        self,
+        walkMock,
+        listdirMock,
+        shutilRTMock,
+        fileMock,
+        shutilMoveMock,
+        osremoveMock,
+    ):
+        handle_folders(self.project)
+        assert walkMock.call_count == 1
+        assert listdirMock.call_count == 1
+        assert shutilRTMock.call_count == 1
+        assert shutilMoveMock.call_count == 1
+        assert osremoveMock.call_count == 1
+
+    @patch("os.remove")
+    @patch(
+        "os.listdir",
+        return_value=[
+            "file1.wav",
+            "file2.tg",
+            "file2.txt",
+            "file.ext",
+            "zippie.zip",
+        ],
+    )
+    def test_handle_filetypes(self, listdirMock, osremoveMock):
+        rlist = handle_filetypes(self.project)
+        assert rlist == ["file.ext"]
+        assert listdirMock.call_count == 1
+
+        assert (
+            osremoveMock.call_count == 2
+        )  # zip file and the ext file should be removed

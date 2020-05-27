@@ -7,6 +7,7 @@ from .forms import UploadForm
 from django.core.files.storage import FileSystemStorage
 from django.contrib.auth.mixins import LoginRequiredMixin
 import zipfile
+import shutil
 from django.core.exceptions import PermissionDenied
 
 
@@ -29,24 +30,12 @@ class UploadProjectView(LoginRequiredMixin, TemplateView):
         project = kwargs.get("project")
         if not request.user.has_perm("access_project", project):
             raise PermissionDenied
+        removed_list = handle_filetypes(project)
         files = os.listdir(project.folder)
-        no_wav_list = []
-        no_txt_list = []
-        for file in files:
-            if file.endswith(".txt") or file.endswith(".tg"):
-                wavname = os.path.splitext(file)[0] + ".wav"
-                if wavname not in files:
-                    no_wav_list.append(file)
-            if file.endswith(".wav"):
-                txtname = os.path.splitext(file)[0] + ".txt"
-                tgname = os.path.splitext(file)[0] + ".tg"
-                if txtname not in files and tgname not in files:
-                    no_txt_list.append(file)
         context = {
             "project": project,
             "files": files,
-            "no_wav_list": no_wav_list,
-            "no_txt_list": no_txt_list,
+            "removed_list": removed_list,
         }
         if project.can_upload():
             context["upload_form"] = UploadForm()
@@ -73,6 +62,46 @@ class UploadProjectView(LoginRequiredMixin, TemplateView):
         )
 
 
+def handle_folders(project):
+    """
+    Handle folders in the project folder if they are uploaded.
+
+    :param request: the project
+    :return: None
+    """
+    subdirs = [x[0] for x in os.walk(project.folder)]
+    subdirs.pop(0)
+    subdirs.reverse()
+    for sd in subdirs:
+        for file in os.listdir(sd):
+            full_path = os.path.join(sd, file)
+            if os.path.isfile(full_path):
+                file_in_root = os.path.join(project.folder, file)
+                if os.path.isfile(file_in_root):
+                    os.remove(file_in_root)
+                shutil.move(full_path, project.folder)
+        shutil.rmtree(sd)
+
+
+def handle_filetypes(project):
+    """
+    Handle the filetypes in the project folder after they are uploaded.
+
+    :param request: the project
+    :return: a list of files that had the wrong extension, excluding zip files
+    """
+    files = os.listdir(project.folder)
+    removed_list = []
+    for file in files:
+        full_path = os.path.join(project.folder, file)
+        ext = file.split(".")[-1]
+        if ext not in ["wav", "txt", "tg"]:
+            os.remove(full_path)
+            if ext != "zip":
+                removed_list.append(file)
+    return removed_list
+
+
 def upload_file_view(request, **kwargs):
     """
     Upload file view for uploading a file from a form.
@@ -96,7 +125,7 @@ def upload_file_view(request, **kwargs):
 def check_file_extension(project, file):
     """
     Check the file extension of the given file.
-
+    
     :param project: the project to save the file to
     :param file: the file to be checked
     :return: None
@@ -106,8 +135,6 @@ def check_file_extension(project, file):
         save_zipped_files(project, file)
     elif ext in ["wav", "txt", "tg"]:
         save_file(project, file)
-    else:
-        print("Filetype not allowed")
 
 
 def save_zipped_files(project, file):
@@ -122,17 +149,26 @@ def save_zipped_files(project, file):
         names = zip_file.namelist()
         for name in names:
             with zip_file.open(name) as file:
-                check_file_extension(project, file)
+                fs = file.name.split(".")
+                ext = fs[-1]
+                if ext == "zip":
+                    save_zipped_files(project, file)
+                elif len(fs) > 1:  # test if it is a folder or has no extension.
+                    save_file(project, file)
+
+    handle_folders(project)
 
 
 def save_file(project, file):
     """
     Save a file to a project.
-
+    
     :param project: the project to save the file to
     :param file: the file to be uploaded
     :return: None
     """
+    print("\n\n\n\n\n\n\n\n\n\n")
+    print(file.name)
     path = project.folder
     fs = FileSystemStorage(location=path)
     if fs.exists(file.name):
@@ -140,3 +176,21 @@ def save_file(project, file):
         fs.delete(file.name)
 
     fs.save(file.name, file)
+
+
+def delete_file_view(request, **kwargs):
+    """
+    Delete file view for deleting a file.
+
+    :param request: the request
+    :param kwargs: keyword arguments
+    :return: a redirect if the file deletion succeeded, raises a StateException if the file can't be deleted because the
+    file does not exist
+    """
+    project = kwargs.get("project")
+    file = request.POST.get("file")
+    if os.path.exists(os.path.join(project.folder, file)):
+        os.remove(os.path.join(project.folder, file))
+        return redirect("upload:upload_project", project=project)
+    else:
+        raise Http404("File does not exist")
