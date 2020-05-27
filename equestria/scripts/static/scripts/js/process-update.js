@@ -36,9 +36,10 @@ function enable_continue() {
 function update_console_output(messages) {
     let text = "";
     for (let i = 0; i < messages.length; i++) {
-        console.log(messages[i].time);
-        console.log(messages[i].message)
-        text += messages[i].time + ' ' + messages[i].message + '<br>';
+        if (messages[i].time != 'None') {
+            text += messages[i].time + ' ';
+        }
+        text += messages[i].message + '<br>';
     }
     CONSOLE_OUTPUT.innerHTML = text;
 }
