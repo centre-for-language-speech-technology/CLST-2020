@@ -14,7 +14,7 @@ import base64
 class TestView(TestCase):
     """Check the view."""
 
-    fixtures = ["uploadDB2"]
+    fixtures = ["uploadDB"]
 
     def setUp(self):
         """Set up the data needed to perform tests below."""

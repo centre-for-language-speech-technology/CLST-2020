@@ -1,14 +1,13 @@
 from django.test import TestCase, Client
 from django.urls import reverse, resolve
 from scripts.models import Project
-from equestria.views import *
 from upload.views import *
 
 
 class TestUrls(TestCase):
     """Check if all defined urls resolve."""
 
-    fixtures = ["uploadDB2"]
+    fixtures = ["uploadDB"]
 
     def setUp(self):
         """Set up the data needed to perform tests below."""
