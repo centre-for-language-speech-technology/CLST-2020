@@ -1,5 +1,14 @@
 from django.test import TestCase
-from scripts.models import Script, Pipeline, InputTemplate
+from scripts.models import (
+    Script,
+    Pipeline,
+    InputTemplate,
+    IntegerParameter,
+    BaseParameter,
+    FloatParameter,
+    TextParameter,
+    StringParameter,
+)
 import os
 import multiprocessing
 from django.core.exceptions import ValidationError
@@ -213,3 +222,107 @@ class ScriptModelTest(TestCase):
         self.assertEquals(
             self.input_template.is_valid_for("test"), ["a.txt", "b.txt"]
         )
+
+    def test_integer_parameter(self):
+        """Test if get_value works."""
+        ip = IntegerParameter(base=None, value=1)
+        self.assertEquals(1, ip.get_value())
+
+    def test_ip_get_corresponding_value_good(self):
+        """Test if get_corresponding_value works in good case."""
+        ip = IntegerParameter(base=None, value=1)
+        self.assertEquals(1, ip.get_corresponding_value(1))
+
+    def test_ip_get_corresponding_value_bad(self):
+        """Test if get_corresponding_value works in bad case."""
+        ip = IntegerParameter(base=None, value="cookie")
+        self.assertEquals(None, ip.get_corresponding_value("cookie"))
+
+    def test_ip_set_preset(self):
+        """Tests set preset."""
+        bp = BaseParameter(
+            name="test", corresponding_script=None, preset=False, type=1
+        )
+        ip = IntegerParameter(base=bp, value="cookie")
+
+        ip.set_preset(3)
+        self.assertEquals(3, ip.get_value())
+        self.assertEquals(3, ip.value)
+
+    def test_float_parameter(self):
+        """Test if get_value works."""
+        fp = FloatParameter(base=None, value=1.3)
+        self.assertEquals(1.3, fp.get_value())
+
+    def test_fp_get_corresponding_value_good(self):
+        """Test if get_corresponding_value works in good case."""
+        fp = FloatParameter(base=None, value=1.3)
+        self.assertEquals(1.3, fp.get_corresponding_value(1.3))
+
+    def test_fp_get_corresponding_value_bad(self):
+        """Test if get_corresponding_value works in bad case."""
+        fp = FloatParameter(base=None, value="cookie")
+        self.assertEquals(None, fp.get_corresponding_value("cookie"))
+
+    def test_fp_set_preset(self):
+        """Tests set preset."""
+        bp = BaseParameter(
+            name="test", corresponding_script=None, preset=False, type=1
+        )
+        fp = FloatParameter(base=bp, value="cookie")
+
+        fp.set_preset(4.2)
+        self.assertEquals(4.2, fp.get_value())
+        self.assertEquals(4.2, fp.value)
+
+    def test_text_parameter(self):
+        """Test if get_value works."""
+        tp = TextParameter(base=None, value="asdf")
+        self.assertEquals("asdf", tp.get_value())
+
+    def test_tp_get_corresponding_value_good(self):
+        """Test if get_corresponding_value works in good case."""
+        tp = TextParameter(base=None, value="Olaf")
+        self.assertEquals("Stitch", tp.get_corresponding_value("Stitch"))
+
+    def test_tp_get_corresponding_value_bad(self):
+        """Test if get_corresponding_value works in bad case."""
+        tp = TextParameter(base=None, value=6.9)
+        self.assertEquals(None, tp.get_corresponding_value(6.9))
+
+    def test_tp_set_preset(self):
+        """Tests set preset."""
+        bp = BaseParameter(
+            name="test", corresponding_script=None, preset=False, type=1
+        )
+        tp = TextParameter(base=bp, value="cookie")
+
+        tp.set_preset("Fluttershy")
+        self.assertEquals("Fluttershy", tp.get_value())
+        self.assertEquals("Fluttershy", tp.value)
+
+    def test_string_parameter(self):
+        """Test if get_value works."""
+        sp = StringParameter(base=None, value="asdf")
+        self.assertEquals("asdf", sp.get_value())
+
+    def test_sp_get_corresponding_value_good(self):
+        """Test if get_corresponding_value works in good case."""
+        sp = StringParameter(base=None, value="Olaf")
+        self.assertEquals("Stitch", sp.get_corresponding_value("Stitch"))
+
+    def test_sp_get_corresponding_value_bad(self):
+        """Test if get_corresponding_value works in bad case."""
+        sp = StringParameter(base=None, value=6.9)
+        self.assertEquals(None, sp.get_corresponding_value(6.9))
+
+    def test_sp_set_preset(self):
+        """Tests set preset."""
+        bp = BaseParameter(
+            name="test", corresponding_script=None, preset=False, type=1
+        )
+        sp = StringParameter(base=bp, value="cookie")
+
+        sp.set_preset("Fluttershy")
+        self.assertEquals("Fluttershy", sp.get_value())
+        self.assertEquals("Fluttershy", sp.value)
