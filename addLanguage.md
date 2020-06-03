@@ -5,11 +5,11 @@ category: test
 ---
 You can access the admininstrative section of equestria either by going to equestria.ru.nl/admin or clicking the "Site Admin" item in the dropdown menu of the user icon. Now, click the "add" button at Pipelines under Scripts: 
 
-![Addlanguage2](CLST-2020/wikiImage/AddLanguage.png)
+![Addlanguage2](/CLST-2020/wikiImage/AddLanguage.png)
 
 Here, you can name the new language and add the scripts by clicking the "add another script" button. A new window will open, which will look like this: 
 
-![Addlanguage2](CLST-2020/wikiImage/AddLanguage2.png)
+![Addlanguage2](/CLST-2020/wikiImage/AddLanguage2.png)
 
 You can use the same information for both of the types of scripts. 
 
