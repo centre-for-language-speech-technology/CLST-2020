@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Welcome!</title>
+  <meta name="description" content="Welcome to the CLST-2020 wiki!">
+
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="canonical" href="https://giphouse.github.io/CLST-2020//jekyll/update/2020/06/03/home.html">
+  <link rel="alternate" type="application/rss+xml" title="Equestria CLST." href="https://giphouse.github.io/CLST-2020//feed.xml">
+</head>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+
+    <a class="site-title" href="/">Equestria CLST.</a>
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg viewBox="0 0 18 15">
+          <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+
+      <div class="trigger">
+        
+          
+          <a class="page-link" href="/about/">About</a>
+          
+        
+          
+        
+          
+        
+          
+        
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">Welcome!</h1>
+    <p class="post-meta"><time datetime="2020-06-03T05:15:00-07:00" itemprop="datePublished">Jun 3, 2020</time></p>
+  </header>
+
+  <div class="post-content" itemprop="articleBody">
+    <p>Welcome to the CLST-2020 wiki!</p>
+
+<p>Here we describe how certain stuff should be done.</p>
+
+<p>We have a few pages. Below you find the git pipeline. We have a seperate page for doing pull requests.
+See <a href="https://github.com/GipHouse/CLST-2020/wiki/pull-requests">Pull requests guidelines</a>.</p>
+
+<p>Please see https://github.com/GipHouse/CLST-2020/wiki/Continious-integration-explained for reasons your CI failed.</p>
+
+<p>How to write tests <a href="https://github.com/GipHouse/CLST-2020/wiki/Writing-unit-test">https://github.com/GipHouse/CLST-2020/wiki/Writing-unit-test</a></p>
+
+<h2 id="git-pipeline">GIT pipeline</h2>
+<p>We have one master branch. Everything must work on this branch. That is, ./manage.py runserver should not have any issues. Furthermore, the features should be done.</p>
+
+<p>To start adding a feature do the following:
+1) Start pulling master, to make sure you are up to date.
+2) Make a new branch, call it featurebranch. <strong>Give it a descriptive name</strong>. Also if needed write a short description in the branch what it exactly should do. 
+Possible starts for branch names are</p>
+<ul>
+  <li>structure/</li>
+  <li>feature/</li>
+  <li>design/</li>
+  <li>refactor/</li>
+</ul>
+
+<p>3) Code some cool stuff in the branch.</p>
+
+<p>4) When done, make sure to pull the master to be up to date as well.</p>
+
+<p>5) NEW!! Make sure you have black installed. This is our format tool. Do:
+$poetry shell. 
+Now make sure you are outside the git repo:<br />
+$ cd .. 
+<br />
+Now you can check if your code is formatted nicely! Our CI will fail your branch if it does not pass it.<br />
+$ black –check CLST-2020<br />
+If fails, one can fix it automatically with:<br />
+$ black CLST-2020<br />
+This will reformat the full directory. One cal also specify one file instead.</p>
+
+<p>6) commit your branch.
+7) Do a pull request on your branch, stating you wish to have it merged with master.
+8) Ask someone to review your pull request.</p>
+
+<p>CI:
+<br />
+We have several CI stuff integrated in our workflow. <br /></p>
+
+<p>In the master we really wish to keep our badges in README working. That is, on the readme page you should see passing for all.</p>
+
+<p><strong>DO NOT:</strong>
+keep everything locally. Its fine to commit to feature branches!
+use one branch, other than master, for adding multiple features. 
+Create unneeded branches. (Try to keep a minimal number of branches)
+Commit to master (only via pull request)
+break other peoples stuff, on master. That is, it is fine to modify code, but it should not <em>intentionally</em> break other features. If you know it breaks something, discuss it first.</p>
+
+
+  </div>
+
+</article>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Equestria CLST.</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li>Equestria CLST.</li>
+          <li><a href="mailto:.">.</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col footer-col-2">
+        <ul class="social-media-list">
+          
+
+          
+        </ul>
+      </div>
+
+      <div class="footer-col footer-col-3">
+        <p>Write an awesome description for your new site here. You can edit this line in _config.yml. It will appear in your document head meta (for Google search results) and in your feed.xml site description.
+</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>
