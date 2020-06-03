@@ -10,7 +10,7 @@ title: Student help page
 
 Before You can begin using it, You will need to log in. To do this press the "Log in" button on the home page, or the user icon in the top right.
 
-![LogIn Form](wikiImage/loginscreen.png)
+![LogIn Form](/CLST-2020/wikiImage/loginscreen.png)
 
 
 You will then be prompted with the log in screen.
