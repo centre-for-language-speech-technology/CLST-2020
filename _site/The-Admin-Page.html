@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+  <head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  <!-- Enable responsiveness on mobile devices-->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+  <title>
+    
+      Admin page &middot; Equestria
+    
+  </title>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="public/css/poole.css">
+  <link rel="stylesheet" href="public/css/syntax.css">
+  <link rel="stylesheet" href="public/css/hyde.css">
+  <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface">
+
+  <!-- Icons -->
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="public/apple-touch-icon-144-precomposed.png">
+                                 <link rel="shortcut icon" href="public/favicon.ico">
+
+  <!-- RSS -->
+  <link rel="alternate" type="application/rss+xml" title="RSS" href="/atom.xml">
+</head>
+
+
+  <body>
+
+    <div class="sidebar">
+  <div class="container sidebar-sticky">
+    <div class="sidebar-about">
+      <h1>
+        <a href="">
+          Equestria
+        </a>
+      </h1>
+      <p class="lead">CLST pipeline
+</p>
+    </div>
+
+    <nav class="sidebar-nav">
+      
+
+      
+      
+        
+          
+            <a class="sidebar-nav-item" href="/Home.html">Home</a>
+          
+        
+      
+        
+          
+            <a class="sidebar-nav-item" href="/How-do-I-add-another-language%3F.html">Add another language</a>
+          
+        
+      
+        
+          
+            <a class="sidebar-nav-item" href="/How-do-I-create-a-new-CLAM-server%3F.html">Add new clam server</a>
+          
+        
+      
+        
+          
+            <a class="sidebar-nav-item" href="/How-do-I-edit-the-address-of-an-already-existing-CLAM-server%3F.html">Edit address clam server</a>
+          
+        
+      
+        
+          
+            <a class="sidebar-nav-item" href="/Student-Use-Case.html">Student help page</a>
+          
+        
+      
+        
+          
+            <a class="sidebar-nav-item active" href="/The-Admin-Page.html">Admin page</a>
+          
+        
+      
+        
+          
+            <a class="sidebar-nav-item" href="/The-Backend-Guide-for-Future-Developers.html">Backend guide</a>
+          
+        
+      
+        
+      
+        
+      
+
+      <a class="sidebar-nav-item" href="https://github.com/GipHouse/CLST-2020">GitHub project</a>
+    </nav>
+  </div>
+</div>
+
+
+    <div class="content container">
+      <div class="page">
+  <h1 class="page-title">Admin page</h1>
+  <h1 id="the-admin-page">The Admin Page</h1>
+<h2 id="the-command-center-located-at-urladmin">The command center located at url/admin</h2>
+
+<h3 id="how-to-access">How to Access</h3>
+
+<p>You can access the admininstrative section of equestria either by going to equestria.ru.nl/admin or clicking the “Site Admin” item in the dropdown menu of the user icon.</p>
+
+<p align="center">
+  <img src="https://github.com/GipHouse/CLST-2020/blob/master/wikiImage/AdminOverview.png" alt="Admin Page" />
+</p>
+
+<h3 id="overview">Overview</h3>
+
+<p>Upon reaching the admin site and having logged in You will be greating with an overview of all database models used within the server.
+On the right side of the page You will see a log of recent activities of the site admins.
+Please ignore user profiles, it has no real use and is an artifact of implementing personalization.</p>
+
+<h3 id="models">Models</h3>
+
+<ul>
+  <li>Groups: Currently empty, no clue what it does PLEASE EDIT THIS</li>
+  <li>Users: List of all users with detailed information</li>
+  <li>Tasks: Currently running server background tasks</li>
+  <li>Completed Tasks: Tasks that have been finished as well as additional information</li>
+  <li>Projects: Projects created by users</li>
+  <li>Pipelines: Language pipelines used in projects</li>
+  <li>Profiles: CLAM server profiles for G2P and FA</li>
+  <li>Input templates: Templates used by profiles</li>
+  <li>Scripts: Connection to scripts for CLAM server</li>
+  <li>Processes: Scripts that have been run and their status</li>
+  <li>Parameters: Used for dynamic form generation</li>
+  <li>Choice parametes: Used for dynamically generated choice fields in forms</li>
+</ul>
+
+<h3 id="usage">Usage</h3>
+
+<p>To add instances to a model, press the “+ Add” button. You will be prompted by a form that contains all necessary fields to create a new instance of that model. Fill these in and press “Save” to finalize the creation process.</p>
+
+<p>To look at or alter instances of a model, click either the model name, or the “Change” button of that model. You will be directed to a complete list of all instances of that model.
+While You will not be able to search the entries with a regular search bar in all models, it is possible to apply filters based on the properties of the model on the right side of the page.
+Click one of the instances to see all their attributes. In this screen you can also change the values of the fields and update the instance. Instances can also be delted in this screen.</p>
+
+</div>
+
+    </div>
+
+  </body>
+</html>
