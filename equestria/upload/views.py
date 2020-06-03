@@ -88,14 +88,14 @@ def handle_filetypes(project):
     Handle the filetypes in the project folder after they are uploaded.
 
     :param request: the project
-    :return: a list of files that had the wrong extension, excluding zip files
+    :return: a list of files that had the wrong extension, excluding zip files and folders
     """
     files = os.listdir(project.folder)
     removed_list = []
     for file in files:
         full_path = os.path.join(project.folder, file)
         ext = file.split(".")[-1]
-        if ext not in ["wav", "txt", "tg"]:
+        if ext not in ["wav", "txt", "tg"] and not (os.path.isdir(full_path)):
             os.remove(full_path)
             if ext != "zip":
                 removed_list.append(file)
@@ -167,8 +167,6 @@ def save_file(project, file):
     :param file: the file to be uploaded
     :return: None
     """
-    print("\n\n\n\n\n\n\n\n\n\n")
-    print(file.name)
     path = project.folder
     fs = FileSystemStorage(location=path)
     if fs.exists(file.name):
