@@ -1,6 +1,7 @@
 ---
 layout: page
 title: Add processes on clam
+category: Teacher
 ---
 To add processes on clam, you need to make sure the clam server is running.
 

@@ -1,6 +1,7 @@
 ---
 layout: page
 title: Edit address clam server
+category: Teacher
 ---
 to change the address of an already existing CLAM server, go to the admin page, and click 'change' next to the Scripts header at the bottom of the page:
 

@@ -1,6 +1,7 @@
 ---
 layout: page
 title: Add new clam server
+category: Teacher
 ---
 To create a new CLAM server, go to the admin page, and click '+ Add' next to the Scripts header:
 

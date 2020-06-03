@@ -1,6 +1,7 @@
 ---
 layout: page
 title: Admin page
+category: Teacher
 ---
 
 # The Admin Page

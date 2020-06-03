@@ -45,79 +45,186 @@
     </div>
 
     <nav class="sidebar-nav">
-      
 
-      
-      
-        
-          
-            <a class="sidebar-nav-item" href="/Add-scripts-and-loads-fixtures.html">Add processes on clam</a>
-          
-        
-      
-        
-          
-            <a class="sidebar-nav-item" href="/EditClam.html">Edit address clam server</a>
-          
-        
-      
-        
-          
-            <a class="sidebar-nav-item" href="/Home.html">Home</a>
-          
-        
-      
-        
-          
-            <a class="sidebar-nav-item" href="/Student-Use-Case.html">Student help page</a>
-          
-        
-      
-        
-          
-            <a class="sidebar-nav-item" href="/The-Admin-Page.html">Admin page</a>
-          
-        
-      
-        
-          
-            <a class="sidebar-nav-item" href="/The-Backend-Guide-for-Future-Developers.html">Backend guide</a>
-          
-        
-      
-        
-          
-            <a class="sidebar-nav-item" href="/addLanguage.html">Add another language</a>
-          
-        
-      
-        
-          
-            <a class="sidebar-nav-item" href="/createClam.html">Add new clam server</a>
-          
-        
-      
-        
-      
-        
-      
+	
+	<button class="dropdown-btn">User</button>
+	<div class="dropdown-container">
+      	
+        	
+		
+        	
+		
+        	
+		
+        	
+        		 
+          			
+          			<a class="sidebar-nav-item" href="/CLST-2020/Student-Use-Case.html">Student help page</a>
+          			
+        	  		
+        			
+        	
+		
+        	
+		
+        	
+		
+        	
+		
+        	
+		
+        	
+		
+	</div>
+	
+	<button class="dropdown-btn">Teacher</button>
+	<div class="dropdown-container">
+      	
+        	
+        		 
+          			
+          			<a class="sidebar-nav-item" href="/CLST-2020/Add-scripts-and-loads-fixtures.html">Add processes on clam</a>
+          			
+        	  		
+        			
+        	
+		
+        	
+        		 
+          			
+          			<a class="sidebar-nav-item" href="/CLST-2020/EditClam.html">Edit address clam server</a>
+          			
+        	  		
+        			
+        	
+		
+        	
+		
+        	
+		
+        	
+        		 
+          			
+          			<a class="sidebar-nav-item" href="/CLST-2020/The-Admin-Page.html">Admin page</a>
+          			
+        	  		
+        			
+        	
+		
+        	
+		
+        	
+        		 
+          			
+          			<a class="sidebar-nav-item" href="/CLST-2020/addLanguage.html">Add another language</a>
+          			
+        	  		
+        			
+        	
+		
+        	
+        		 
+          			
+          			<a class="sidebar-nav-item" href="/CLST-2020/createClam.html">Add new clam server</a>
+          			
+        	  		
+        			
+        	
+		
+        	
+		
+	</div>
+	
+	<button class="dropdown-btn">Developer</button>
+	<div class="dropdown-container">
+      	
+        	
+		
+        	
+		
+        	
+		
+        	
+		
+        	
+		
+        	
+        		 
+          			
+          			<a class="sidebar-nav-item" href="/CLST-2020/The-Backend-Guide-for-Future-Developers.html">Backend guide</a>
+          			
+        	  		
+        			
+        	
+		
+        	
+		
+        	
+		
+        	
+		
+	</div>
+	
+	
+			
 
       <a class="sidebar-nav-item" href="https://github.com/GipHouse/CLST-2020">GitHub project</a>
     </nav>
   </div>
 </div>
 
+<style>
+
+.dropdown-container {
+  display: none;
+  padding-left: 10px;
+}
+.dropdown-btn {
+  text-decoration: none;
+  font-size: 20px;
+  color: #fff;
+  display: block;
+  border: none;
+  padding-left: 0px;
+  background: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  outline: none;
+}
+</style>
+<script>
+/* Loop through all dropdown buttons */
+var dropdown = document.getElementsByClassName("dropdown-btn");
+var i;
+for (i = 0; i < dropdown.length; i++) {
+  dropdown[i].addEventListener("click", function() {
+  this.classList.toggle("active");
+  var dropdownContent = this.nextElementSibling;
+  if (dropdownContent.style.display === "block") {
+  dropdownContent.style.display = "none";
+  } else {
+  dropdownContent.style.display = "block";
+  }
+  });
+}
+</script>
+
 
     <div class="content container">
       <div class="home">
 
-  <h1 class="page-heading">Posts</h1>
+  <h1 class="page-heading">Wiki</h1>
 
-  <ul class="post-list">
-    
-  </ul>
+<p>
 
-  <p class="rss-subscribe">subscribe <a href="/feed.xml">via RSS</a></p>
+Welcome to the Equestria CLST Pipeline wiki! One can easily navigate towards different help files.
+As a student, one probably wants to use the User guide. Teachers and administrators can look in the Teacher location. 
+This contains information on adding new languages and configuring everything!
+Developers and maintainers can look on the Developer tab.
+
+</p> 
+
 
 </div>
 

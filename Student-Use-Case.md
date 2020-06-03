@@ -1,6 +1,7 @@
 ---
 layout: page
 title: Student help page
+category: User
 ---
 # Welcome to Equestria
 

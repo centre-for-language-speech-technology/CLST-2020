@@ -4,20 +4,16 @@ layout: default
 
 <div class="home">
 
-  <h1 class="page-heading">Posts</h1>
+  <h1 class="page-heading">Wiki</h1>
 
-  <ul class="post-list">
-    {% for post in site.posts %}
-      <li>
-        <span class="post-meta">{{ post.date | date: "%b %-d, %Y" }}</span>
+<p>
 
-        <h2>
-          <a class="post-link" href="{{ post.url | prepend: site.baseurl }}">{{ post.title }}</a>
-        </h2>
-      </li>
-    {% endfor %}
-  </ul>
+Welcome to the Equestria CLST Pipeline wiki! One can easily navigate towards different help files.
+As a student, one probably wants to use the User guide. Teachers and administrators can look in the Teacher location. 
+This contains information on adding new languages and configuring everything!
+Developers and maintainers can look on the Developer tab.
 
-  <p class="rss-subscribe">subscribe <a href="{{ "/feed.xml" | prepend: site.baseurl }}">via RSS</a></p>
+</p> 
+
 
 </div>
