@@ -10,9 +10,8 @@ title: Student help page
 
 Before You can begin using it, You will need to log in. To do this press the "Log in" button on the home page, or the user icon in the top right.
 
-<p align="center">
-  <img src="https://github.com/GipHouse/CLST-2020/blob/master/wikiImage/loginscreen.png" alt="LogIn Form">
-</p>
+![LogIn Form](/wikiImage/loginscreen.png)
+
 
 You will then be prompted with the log in screen.
 
