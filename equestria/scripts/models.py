@@ -1107,7 +1107,10 @@ class Project(Model):
 
         :return: True if a .ctm file is present in the project directory, False otherwise
         """
-        return self.has_non_empty_extension_file(["ctm"], folder=os.path.join(self.folder, Process.OUTPUT_FOLDER_NAME))
+        return self.has_non_empty_extension_file(
+            ["ctm"],
+            folder=os.path.join(self.folder, Process.OUTPUT_FOLDER_NAME),
+        )
 
     def create_downloadable_archive(self):
         """
