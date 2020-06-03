@@ -1,3 +1,7 @@
+---
+layout: page
+title: Add processes on clam
+---
 To add processes on clam, you need to make sure the clam server is running.
 
 Go to `CLST-2020/fa-clam/FAclam/` and run `startserver-development.sh` to start the clam server.
