@@ -12,7 +12,7 @@ _dummyvars = {
     "user": "testUser",
     "email": "test@test.com",
     "passw": "testpass",
-    "fafile": "test.ctm",
+    "fafile": "output/test.ctm",
     "oovdict": "test.oov.dict",
     "filecontent": "This file is purely for testing",
 }

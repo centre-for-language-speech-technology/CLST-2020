@@ -1002,6 +1002,7 @@ class Project(Model):
                 )
             else:
                 os.makedirs(folder)
+                os.makedirs(os.path.join(folder, Process.OUTPUT_FOLDER_NAME))
                 return Project.objects.create(
                     name=name, folder=folder, pipeline=pipeline, user=user
                 )
@@ -1090,6 +1091,9 @@ class Project(Model):
         """
         if folder is None:
             folder = self.folder
+
+        if not os.path.exists(folder) or not os.path.isdir(folder):
+            return False
         if type(extensions) is not list:
             raise TypeError("Extensions must be a list type")
         for file_name in os.listdir(folder):
