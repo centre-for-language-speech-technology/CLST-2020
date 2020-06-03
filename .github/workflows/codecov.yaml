@@ -12,7 +12,6 @@ jobs:
     strategy:
       matrix:
         python-version: [3.7]
-
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
@@ -56,5 +55,5 @@ jobs:
 
     - name: Run Codecov.io
       run: |
-        poetry run codecov -t "7fbdd375-f7ee-4229-abee-f281d33082b3"
-        poetry run bash <(curl -s https://codecov.io/bash) -t 7fbdd375-f7ee-4229-abee-f281d33082b3 -y .codecov.yml
+        poetry run codecov -t "${{ secrets.CODECOV_TOKEN }}"
+        poetry run bash <(curl -s https://codecov.io/bash) -t "${{ secrets.CODECOV_TOKEN }}" -y .codecov.yml
