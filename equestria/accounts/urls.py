@@ -8,4 +8,5 @@ urlpatterns = [
     url("login", Login.as_view(), name="login"),
     url("logout", Logout.as_view(), name="logout"),
     url("forgot", Forgot.as_view(), name="forgot"),
+    url("password", ChangePasswordView.as_view(), name="password"),
 ]

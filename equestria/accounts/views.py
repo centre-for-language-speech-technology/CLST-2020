@@ -1,3 +1,4 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import login, logout
@@ -5,6 +6,7 @@ from equestria.views import GenericTemplate
 from django.views.generic import TemplateView
 from django.contrib import messages
 from django.conf import settings
+from .forms import UserUpdateForm
 
 """Module serving responses to user upon request."""
 
@@ -89,7 +91,7 @@ class Logout(TemplateView):
 
     template_name = "accounts/logout.html"
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request, **kwargs):
         """
         GET request for logout view.
 
@@ -107,3 +109,50 @@ class Logout(TemplateView):
             if next_page:
                 return redirect(next_page)
             return redirect("/")
+
+
+class ChangePasswordView(LoginRequiredMixin, TemplateView):
+    """Account details page, requires logged in user."""
+
+    template_name = "accounts/password.html"
+
+    def get(self, request, **kwargs):
+        """
+        GET method for account details page.
+
+        :param request: the request
+        :param kwargs: keyword arguments
+        :return: a render of the accounts page with initial information filled in
+        """
+        form = UserUpdateForm()
+
+        context = {"form": form}
+
+        return render(request, self.template_name, context)
+
+    def post(self, request, **kwargs):
+        """
+        POST method for account details page.
+
+        Changes details of a user account
+        :param request: the request
+        :param kwargs: keyword arguments
+        :return: a render of the accounts page
+        """
+        form = UserUpdateForm(request.POST)
+
+        context = {"form": form}
+
+        if form.is_valid():
+            if request.user.check_password(
+                form.cleaned_data.get("oldpassword")
+            ):
+                request.user.set_password(form.cleaned_data.get("password"))
+                request.user.save()
+                context["succeeded"] = True
+                return render(request, self.template_name, context)
+            else:
+                context["failed"] = True
+                return render(request, self.template_name, context)
+
+        return render(request, self.template_name, context)
