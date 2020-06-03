@@ -1078,19 +1078,22 @@ class Project(Model):
                     return full_file_path
         return None
 
-    def has_non_empty_extension_file(self, extensions):
+    def has_non_empty_extension_file(self, extensions, folder=None):
         """
         Check if a file ends with some extension.
 
         :param extensions: a list of extensions that are valid.
+        :param folder: the folder to check, if None this function uses self.folder
         :return: True if an .extension file is present with some text, False otherwise. Note: we may have multiple
         files, but as long as one is non empty we return true. (e.g. we have a.ext and b.ext, a is empty but b is not
         thus we return true).
         """
+        if folder is None:
+            folder = self.folder
         if type(extensions) is not list:
             raise TypeError("Extensions must be a list type")
-        for file_name in os.listdir(self.folder):
-            full_file_path = os.path.join(self.folder, file_name)
+        for file_name in os.listdir(folder):
+            full_file_path = os.path.join(folder, file_name)
             if os.path.isfile(full_file_path):
                 if file_name.endswith(tuple(extensions)):
                     if os.stat(full_file_path).st_size != 0:
@@ -1104,7 +1107,7 @@ class Project(Model):
 
         :return: True if a .ctm file is present in the project directory, False otherwise
         """
-        return self.has_non_empty_extension_file(["ctm"])
+        return self.has_non_empty_extension_file(["ctm"], folder=os.path.join(self.folder, Process.OUTPUT_FOLDER_NAME))
 
     def create_downloadable_archive(self):
         """

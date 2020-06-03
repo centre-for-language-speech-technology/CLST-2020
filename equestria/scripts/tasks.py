@@ -24,7 +24,7 @@ def update_script(process_id):
             if process.script == project.pipeline.fa_script:
                 next_script = project.pipeline.g2p_script
             else:
-                next_script = None
+                next_script = project.pipeline.fa_script
         except scripts.models.Project.DoesNotExist:
             next_script = None
         process.download_and_delete(next_script=next_script)
