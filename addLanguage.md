@@ -1,6 +1,7 @@
 ---
 layout: page
 title: Add another language
+category: test
 ---
 You can access the admininstrative section of equestria either by going to equestria.ru.nl/admin or clicking the "Site Admin" item in the dropdown menu of the user icon. Now, click the "add" button at Pipelines under Scripts: 
 
