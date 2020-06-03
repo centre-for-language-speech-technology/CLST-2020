@@ -10,9 +10,7 @@ title: Admin page
 
 You can access the admininstrative section of equestria either by going to equestria.ru.nl/admin or clicking the "Site Admin" item in the dropdown menu of the user icon.
 
-<p align="center">
-  <img src="https://github.com/GipHouse/CLST-2020/blob/master/wikiImage/AdminOverview.png" alt="Admin Page">
-</p>
+![Admin Overview](wikiImage/AdminOverview.png)
 
 ### Overview
 
