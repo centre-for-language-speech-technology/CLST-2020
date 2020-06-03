@@ -11,7 +11,7 @@ category: Teacher
 
 You can access the admininstrative section of equestria either by going to equestria.ru.nl/admin or clicking the "Site Admin" item in the dropdown menu of the user icon.
 
-![Admin Overview](wikiImage/AdminOverview.png)
+![Admin Overview](/CLST-2020/wikiImage/AdminOverview.png)
 
 ### Overview
 
