@@ -55,8 +55,6 @@
         	
 		
         	
-		
-        	
         		 
           			
           			<a class="sidebar-nav-item" href="/CLST-2020/Student-Use-Case.html">Student help page</a>
@@ -101,8 +99,6 @@
         	
 		
         	
-		
-        	
         		 
           			
           			<a class="sidebar-nav-item" href="/CLST-2020/The-Admin-Page.html">Admin page</a>
@@ -138,8 +134,6 @@
 	<button class="dropdown-btn">Developer</button>
 	<div class="dropdown-container">
       	
-        	
-		
         	
 		
         	
@@ -219,6 +213,188 @@ for (i = 0; i < dropdown.length; i++) {
 <h3 id="accounts">Accounts</h3>
 <h3 id="scripts">Scripts</h3>
 <h3 id="upload">Upload</h3>
+
+<h1 id="equestria-a-forced-alignment-pipeline">Equestria: A Forced Alignment Pipeline</h1>
+
+<p>Welcome to the Equestria repo, a Django application build for chaining forced alignment scripts on <a href="https://clam.readthedocs.io/en/latest/">CLAM</a> servers. This application was build on the CLAM servers of the <a href="https://www.ru.nl/clst/">Centre of Language and Speech Technology</a> of the Radboud University in Nijmegen. It currently features a couple of things:</p>
+
+<ul>
+  <li>Project separation and file storage.</li>
+  <li>A full blown backend interface for managing different language pipelines.</li>
+  <li>A fully automatic CLAM importer for importing CLAM input templates and parameters into this Django based application.</li>
+  <li>Automatic execution of Grapheen to Phoneem (G2P) conversion if necessary after forced alignment.</li>
+</ul>
+
+<p>More explanation about the features of this project and a detailed explanation of the database structure is stated below.</p>
+
+<h2 id="getting-started">Getting started</h2>
+
+<p>This project is built using the <a href="https://github.com/django/django">Django</a> framework. <a href="https://python-poetry.org">Poetry</a> is used for dependency management.</p>
+
+<h3 id="setup">Setup</h3>
+
+<p>To setup the project, follow the steps below:</p>
+
+<ol>
+  <li>Get at least <a href="https://www.python.org">Python</a> 3.7 installed on your system. An Ubuntu or macOS installation is also needed as some of the dependencies (<a href="https://pypi.org/project/pycrypto/">pycrypto</a>) of this project will not work on Windows.</li>
+  <li>Clone this repository.</li>
+  <li>If <code class="highlighter-rouge">pip3</code> is not installed on your system yet, execute <code class="highlighter-rouge">apt install python3-pip</code> on your system.</li>
+  <li>Also make sure <code class="highlighter-rouge">python3-dev</code> is installed on your system, execute <code class="highlighter-rouge">apt install python3-dev</code>.</li>
+  <li>Install Poetry by following the steps on <a href="https://python-poetry.org/docs/#installation">their website</a>. Make sure poetry is added to <code class="highlighter-rouge">PATH</code> before continuing.</li>
+  <li>Make sure <code class="highlighter-rouge">poetry</code> uses your python 3 installation: <code class="highlighter-rouge">poetry env use python3</code>.</li>
+  <li>Run <code class="highlighter-rouge">poetry install</code> to install all dependencies.</li>
+  <li>Run <code class="highlighter-rouge">poetry shell</code> to start a shell with the dependencies loaded. This command needs to be ran every time you open a new shell and want to run the development server.</li>
+  <li>Run <code class="highlighter-rouge">cd equestria</code> to change directories to the <code class="highlighter-rouge">equestria</code> folder containing the project.</li>
+  <li>Run <code class="highlighter-rouge">./manage.py migrate</code> to initialise the database and run all migrations.</li>
+  <li>Run <code class="highlighter-rouge">./manage.py createsuperuser</code> to create an administrator that is able to access the backend interface later on.</li>
+  <li>Run <code class="highlighter-rouge">./manage.py runserver</code> to start the development server locally.</li>
+</ol>
+
+<p>Now your server is setup and running on <code class="highlighter-rouge">localhost:8000</code>. The administrator interface can be accessed by going to <code class="highlighter-rouge">localhost:8000/admin</code>.</p>
+
+<p>The project now works and you are able to interact with the website on your local machine. However, creating a project will result in an error as there are no database entries yet. For the website to work, we need to add a couple of things, namely:</p>
+
+<ul>
+  <li>Two scripts, one being a forced alignment script and the other being a G2P script.</li>
+  <li>A Pipeline including the two scripts above.</li>
+</ul>
+
+<p>You can create these database entries yourself or load the default ones that are in a fixture under <code class="highlighter-rouge">equestria/scripts/fixtures</code> by executing <code class="highlighter-rouge">./manage.py loaddata clam</code>. Note that these default fixtures do NOT include passwords yet (and the default servers require a password before working). You thus need to obtain the password for the CLAM servers (they are most likely the same for every CLAM server of the CLST faculty) and enter them in the administrator interface. Head over to <code class="highlighter-rouge">localhost:8000/admin</code> and find the added scripts under <code class="highlighter-rouge">Scripts/Scripts</code>. For each Script listed, you must enter the password in the <code class="highlighter-rouge">Password</code> field and hit <code class="highlighter-rouge">Save</code>.</p>
+
+<p>After running through these steps the server works as intented and you are able to create projects. We only need to do one last thing before you can actually use the application. When you are running through a pipeline and executing a script, a background process is spawned in the database to be executed in the background. The background processes make sure that the CLAM status is requested once every <em>x</em> seconds and that the files are downloaded to the server after a CLAM process is done. To run the background processes, take the following steps:</p>
+
+<ol>
+  <li>First, spawn another terminal window as we need to run the background processes in another shell.</li>
+  <li>Navigate to the <code class="highlighter-rouge">equestria</code> folder and execute <code class="highlighter-rouge">poetry shell</code> again such that all dependencies are loaded.</li>
+  <li>Execute <code class="highlighter-rouge">./manage.py process_tasks</code> to spawn a process that monitors the database and executes background tasks.</li>
+</ol>
+
+<p>You are now all set up to develop and test this project. For more information about the project, please read the background information below.</p>
+
+<h2 id="general-django-information">General Django information</h2>
+<p>Pulled straight from the <a href="https://www.djangoproject.com">Django website</a>:</p>
+
+<p><em>“Django is a high-level Python Web framework that encourages rapid development and clean, pragmatic design. Built by experienced developers, it takes care of much of the hassle of Web development, so you can focus on writing your app without needing to reinvent the wheel.”</em></p>
+
+<p>Django is thus a web framework built in Python and has a lot of things needed for running a website with database already created. Using Django, you don’t have to worry about handling a Database or creating queries, Django has build-in methods to do all those things. Database entries are created like standard Python classes and automatically handled by Django.</p>
+
+<h3 id="django-applications">Django applications</h3>
+
+<p>Django works by separating different parts of the website in different applications called <em>apps</em>. An app can be created by executing the following command in a Django project: <code class="highlighter-rouge">django-admin startapp [app name]</code>. There are currently three self-written apps used in Equestria:</p>
+
+<ul>
+  <li><code class="highlighter-rouge">accounts</code>, this application defines user accounts.</li>
+  <li><code class="highlighter-rouge">upload</code>, this application defines uploaded files and handles them.</li>
+  <li><code class="highlighter-rouge">scripts</code>, this application handles all things that have to interface with CLAM servers.</li>
+</ul>
+
+<p>We will briefly explain some more things about the <code class="highlighter-rouge">scripts</code> application as this is the largest application in this project.</p>
+
+<h4 id="scripts-application">Scripts application</h4>
+<p>The <code class="highlighter-rouge">scripts</code> application handles all things that have to interface with CLAM servers. This project is designed around the use of CLAM servers and so Scripts are actually a database representation of a live CLAM server.</p>
+
+<h5 id="script-model">Script model</h5>
+<p>The <code class="highlighter-rouge">scripts</code> application includes a model <code class="highlighter-rouge">Script</code> which saves data regarding a CLAM server. This model can also be used to request a <code class="highlighter-rouge">clamclient</code> instance which can be used to interact with s CLAM server. Password validation will automatically be taken care of.</p>
+
+<h5 id="process-model">Process model</h5>
+<p>The <code class="highlighter-rouge">scripts</code> application also includes a model for representing processes in the database. The <code class="highlighter-rouge">Process</code> class stores information regarding a running process. Note that we only store processes on the CLAM servers for as long as they are needed, they will be removed automatically after a file download is done or if an error occured. This to prevent cluttering on the CLAM server.</p>
+
+<h5 id="project-model">Project model</h5>
+<p>The <code class="highlighter-rouge">Project</code> class in the <code class="highlighter-rouge">scripts</code> application stores data regarding a users’ project. The <code class="highlighter-rouge">Project</code> model keeps track of a currently running script and can be used to see which stage of the pipeline a user is in.</p>
+
+<h3 id="migrations">Migrations</h3>
+
+<p>Django uses migrations to perform database alterations. A migration is the specification of an alteration of a database model (or more). When, for example, adding a new type of parameter to the project, you will need to create a migration to update the database tables regarding this new model. There are two important thing to remember about migrations:</p>
+
+<ul>
+  <li>How to run migrations.</li>
+  <li>How to make migrations.</li>
+</ul>
+
+<p>Running migrations is easy, if you setup the project before reading this you have actually already ran migrations once. To run migrations, you can execute <code class="highlighter-rouge">./manage.py migrate</code> and Django will look for the migration files in the <code class="highlighter-rouge">migrations</code> directories in each installed app. These migration files are just plain Python files and define the database alterations made during project development.</p>
+
+<p>When you have altered a model, added or deleted field or added a completely different model yourself (or deleted one), you should make migrations in order for Django to alter the database such that the new model representation is in synch with the database. To make migrations automatically, you can run <code class="highlighter-rouge">./manage.py makemigrations</code>. If you have created a new application and you did make migrations for this applications before, you need to run <code class="highlighter-rouge">./manage.py makemigrations [app name]</code>. Note that the app must already be installed in the <code class="highlighter-rouge">settings.py</code> file.</p>
+
+<p>Making migrations and migrating the database is necessary because otherwise the running webserver and the database are not in synch with eachother. For example, if you create a new type of parameter for a script and you do not run migrations, then Django will at some point look for a table in the database that includes the new parameter but won’t find one because you did not run migrations yet.</p>
+
+<h4 id="committing-migrations">Committing migrations</h4>
+
+<p>When creating a new model class, you are most likely experimenting a lot and creating migrations a couple of times until your database class is perfect for your needs. Please note that you do not want to commit all new migrations you made, but rather delete the ones you created previously (so not all migrations, just the ones you created in this commit) and create one new migration after you are done altering a model. This ensures that your migrations are kept clean and prevents migration errors.</p>
+
+<h2 id="clam">CLAM</h2>
+
+<p>I’m sure you’ve by now noticed that we have already stated <a href="http://proycon.github.io/clam/">CLAM</a> a lot of times. CLAM is, as the name suggests, a wrapper around shell scripts. CLAM allows someone to convert a shell script to a RESTful webservice and web interface. CLAM is used for executing all kinds of scripts (such as the Forced Alignment scripts) used for our project.</p>
+
+<p>There are a couple of advantages for using CLAM over implementing a wrapper around shell scripts ourselves:</p>
+
+<ul>
+  <li>We don’t have to maintain a way to execute shell scripts and monitor processes.</li>
+  <li>CLAM is a RESTful webservice so we can communicate commands via regular HTTP requests.</li>
+  <li>CLAM is written in Python and includes an API that we can use in our Django server.</li>
+</ul>
+
+<p>Adding a script to our application is easy as you have to only setup a new CLAM server and put in in the database of this project. Interfacing options are already implemented in this project or existing methods already existed in the CLAM API.</p>
+
+<h3 id="inner-workings-of-a-clam-server">Inner workings of a CLAM server</h3>
+
+<p>There might be a need for you to set up a CLAM server for a script in the future, it might also be that someone else will set up the CLAM server for you but this background information will still be very handy to read as the inner-workings of this project mirrors the inner-workings of CLAM servers at some points.</p>
+
+<p>There are a couple of important things that must be specified when setting up a CLAM server. These things are:</p>
+
+<ul>
+  <li>Profiles and input templates</li>
+  <li>Parameters</li>
+</ul>
+
+<p>Another important thing for setting up a CLAM server is the wrapper script. Because we are not interfacing with the wrapper script in this project, we will not discuss this. For more information about setting up a CLAM server we refer to the <a href="https://clam.readthedocs.io/en/latest/">CLAM documentation</a>.</p>
+
+<h4 id="profiles-and-input-template">Profiles and input template</h4>
+
+<p>Profiles and input templates specify the files that a CLAM server expects as input. A CLAM server can have several profiles which can have several input templates. If you want to run a script on a CLAM server, you must first pick a profile and upload at least one file for all required input templates.</p>
+
+<p>A profile is thus a set of input templates and an input template includes at least the following information:</p>
+
+<ul>
+  <li>A template id</li>
+  <li>A template format, classifying the format as a CLAM class</li>
+  <li>A label</li>
+  <li>A mimetype</li>
+  <li>An extension</li>
+  <li>If the template is optional</li>
+  <li>If the template is unique</li>
+  <li>If the template accepts an archive</li>
+</ul>
+
+<p>The above information is also stored by our project in a model class named <code class="highlighter-rouge">InputTemplate</code>.</p>
+
+<p>It might be that more then one profile is specified for a CLAM server. Running the CLAM server then requires you to pick a profile before running so that CLAM knows which files to use.</p>
+
+<h4 id="parameters">Parameters</h4>
+
+<p>Parameters specify the parameters that a CLAM server can take for the script to run. Parameters are always global, so parameters are not specified per profile. Parameters in CLAM also have a default value, but in our project one has to always provide another (or the same) default value manually. This is because of the way our project functions.</p>
+
+<p>Parameters can be of the following types:</p>
+
+<ul>
+  <li>Boolean</li>
+  <li>Static</li>
+  <li>String</li>
+  <li>Choice</li>
+  <li>Text</li>
+  <li>Integer</li>
+  <li>Float</li>
+</ul>
+
+<p>For each of these types, a parameter model class is also present in our model. Note that a static parameter can not be passed to CLAM as the parameter is static. For more information about why these parameters exists we refer to the <a href="https://clam.readthedocs.io/en/latest/">CLAM documentation</a>.</p>
+
+<h3 id="automatic-import-of-clam-data">Automatic import of CLAM data</h3>
+
+<p>For our project to function, we need to know what CLAM profiles, input templates and parameters are used. Therefor, when pressing <code class="highlighter-rouge">Save</code> on the admin page of a Script, we automatically ask the CLAM server for its data and import it in our database model. Upon resaving, all profiles, input templates and parameters are recreated. Input templates are static and need not to be modified as are profiles.</p>
+
+<h4 id="setting-default-values-for-parameters">Setting default values for parameters</h4>
+
+<p>You might need to change default values for parameters, this can be done by looking at the <code class="highlighter-rouge">Parameters</code> section in the <code class="highlighter-rouge">Script</code> details. Check which parameters are linked to the script by remembering their ids. Then go to the <code class="highlighter-rouge">BaseParameters</code> page on the administration view. Set <code class="highlighter-rouge">Preset</code> to <code class="highlighter-rouge">True</code> and change the default value in the corresponding typed parameter. The current parameter type can be seen in the <code class="highlighter-rouge">Type</code> field.</p>
+
 
 </div>
 
