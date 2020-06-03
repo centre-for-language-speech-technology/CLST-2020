@@ -11,7 +11,7 @@
 
   <title>
     
-       &middot; Equestria
+      Add processes on clam &middot; Equestria
     
   </title>
 
@@ -51,7 +51,7 @@
       
         
           
-            <a class="sidebar-nav-item" href="/Add-scripts-and-loads-fixtures.html">Add processes on clam</a>
+            <a class="sidebar-nav-item active" href="/Add-scripts-and-loads-fixtures.html">Add processes on clam</a>
           
         
       
@@ -109,15 +109,13 @@
 
 
     <div class="content container">
-      <div class="home">
+      <div class="page">
+  <h1 class="page-title">Add processes on clam</h1>
+  <p>To add processes on clam, you need to make sure the clam server is running.</p>
 
-  <h1 class="page-heading">Posts</h1>
+<p>Go to <code class="highlighter-rouge">CLST-2020/fa-clam/FAclam/</code> and run <code class="highlighter-rouge">startserver-development.sh</code> to start the clam server.</p>
 
-  <ul class="post-list">
-    
-  </ul>
-
-  <p class="rss-subscribe">subscribe <a href="/feed.xml">via RSS</a></p>
+<p>Then run <code class="highlighter-rouge">./manage.py loaddata clam</code>. Alternatively, go to <code class="highlighter-rouge">http://localhost:8000/admin</code> and add a script yourself. Then you should be able to go to the Forced Alignment page and add processes.</p>
 
 </div>
 
