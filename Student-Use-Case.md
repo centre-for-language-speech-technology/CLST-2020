@@ -15,9 +15,8 @@ Before You can begin using it, You will need to log in. To do this press the "Lo
 
 You will then be prompted with the log in screen.
 
-<p align="center">
-  <img src="https://github.com/GipHouse/CLST-2020/blob/master/wikiImage/LoginFormScreenshot.png" alt="LogIn Form">
-</p>
+![LogIn Form](/wikiImage/LoginFormScreenshot.png)
+
 
 This form also offers functionality to register with a new account using the "Sign up" button, as well as resetting Your password in case You forgot is using the "Forgotten password" button.
 
