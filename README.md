@@ -2,7 +2,6 @@
 ![Server testing](https://github.com/GipHouse/CLST-2020/workflows/Server%20testing/badge.svg)
 ![Coding style](https://github.com/GipHouse/CLST-2020/workflows/Coding%20style/badge.svg?branch=master)
 [![codecov](https://codecov.io/gh/GipHouse/CLST-2020/branch/master/graph/badge.svg?token=97JZOEZOAS)](https://codecov.io/gh/GipHouse/CLST-2020)
-[![coverage](https://img.shields.io/badge/coverage-view-important)](https://giphouse.github.io/CLST-2020/)
 
 # Equestria: A Forced Alignment Pipeline
 
