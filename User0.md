@@ -1,7 +1,7 @@
 ---
 layout: page
 title: Student help page
-permalink: /Student-Use-Case
+permalink: /Student-Use-Case.html
 category: User
 ---
 # Welcome to Equestria
