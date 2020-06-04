@@ -87,6 +87,10 @@ The ```scripts``` application also includes a model for representing processes i
 ##### Project model
 The ```Project``` class in the ```scripts``` application stores data regarding a users' project. The ```Project``` model keeps track of a currently running script and can be used to see which stage of the pipeline a user is in.
 
+##### Background Task
+
+The funciton in tasks.py `update_script` runs in the background while scripts are being run on the CLAM server. It contiuously checks the current status of the process running the script and performs corresponding CLAM actions.
+
 #### Upload
 Uploading files to the server happens at `yoururl.ru.nl/upload/<project_id>` and is handled in the upload app within django.
 The according class and functions live in `equestria/upload/views.py`.
