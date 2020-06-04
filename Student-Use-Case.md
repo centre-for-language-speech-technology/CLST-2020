@@ -51,11 +51,11 @@ Once all files have been uploaded, click the "Continue" button to proceed.
 
 After clicking the "Continue" button on the upload page, the forced alignment will automatically be run. It will show You the progress via console output on the right side and the current status on the left. Once it is done, click the "Continue" button.
 
-### Graphene to Phoneme
+### Grapheme to Phoneme
 
-![Graphene to Phoneme](/CLST-2020/wikiImage/G2PPage.png)
+![Grapheme to Phoneme](/CLST-2020/wikiImage/G2PPage.png)
 
-This page works in very much the same way as Forced Alignment. Grapheen to phoneme will run automatically, once it is done, click the "Continue" button.
+This page works in very much the same way as Forced Alignment. Grapheme to phoneme will run automatically, once it is done, click the "Continue" button.
 
 ### Check Dictionary
 
