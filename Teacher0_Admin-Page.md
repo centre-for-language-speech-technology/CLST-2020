@@ -20,7 +20,7 @@ On the right side of the page you will see a log of recent activities of the sit
 ### Models
 
 * User profiles: An artifect of implementing personalization. Can be ignored.
-* Groups: Currently empty, no clue what it does PLEASE EDIT THIS
+* Groups: Part of the general Django framework. Currently empty, would normally contain groups of users with special permissions.
 * Users: List of all users with detailed information
 * Tasks: Server background tasks that are running at this moment
 * Completed Tasks: Tasks that have been finished as well as additional information
