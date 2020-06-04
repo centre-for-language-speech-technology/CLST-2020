@@ -84,6 +84,10 @@ The ```scripts``` application includes a model ```Script``` which saves data reg
 ##### Process model
 The ```scripts``` application also includes a model for representing processes in the database. The ```Process``` class stores information regarding a running process. Note that we only store processes on the CLAM servers for as long as they are needed, they will be removed automatically after a file download is done or if an error occured. This to prevent cluttering on the CLAM server.
 
+To add processes on clam, you need to make sure the clam server is running.
+Go to `CLST-2020/fa-clam/FAclam/` and run `startserver-development.sh` to start the clam server.
+Then run `./manage.py loaddata clam`. Alternatively, go to `http://localhost:8000/admin` and add a script yourself. Then you should be able to go to the Forced Alignment page and add processes.
+
 ##### Project model
 The ```Project``` class in the ```scripts``` application stores data regarding a users' project. The ```Project``` model keeps track of a currently running script and can be used to see which stage of the pipeline a user is in.
 
