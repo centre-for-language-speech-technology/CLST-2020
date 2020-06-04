@@ -17,7 +17,7 @@ Defined in `CLST-2020/.github/workflows/codecov.yaml`.
 1. Set up job: sets up a virtual environment to run checks in
 2. Checkout repository
 3. Setup Python
-4. Install poetry: Update installed packages and install poetry
+4. Install poetry: Update installed packages and install Poetry
 5. Restore any cached Poetry dependencies
 6. Install any new dependencies: runs `poetry install`.
 7. Test migrations: tests if migrations can be applied without issue
@@ -25,7 +25,7 @@ Defined in `CLST-2020/.github/workflows/codecov.yaml`.
 9. Run Django tests using coverage: runs all tests giving coverage output
 10. Check Coverage report: display report in CI console
 11. Generate a coverage xml
-12. Run Codecov.io: upload xml file to codecov
+12. Run Codecov.io: upload xml file to Codecov
 
 
 ### Linting
@@ -35,10 +35,10 @@ Defined in `CLST-2020/.github/workflows/codestyle.yaml`.
 1. Set up job: sets up a virtual environment to run checks in.
 2. Checkout repository
 3. Setup Python
-4. Install poetry: Update installed packages and install poetry.
+4. Install Poetry: Update installed packages and install Poetry.
 5. Restore any cached Poetry dependencies
 6. Install any new dependencies: runs `poetry install`.
-7. Run black: runs `black` checking for code style errors.
+7. Run Black: runs `black` checking for code style errors.
 8. Run PyDocStyle: runs pydocstyle checking for missing or wrong documentation within the code.
 
 

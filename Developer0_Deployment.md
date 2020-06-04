@@ -4,14 +4,14 @@ title: Deployment
 category: Developer
 ---
 
-# Deployment
-
 ## Docker
+General plan:
+- Make virtual environment 
+- Run poetry export to requirements.txt 
+- Install requirements 
+- Run server
 
-Make virtual environment -> run poetry export to requirements.txt -> Install requirements -> Run server
-
-
-docker build . -t "some tag" in CLST-2020
+TO EDIT, MAKE THIS HUMAN READABLE SENTENCES INSTEAD OF JUST A RECIPE:`docker build . -t "some tag"` in CLST-2020
 edit the docker-compose.yml.example and setup.sql.example with passwords, file locations, etc.
 [...]
 

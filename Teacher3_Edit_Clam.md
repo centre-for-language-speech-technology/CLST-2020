@@ -1,9 +1,9 @@
 ---
 layout: page
-title: Edit address clam server
+title: Edit address CLAM server
 category: Teacher
 ---
-to change the address of an already existing CLAM server, go to the admin page, and click 'change' next to the Scripts header at the bottom of the page:
+To change the address of an already existing CLAM server, go to the admin page, and click 'change' next to the Scripts header at the bottom of the page:
 
 ![EditImage](/CLST-2020/wikiImage/admin_scripts_edit.png)
 
