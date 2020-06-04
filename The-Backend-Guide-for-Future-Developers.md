@@ -8,7 +8,41 @@ category: Developer
 ## The Django Apps
 ### Accounts
 ### Scripts
+
+The `scripts` application handles all things that have to interface with CLAM servers. This project is designed around the use of CLAM servers and so Scripts are actually a database representation of a live CLAM server.
+
+**Script model**
+The `scripts` application includes a model `Script` which saves data regarding a CLAM server. This model can also be used to request a `clamclient` instance which can be used to interact with s CLAM server. Password validation will automatically be taken care of.
+
+**Process model**
+The `scripts` application also includes a model for representing processes in the database. The `Process` class stores information regarding a running process. Note that we only store processes on the CLAM servers for as long as they are needed, they will be removed automatically after a file download is done or if an error occured. This to prevent cluttering on the CLAM server.
+
+**Project model**
+The `Project` class in the `scripts` application stores data regarding a users' project. The `Project` model keeps track of a currently running script and can be used to see which stage of the pipeline a user is in.
+
 ### Upload
+Uploading files to the server happens at `yoururl.ru.nl/upload/<project_id>` and is handled in the upload app within django.
+The according class and functions live in `equestria/upload/views.py`.
+
+***
+
+When a user gets to the upload page, the `get` function is called. The get function checks permissions and gathers data that will be presented to the user and finally returns a render of the page.
+
+***
+
+When a user selects a file for upload and presses the `Upload files` button, the user is temporarily redirected to `yoururl.ru.nl/upload/<project_id>/upload` calling the `upload_file_view` function. This function checks whether it is currently possible to upload file to this project. It then extracts the files from the file upload form and checks their extensions. If the files are valid, they are saved.
+
+***
+
+When a user clicks the `delete` button on a listed file, the user is temporarily redirected to `yoururl.ru.nl/upload/<project_id>/delete` calling the `delete_file_view` function. This function deletes the according file if it exists, otherwise returns a 404 error.
+
+***
+
+There are several miscellaneous functions that are rather self explanatory.
+
+***
+
+The `UploadForm` lives at `equestria/upload/forms.py` and contains only a fileField using the ClearableFileInput widget. I further allows empty files. It will have a lable within the domain of the web page defined with the `label` tag.
 
 
 # Equestria: A Forced Alignment Pipeline
