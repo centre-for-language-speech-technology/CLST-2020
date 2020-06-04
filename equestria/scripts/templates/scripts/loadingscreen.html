@@ -18,7 +18,7 @@
         <div class="row">
             <div class="col-md-7">
                 {% if project.current_process and project.current_process.script == script %}
-                    <h3>{% if script == project.pipeline.fa_script %}Forced Alignment{% else %}G2P{% endif %} is running</h3>
+                    <h3>{% if script == project.pipeline.fa_script %}Forced Alignment{% else %}G2P{% endif %} progress</h3>
                     <p class="">Status:</p>
                     <strong><p id="process-django-status"></p></strong>
                     <form class="md-form" action="" method="post">
