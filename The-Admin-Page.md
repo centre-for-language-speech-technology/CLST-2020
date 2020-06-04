@@ -21,7 +21,7 @@ Please ignore user profiles, it has no real use and is an artifact of implementi
 
 ### Models
 
-* Groups: Currently empty, no clue what it does PLEASE EDIT THIS
+* Groups: Currently empty, would normally contain groups of users with special permissions
 * Users: List of all users with detailed information
 * Tasks: Currently running server background tasks
 * Completed Tasks: Tasks that have been finished as well as additional information
