@@ -35,7 +35,7 @@
             </li>
             <li class="nav-item">
                 <a class="nav-link {% if active == "g2p" %}active{% elif project_status < 2 %}disabled{% endif %}" href="{% if project_status >= 2 %}{% url 'scripts:loading' project=project script=project.pipeline.g2p_script %}{% endif %}">
-                    4. Grapheen to Phoneme
+                    4. Grapheme to Phoneme
                 </a>
             </li>
             <li class="nav-item">

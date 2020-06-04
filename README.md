@@ -10,7 +10,7 @@ Welcome to the Equestria repo, a Django application build for chaining forced al
 - Project separation and file storage.
 - A full blown backend interface for managing different language pipelines.
 - A fully automatic CLAM importer for importing CLAM input templates and parameters into this Django based application.
-- Automatic execution of Grapheen to Phoneem (G2P) conversion if necessary after forced alignment.
+- Automatic execution of Grapheme to Phoneem (G2P) conversion if necessary after forced alignment.
 
 More explanation about the features of this project and a detailed explanation of the database structure is stated below.
 
