@@ -30,8 +30,8 @@ edit the docker-compose.yml.example and setup.sql.example with passwords, file l
 	- `[postgres_password]` to the password set in <sup>1</sup>.
 7. Now you are ready to run the server! Run `docker-compose up -d` to run the three container specified in the `docker-compose.yml` file. You can now access your webpage!
 8. To add the first user to your webserver (the "superuser"), you should execute the following commands (while the containers are running, so after executing `docker-compose up -d`):
-	- `docker exec -it djangfolio_django /bin/bash`
-	- `cd website`
+	- `docker exec -it CLST_2020 /bin/bash`
+	- `cd equestria`
 	- `./manage.py createsuperuser`
 	- Now, enter your desired username and credentials. Execute `exit` when finished.
 9. Congratulations! You can access the settings of the website at `[your domain]/admin` after logging in with the account created in step 8.
