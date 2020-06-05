@@ -17,4 +17,14 @@ def update_script(process_id):
         process.clam_update()
         update_script(process_id)
     elif status == scripts.models.STATUS_WAITING:
-        process.download_and_delete()
+        try:
+            project = scripts.models.Project.objects.get(
+                current_process=process
+            )
+            if process.script == project.pipeline.fa_script:
+                next_script = project.pipeline.g2p_script
+            else:
+                next_script = project.pipeline.fa_script
+        except scripts.models.Project.DoesNotExist:
+            next_script = None
+        process.download_and_delete(next_script=next_script)

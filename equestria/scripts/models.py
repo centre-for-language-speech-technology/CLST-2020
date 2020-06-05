@@ -351,6 +351,8 @@ class Process(Model):
         output_path                   Path to the primary output file (e.g. output/error.log)
     """
 
+    OUTPUT_FOLDER_NAME = "output"
+
     script = ForeignKey(Script, on_delete=SET_NULL, blank=False, null=True)
     clam_id = CharField(max_length=256, null=True, default=None)
     status = IntegerField(choices=STATUS, default=0)
@@ -413,6 +415,15 @@ class Process(Model):
             )
         except ValueError:
             return None
+
+    @property
+    def output_folder(self):
+        """
+        Get an absolute path to the output folder.
+
+        :return: the absolute path to the output folder
+        """
+        return os.path.join(self.folder, self.OUTPUT_FOLDER_NAME)
 
     def set_status(self, status):
         """
@@ -565,7 +576,7 @@ class Process(Model):
         else:
             return False
 
-    def download_and_delete(self):
+    def download_and_delete(self, next_script=None):
         """
         Download all files from a process, decompress them and delete the project from CLAM.
 
@@ -577,6 +588,8 @@ class Process(Model):
         ):
             self.set_status(STATUS_DOWNLOADING)
             if self.download_archive_and_decompress():
+                if next_script is not None:
+                    self.move_downloaded_output_files(next_script)
                 self.cleanup(status=STATUS_FINISHED)
                 return True
             else:
@@ -584,6 +597,19 @@ class Process(Model):
                 return False
         else:
             return False
+
+    def move_downloaded_output_files(self, script):
+        """
+        Move downloaded output files that are needed for the next script to the main directory.
+
+        :param script: the next script
+        :return: None
+        """
+        templates = InputTemplate.objects.filter(
+            corresponding_profile__script=script
+        )
+        for template in templates:
+            template.move_corresponding_files(self.output_folder, self.folder)
 
     def download_archive_and_decompress(self):
         """
@@ -593,10 +619,16 @@ class Process(Model):
         """
         try:
             clamclient = self.script.get_clam_server()
-            downloaded_archive = self.get_output_file_name()
+            if not os.path.exists(self.output_folder):
+                os.makedirs(self.output_folder)
+            downloaded_archive = os.path.join(
+                self.output_folder, str(self.clam_id) + ".{}".format("zip")
+            )
             clamclient.downloadarchive(self.clam_id, downloaded_archive, "zip")
             with zipfile.ZipFile(downloaded_archive, "r") as zip_ref:
-                zip_ref.extractall(self.folder)
+                zip_ref.extractall(
+                    os.path.join(self.folder, self.OUTPUT_FOLDER_NAME)
+                )
             os.remove(downloaded_archive)
             return True
         except Exception as e:
@@ -809,6 +841,24 @@ class InputTemplate(Model):
     accept_archive = BooleanField()
     corresponding_profile = ForeignKey(Profile, on_delete=SET_NULL, null=True)
 
+    def move_corresponding_files(self, from_directory, to_directory):
+        """
+        Move the corresponding files of this template from a directory to a directory (overwrite if necessary).
+
+        :param from_directory: the directory to check files from
+        :param to_directory: the directory to move files to
+        :return: None
+        """
+        for file in [
+            f
+            for f in os.listdir(from_directory)
+            if f.endswith("." + self.extension)
+        ]:
+            shutil.copyfile(
+                os.path.join(from_directory, file),
+                os.path.join(to_directory, file),
+            )
+
     def is_valid(self, folder):
         """
         Check if a file with the extension of this object is present in the folder.
@@ -962,6 +1012,7 @@ class Project(Model):
                 )
             else:
                 os.makedirs(folder)
+                os.makedirs(os.path.join(folder, Process.OUTPUT_FOLDER_NAME))
                 return Project.objects.create(
                     name=name, folder=folder, pipeline=pipeline, user=user
                 )
@@ -1038,19 +1089,25 @@ class Project(Model):
                     return full_file_path
         return None
 
-    def has_non_empty_extension_file(self, extensions):
+    def has_non_empty_extension_file(self, extensions, folder=None):
         """
         Check if a file ends with some extension.
 
         :param extensions: a list of extensions that are valid.
+        :param folder: the folder to check, if None this function uses self.folder
         :return: True if an .extension file is present with some text, False otherwise. Note: we may have multiple
         files, but as long as one is non empty we return true. (e.g. we have a.ext and b.ext, a is empty but b is not
         thus we return true).
         """
+        if folder is None:
+            folder = self.folder
+
+        if not os.path.exists(folder) or not os.path.isdir(folder):
+            return False
         if type(extensions) is not list:
             raise TypeError("Extensions must be a list type")
-        for file_name in os.listdir(self.folder):
-            full_file_path = os.path.join(self.folder, file_name)
+        for file_name in os.listdir(folder):
+            full_file_path = os.path.join(folder, file_name)
             if os.path.isfile(full_file_path):
                 if file_name.endswith(tuple(extensions)):
                     if os.stat(full_file_path).st_size != 0:
@@ -1064,7 +1121,10 @@ class Project(Model):
 
         :return: True if a .ctm file is present in the project directory, False otherwise
         """
-        return self.has_non_empty_extension_file(["ctm"])
+        return self.has_non_empty_extension_file(
+            ["ctm"],
+            folder=os.path.join(self.folder, Process.OUTPUT_FOLDER_NAME),
+        )
 
     def create_downloadable_archive(self):
         """

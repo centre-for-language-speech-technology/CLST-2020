@@ -115,8 +115,12 @@ class DummyClamServer:
 
     def downloadarchive(self, id, bool, ext):
         """Creates a dir with a single file in it, then zips it. Mocks downloadarchive"""
-        nfolder = os.path.join(self.targetfolder, _zipdir)
-        targetname = os.path.join(self.targetfolder, str(_clamID))
+        nfolder = os.path.join(
+            self.targetfolder, Process.OUTPUT_FOLDER_NAME, _zipdir
+        )
+        targetname = os.path.join(
+            self.targetfolder, Process.OUTPUT_FOLDER_NAME, str(_clamID)
+        )
         if not os.path.exists(nfolder):
             os.mkdir(nfolder)
         shutil.make_archive(targetname, "zip", nfolder)
