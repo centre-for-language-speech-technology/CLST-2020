@@ -58,7 +58,7 @@ _templatevars = {
     "label": "not",
     "extension": ".test",
     "optional": True,
-    "unique": True,
+    "unique": False,
     "accept_archive": True,
 }
 _dummglogmessages = [r"wait a second!1", r"Oi this went well"]
@@ -66,15 +66,19 @@ _dummglogmessages = [r"wait a second!1", r"Oi this went well"]
 
 class DummyClamServer:
     """The dummy clam server mocks the actual clam server by doing fuck all"""
+    deleteCall = False
 
     def create(self, id):
-        pass
+        deleteCall = False #reset upon respawn
 
     def startsafe(self, id, **kwargs):
         pass
 
     def addinputfile(self, id, templateid, path):
         pass
+
+    def delete(self, id):
+        deleteCall = True
 
     @staticmethod
     def spawn_dummyClam():
@@ -252,13 +256,13 @@ class Test_ProcessMethods(TestCase):
             except:
                 self.fail(f"Error in creation of {self.folder}")
 
-    def spawn_dummyparam(self):
+    def spawn_dummyparam(self, dpreset=True):
         """Spawns a paramater associated with the script"""
         self.dummybaseparam = BaseParameter.objects.create(
             name="dummy parameter",
             type=BaseParameter.BOOLEAN_TYPE,
-            preset=True,  # no idea what this is
-            corresponding_script=self.dummyscript,
+            preset=dpreset,  # no idea what this is
+            corresponding_script=self.dummyscript
         )
         self.dummyboolparam = BooleanParameter.objects.create(
             base=self.dummybaseparam, value=True
@@ -309,15 +313,76 @@ class Test_ProcessMethods(TestCase):
     def test_generate_parameters_from_clamdata(self):
         pass  # TODO: this
 
-    # Can "not all parameters are satisfied eer be reached?"
-    # def test_2startingClamNew_WithoutBaseParams_WithInputForTemplate_NotOptional_notUnique(self):
-    #     """Tests whether the start method behaves properly with new status"""
-    #     created_status = 0
-    #     self.make_tempdir()
-    #     self.spawn_dummyparam()
-    #     self.dummytemplate.optional = False
-    #     self.dummytemplate.save()
-    #     self.writeFile(f"somefile{_templatevars['extension']}")
-    #     with patch.object(self.dummyscript, 'get_clam_server', new=DummyClamServer.spawn_dummyClam):
-    #         res = self.dummyProcess.start(self.dummyprofile)
-    #     self.assertEquals(res, True)
+    def test_2startingClamNew_WithoutBaseParams_WithInputForTemplate_NotOptional_notUnique(self):
+        """Tests whether the start method behaves properly when missing provided paramaters"""
+        created_status = 0
+        self.make_tempdir()
+        self.spawn_dummyparam(False)
+        self.dummytemplate.optional = False
+        self.dummytemplate.save()
+        self.writeFile(f"somefile{_templatevars['extension']}")
+        with patch.object(self.dummyscript, 'get_clam_server', new=DummyClamServer.spawn_dummyClam):
+            try:
+                res = self.dummyProcess.start(self.dummyprofile)
+                self.fail("Missing paramaters should fail!")
+            except:
+                pass
+
+    def test_2startingClamNew_WithBaseParams_WithInputForTemplate_NotOptional_UniqueDuplicate(self):
+        """Tests whether the start method behaves properly when a duplicate file exists despite being unique"""
+        created_status = 0
+        self.make_tempdir()
+        self.spawn_dummyparam()
+        self.dummytemplate.optional = False
+        self.dummytemplate.unique = True
+        self.dummytemplate.save()
+        self.writeFile(f"somefile{_templatevars['extension']}")
+        self.writeFile(f"duplicatefile{_templatevars['extension']}")
+        with patch.object(self.dummyscript, 'get_clam_server', new=DummyClamServer.spawn_dummyClam):
+            try:
+                res = self.dummyProcess.start(self.dummyprofile, {self.dummybaseparam.name: True})
+                self.fail("Duplicate file should fail for unique!")
+            except:
+                pass
+
+    def test_startSafe_Exception(self):
+        """Test whether starting safe works if an exception is thrown"""
+        created_status = 0
+        self.make_tempdir()
+        self.spawn_dummyparam(False)
+        self.dummytemplate.optional = False
+        self.dummytemplate.save()
+        self.writeFile(f"somefile{_templatevars['extension']}")
+        with patch.object(self.dummyscript, 'get_clam_server', new=DummyClamServer.spawn_dummyClam):
+            try:
+                res = self.dummyProcess.start_safe(self.dummyprofile)
+                self.fail("Start safe should propagate exception!")
+            except:
+                pass
+
+    def test_startSafe_NoException(self):
+        """
+        Test whether starting safe works if no exception is thrown
+        """
+        created_status = 0
+        self.make_tempdir()
+        self.spawn_dummyparam()
+        self.dummytemplate.optional = False
+        self.dummytemplate.save()
+        self.writeFile(f"somefile{_templatevars['extension']}")
+        with patch.object(
+            self.dummyscript,
+            "get_clam_server",
+            new=DummyClamServer.spawn_dummyClam,
+        ):
+            res = self.dummyProcess.start_safe(
+                self.dummyprofile, {self.dummybaseparam.name: True}
+            )
+        self.assertEquals(res, True)
+
+    def test_cleanup_NoException(self):
+        """
+        Test whether cleanup performs wanted functionality when no exception occurs
+        """
+        pass
+
