@@ -475,3 +475,5 @@ class Test_ProcessMethods(TestCase):
         self.dummyProcess.status = running_status
         res = self.dummyProcess.download_and_delete()
         self.assertEquals(res, False)
+
+    
