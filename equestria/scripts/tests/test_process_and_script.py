@@ -91,6 +91,17 @@ class DummyClamServer:
         def parameter(self, input):
             return _dummyClamParams[input]
 
+    class DummyTemplate:
+        """This dummy template object mocks a clam template data object"""
+        def __init__(self):
+            self.id = "someId"
+            self.formatclass = "someformat"
+            self.label = "somelabel"
+            self.extension = ".zip"
+            self.optional = True
+            self.unique = True
+            self.acceptarchive = True
+
     class DummyClamStatus:
         """This dummy Clam status object mocks a clam status object"""
         def __init__(self, xmlcontent):
@@ -505,3 +516,9 @@ class Test_ProcessMethods(TestCase):
         Tests ALL branches in generate_paramaters_from_clam_data. Only fails if exception occurs
         """
         self.dummyscript.generate_parameters_from_clam_data(_dummyClamParams.keys(),DummyClamServer.DummyClamData(),_dummyParameterInputs)
+
+    def test_template_from_data(self):
+        """
+        Tests the creation of template data. Only fails if exception is thrown
+        """
+        self.dummyscript.create_templates_from_data([DummyClamServer.DummyTemplate()])
