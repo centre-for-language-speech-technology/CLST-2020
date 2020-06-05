@@ -655,6 +655,16 @@ class Process(Model):
         """
         return LogMessage.objects.filter(process=self)
 
+    def get_output_file_name(self, extension="zip"):
+        """
+        Get a name of an not existing file to store data to.
+
+        :return: a path to a non existing file
+        """
+        return os.path.join(
+            self.folder, str(self.clam_id) + ".{}".format(extension)
+        )
+
     def get_status_string(self):
         """
         Get the status of this project in string format.
