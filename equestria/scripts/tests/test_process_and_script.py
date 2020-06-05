@@ -10,35 +10,15 @@ from scripts.models import (
     Profile,
     InputTemplate,
     BooleanParameter,
+    STATUS_CREATED,
+    STATUS_RUNNING,
+    STATUS_FINISHED,
 )
 from django.contrib.auth import get_user_model
 from django.conf import settings
 from unittest.mock import patch, Mock
 from django.conf import settings
 import shutil, os, inspect, pathlib, datetime, pytz, logging, clam.common.status, clam.common.parameters
-
-"""
-Both only as notes
-STATUS = (
-    (STATUS_CREATED, "Created"),
-    (STATUS_UPLOADING, "Uploading files to CLAM"),
-    (STATUS_RUNNING, "Running"),
-    (STATUS_WAITING, "Waiting for download from CLAM"),
-    (STATUS_DOWNLOADING, "Downloading files from CLAM"),
-    (STATUS_FINISHED, "Finished"),
-    (STATUS_ERROR, "Error"),
-    (STATUS_ERROR_DOWNLOAD, "Error while downloading files from CLAM"),
-)
-TYPES = (
-    (BOOLEAN_TYPE, "Boolean"),
-    (STATIC_TYPE, "Static"),
-    (STRING_TYPE, "String"),
-    (CHOICE_TYPE, "Choice"),
-    (TEXT_TYPE, "Text"),
-    (INTEGER_TYPE, "Integer"),
-    (FLOAT_TYPE, "Float"),
-)
-"""
 
 _umodel = get_user_model()
 _clamID = 1
@@ -90,7 +70,7 @@ _dummglogmessages = [r"wait a second!1", r"Oi this went well"]
 
 
 class DummyClamServer:
-    """The dummy clam server mocks the actual clam server by doing fuck all"""
+    """The dummy clam server mocks the actual clam server by doing [censored] all"""
 
     class DummyClamData:
         """This dummy Clam data object mocks a clam data object"""
@@ -153,7 +133,6 @@ class DummyClamServer:
     def spawn_Exception():
         # The most useful method
         raise ValueError("Some arbitrary thing occured!!!")
-        return DummyClamServer()
 
 
 class Test_ProcessMethods(TestCase):
@@ -186,8 +165,8 @@ class Test_ProcessMethods(TestCase):
             corresponding_profile=self.dummyprofile,
         )
         self.thisfolder = pathlib.Path(__file__).parent.absolute()
-        # if os.path.exists(self.folder):
-        #     shutil.rmtree(self.folder)  # Recursively destroy the file
+        if os.path.exists(self.folder):
+            shutil.rmtree(self.folder)  # Recursively destroy the file
 
     def writeFile(self, name):
         """Adds a specific file to the user associated project directory"""
@@ -274,7 +253,7 @@ class Test_ProcessMethods(TestCase):
 
     def test_statusUpdate(self):
         """Tests whether status gets saved properly"""
-        status_index = 2  # Corresponds to "running"
+        status_index = STATUS_RUNNING  # Corresponds to "running"
         self.dummyProcess.set_status(status_index)
         self.assertEquals(
             Process.objects.get(clam_id=_clamID).status, status_index
@@ -314,7 +293,7 @@ class Test_ProcessMethods(TestCase):
 
     def test_finishedFlag(self):
         """Tests whether the is_finished method works"""
-        finished_status = 5
+        finished_status = STATUS_FINISHED
         self.dummyProcess.status = STATUS[finished_status][0]
         self.assertEqual(self.dummyProcess.is_finished(), True)
 
@@ -327,13 +306,13 @@ class Test_ProcessMethods(TestCase):
 
     def test_startingClamNotNew(self):
         """Tests whether the start method behaves properly with not new status"""
-        finished_status = 5
+        finished_status = STATUS_FINISHED
         self.dummyProcess.status = STATUS[finished_status][0]
         self.assertEquals(self.dummyProcess.start(self.dummyprofile), False)
 
     def test_startingClamNotNew(self):
         """Tests whether the start method behaves properly with not new status"""
-        finished_status = 5
+        finished_status = STATUS_FINISHED
         self.dummyProcess.status = STATUS[finished_status][0]
         self.assertEquals(self.dummyProcess.start(self.dummyprofile), False)
 
@@ -384,7 +363,7 @@ class Test_ProcessMethods(TestCase):
         self,
     ):
         """Tests whether the start method behaves properly with new status"""
-        created_status = 0
+        created_status = STATUS_CREATED
         self.make_tempdir()
         self.spawn_dummyparam()
         self.dummytemplate.optional = False
@@ -404,7 +383,7 @@ class Test_ProcessMethods(TestCase):
         self,
     ):
         """Tests whether the start method behaves properly when missing provided paramaters"""
-        created_status = 0
+        created_status = STATUS_CREATED
         self.make_tempdir()
         self.spawn_dummyparam(False)
         self.dummytemplate.optional = False
@@ -425,7 +404,7 @@ class Test_ProcessMethods(TestCase):
         self,
     ):
         """Tests whether the start method behaves properly when a duplicate file exists despite being unique"""
-        created_status = 0
+        created_status = STATUS_CREATED
         self.make_tempdir()
         self.spawn_dummyparam()
         self.dummytemplate.optional = False
@@ -448,7 +427,7 @@ class Test_ProcessMethods(TestCase):
 
     def test_startSafe_Exception(self):
         """Test whether starting safe works if an exception is thrown"""
-        created_status = 0
+        created_status = STATUS_CREATED
         self.make_tempdir()
         self.spawn_dummyparam(False)
         self.dummytemplate.optional = False
@@ -469,7 +448,7 @@ class Test_ProcessMethods(TestCase):
         """
         Test whether starting safe works if no exception is thrown
         """
-        created_status = 0
+        created_status = STATUS_CREATED
         self.make_tempdir()
         self.spawn_dummyparam()
         self.dummytemplate.optional = False
@@ -524,7 +503,7 @@ class Test_ProcessMethods(TestCase):
         """
         Test whether finished functions as expected
         """
-        finished_status = 5
+        finished_status = STATUS_FINISHED
         self.dummyProcess.status = finished_status
         self.assertEquals(self.dummyProcess.is_finished(), True)
 
@@ -532,7 +511,7 @@ class Test_ProcessMethods(TestCase):
         """
         Tests first branch in clam_update
         """
-        finished_status = 5
+        finished_status = STATUS_FINISHED
         self.dummyProcess.status = finished_status
         res = self.dummyProcess.clam_update()
         self.assertEquals(res, False)
@@ -541,7 +520,7 @@ class Test_ProcessMethods(TestCase):
         """
         Tests second branch in clam_update
         """
-        finished_status = 5
+        finished_status = STATUS_FINISHED
         self.dummyProcess.status = finished_status
         with patch.object(
             self.dummyscript,
@@ -555,7 +534,7 @@ class Test_ProcessMethods(TestCase):
         """
         Tests third branch in clam_update
         """
-        running_status = 2
+        running_status = STATUS_RUNNING
         self.dummyProcess.status = running_status
         DummyClamServer.xmlContent = self.readXML("xmlmock.xml")
         with patch.object(
@@ -570,7 +549,7 @@ class Test_ProcessMethods(TestCase):
         """
         Tests first branch in download and delete
         """
-        running_status = 2
+        running_status = STATUS_RUNNING
         self.dummyProcess.status = running_status
         res = self.dummyProcess.download_and_delete()
         self.assertEquals(res, False)
@@ -579,7 +558,7 @@ class Test_ProcessMethods(TestCase):
         """
         Tests second branch in download and delete
         """
-        running_status = 2
+        running_status = STATUS_RUNNING
         self.dummyProcess.status = running_status
         with patch.object(
             self.dummyProcess,
