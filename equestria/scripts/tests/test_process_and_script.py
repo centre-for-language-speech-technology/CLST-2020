@@ -169,8 +169,8 @@ class Test_ProcessMethods(TestCase):
             corresponding_profile=self.dummyprofile,
         )
         self.thisfolder = pathlib.Path(__file__).parent.absolute()
-        # if os.path.exists(self.folder):
-        #     shutil.rmtree(self.folder)  # Recursively destroy the file
+        if os.path.exists(self.folder):
+            shutil.rmtree(self.folder)  # Recursively destroy the file
 
     def writeFile(self, name):
         """Adds a specific file to the user associated project directory"""
