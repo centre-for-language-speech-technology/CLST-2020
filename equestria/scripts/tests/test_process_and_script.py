@@ -62,37 +62,43 @@ _templatevars = {
     "accept_archive": True,
 }
 _dummyClamParams = {
-    "bool": clam.common.parameters.BooleanParameter('a', 'a'), 
-    "static": clam.common.parameters.StaticParameter('a', 'a', value='whatever'), 
-    "string": clam.common.parameters.StringParameter('a', 'a'), 
-    "choice": clam.common.parameters.ChoiceParameter('a', 'a', 'description', choices=["sure","whatever"]), 
-    "integer": clam.common.parameters.IntegerParameter('a', 'a'), 
-    "float": clam.common.parameters.FloatParameter('a', 'a'),
-    "text": clam.common.parameters.TextParameter('a', 'a')
+    "bool": clam.common.parameters.BooleanParameter("a", "a"),
+    "static": clam.common.parameters.StaticParameter(
+        "a", "a", value="whatever"
+    ),
+    "string": clam.common.parameters.StringParameter("a", "a"),
+    "choice": clam.common.parameters.ChoiceParameter(
+        "a", "a", "description", choices=["sure", "whatever"]
+    ),
+    "integer": clam.common.parameters.IntegerParameter("a", "a"),
+    "float": clam.common.parameters.FloatParameter("a", "a"),
+    "text": clam.common.parameters.TextParameter("a", "a"),
 }
 
 _dummyParameterInputs = {
-    'bool' : True,
-    'static' : "text",
-    'string' : "text",
-    'choice' : ["sure","whatever"],
-    'integer': 2,
-    'float' : 2.2,
-    'text' : "more text"
+    "bool": True,
+    "static": "text",
+    "string": "text",
+    "choice": ["sure", "whatever"],
+    "integer": 2,
+    "float": 2.2,
+    "text": "more text",
 }
 _dummglogmessages = [r"wait a second!1", r"Oi this went well"]
 
 
 class DummyClamServer:
     """The dummy clam server mocks the actual clam server by doing fuck all"""
-   
+
     class DummyClamData:
         """This dummy Clam data object mocks a clam data object"""
+
         def parameter(self, input):
             return _dummyClamParams[input]
 
     class DummyTemplate:
         """This dummy template object mocks a clam template data object"""
+
         def __init__(self):
             self.id = "someId"
             self.formatclass = "someformat"
@@ -104,10 +110,11 @@ class DummyClamServer:
 
     class DummyClamStatus:
         """This dummy Clam status object mocks a clam status object"""
+
         def __init__(self, xmlcontent):
             self.status = clam.common.status.DONE
             self.xml = xmlcontent
-    
+
     deleteCall = False
     xmlContent = ""
 
@@ -133,7 +140,7 @@ class DummyClamServer:
 
     @staticmethod
     def spawn_Exception():
-        #The most useful method
+        # The most useful method
         raise ValueError("Some arbitrary thing occured!!!")
         return DummyClamServer()
 
@@ -279,7 +286,15 @@ class Test_ProcessMethods(TestCase):
 
     def test_statusString(self):
         """Tests whether the status to string works"""
-        targets = [(0, "Ready to start"), (2, "Running"), (3, "CLAM Done, waiting for download"), (4, "Downloading files from CLAM"), (5, "Done"), (-1, "An error occurred"), (-10, "Unknown")]
+        targets = [
+            (0, "Ready to start"),
+            (2, "Running"),
+            (3, "CLAM Done, waiting for download"),
+            (4, "Downloading files from CLAM"),
+            (5, "Done"),
+            (-1, "An error occurred"),
+            (-10, "Unknown"),
+        ]
         res = True
         for t in targets:
             self.dummyProcess.status = t[0]
@@ -326,7 +341,7 @@ class Test_ProcessMethods(TestCase):
             name="dummy parameter",
             type=BaseParameter.BOOLEAN_TYPE,
             preset=dpreset,  # no idea what this is
-            corresponding_script=self.dummyscript
+            corresponding_script=self.dummyscript,
         )
         self.dummyboolparam = BooleanParameter.objects.create(
             base=self.dummybaseparam, value=True
@@ -374,7 +389,9 @@ class Test_ProcessMethods(TestCase):
             )
         self.assertEquals(res, True)
 
-    def test_2startingClamNew_WithoutBaseParams_WithInputForTemplate_NotOptional_notUnique(self):
+    def test_2startingClamNew_WithoutBaseParams_WithInputForTemplate_NotOptional_notUnique(
+        self,
+    ):
         """Tests whether the start method behaves properly when missing provided paramaters"""
         created_status = 0
         self.make_tempdir()
@@ -382,14 +399,20 @@ class Test_ProcessMethods(TestCase):
         self.dummytemplate.optional = False
         self.dummytemplate.save()
         self.writeFile(f"somefile{_templatevars['extension']}")
-        with patch.object(self.dummyscript, 'get_clam_server', new=DummyClamServer.spawn_dummyClam):
+        with patch.object(
+            self.dummyscript,
+            "get_clam_server",
+            new=DummyClamServer.spawn_dummyClam,
+        ):
             try:
                 res = self.dummyProcess.start(self.dummyprofile)
                 self.fail("Missing paramaters should fail!")
             except:
                 pass
 
-    def test_2startingClamNew_WithBaseParams_WithInputForTemplate_NotOptional_UniqueDuplicate(self):
+    def test_2startingClamNew_WithBaseParams_WithInputForTemplate_NotOptional_UniqueDuplicate(
+        self,
+    ):
         """Tests whether the start method behaves properly when a duplicate file exists despite being unique"""
         created_status = 0
         self.make_tempdir()
@@ -399,9 +422,15 @@ class Test_ProcessMethods(TestCase):
         self.dummytemplate.save()
         self.writeFile(f"somefile{_templatevars['extension']}")
         self.writeFile(f"duplicatefile{_templatevars['extension']}")
-        with patch.object(self.dummyscript, 'get_clam_server', new=DummyClamServer.spawn_dummyClam):
+        with patch.object(
+            self.dummyscript,
+            "get_clam_server",
+            new=DummyClamServer.spawn_dummyClam,
+        ):
             try:
-                res = self.dummyProcess.start(self.dummyprofile, {self.dummybaseparam.name: True})
+                res = self.dummyProcess.start(
+                    self.dummyprofile, {self.dummybaseparam.name: True}
+                )
                 self.fail("Duplicate file should fail for unique!")
             except:
                 pass
@@ -414,7 +443,11 @@ class Test_ProcessMethods(TestCase):
         self.dummytemplate.optional = False
         self.dummytemplate.save()
         self.writeFile(f"somefile{_templatevars['extension']}")
-        with patch.object(self.dummyscript, 'get_clam_server', new=DummyClamServer.spawn_dummyClam):
+        with patch.object(
+            self.dummyscript,
+            "get_clam_server",
+            new=DummyClamServer.spawn_dummyClam,
+        ):
             try:
                 res = self.dummyProcess.start_safe(self.dummyprofile)
                 self.fail("Start safe should propagate exception!")
@@ -446,9 +479,15 @@ class Test_ProcessMethods(TestCase):
         Test whether cleanup performs wanted functionality when no exception occurs
         """
         DummyClamServer.deleteCall = False
-        with patch.object(self.dummyscript, 'get_clam_server', new=DummyClamServer.spawn_dummyClam):
+        with patch.object(
+            self.dummyscript,
+            "get_clam_server",
+            new=DummyClamServer.spawn_dummyClam,
+        ):
             self.dummyProcess.cleanup()
-        res = (self.dummyProcess.clam_id == None) and (DummyClamServer.deleteCall)
+        res = (self.dummyProcess.clam_id == None) and (
+            DummyClamServer.deleteCall
+        )
         self.assertEqual(res, True)
 
     def test_cleanup_Exception(self):
@@ -456,14 +495,20 @@ class Test_ProcessMethods(TestCase):
         Test whether cleanup performs wanted functionality when no exception occurs
         """
         DummyClamServer.deleteCall = False
-        with patch.object(self.dummyscript, 'get_clam_server', new=DummyClamServer.spawn_Exception):
+        with patch.object(
+            self.dummyscript,
+            "get_clam_server",
+            new=DummyClamServer.spawn_Exception,
+        ):
             try:
                 self.dummyProcess.cleanup()
                 self.fail("This should be logically unreachable code!")
             except:
-                res = (not self.dummyProcess.clam_id == None) or (DummyClamServer.deleteCall)
+                res = (not self.dummyProcess.clam_id == None) or (
+                    DummyClamServer.deleteCall
+                )
                 self.assertEqual(res, False)
-        
+
     def test_is_finishedTrue(self):
         """
         Test whether finished functions as expected
@@ -471,7 +516,7 @@ class Test_ProcessMethods(TestCase):
         finished_status = 5
         self.dummyProcess.status = finished_status
         self.assertEquals(self.dummyProcess.is_finished(), True)
-    
+
     def test_clam_update_NotRunning(self):
         """
         Tests first branch in clam_update
@@ -487,7 +532,11 @@ class Test_ProcessMethods(TestCase):
         """
         finished_status = 5
         self.dummyProcess.status = finished_status
-        with patch.object(self.dummyscript, 'get_clam_server', new=DummyClamServer.spawn_Exception):
+        with patch.object(
+            self.dummyscript,
+            "get_clam_server",
+            new=DummyClamServer.spawn_Exception,
+        ):
             res = self.dummyProcess.clam_update()
         self.assertEquals(res, False)
 
@@ -498,7 +547,11 @@ class Test_ProcessMethods(TestCase):
         running_status = 2
         self.dummyProcess.status = running_status
         DummyClamServer.xmlContent = self.readXML("xmlmock.xml")
-        with patch.object(self.dummyscript, 'get_clam_server', new=DummyClamServer.spawn_dummyClam):
+        with patch.object(
+            self.dummyscript,
+            "get_clam_server",
+            new=DummyClamServer.spawn_dummyClam,
+        ):
             res = self.dummyProcess.clam_update()
         self.assertEquals(res, True)
 
@@ -515,10 +568,16 @@ class Test_ProcessMethods(TestCase):
         """
         Tests ALL branches in generate_paramaters_from_clam_data. Only fails if exception occurs
         """
-        self.dummyscript.generate_parameters_from_clam_data(_dummyClamParams.keys(),DummyClamServer.DummyClamData(),_dummyParameterInputs)
+        self.dummyscript.generate_parameters_from_clam_data(
+            _dummyClamParams.keys(),
+            DummyClamServer.DummyClamData(),
+            _dummyParameterInputs,
+        )
 
     def test_template_from_data(self):
         """
         Tests the creation of template data. Only fails if exception is thrown
         """
-        self.dummyscript.create_templates_from_data([DummyClamServer.DummyTemplate()])
+        self.dummyscript.create_templates_from_data(
+            [DummyClamServer.DummyTemplate()]
+        )
