@@ -15,7 +15,7 @@ from django.contrib.auth import get_user_model
 from django.conf import settings
 from unittest.mock import patch, Mock
 from django.conf import settings
-import shutil, os, inspect, pathlib, datetime, pytz
+import shutil, os, inspect, pathlib, datetime, pytz, logging
 
 """
 Both only as notes
@@ -83,6 +83,12 @@ class DummyClamServer:
 
     @staticmethod
     def spawn_dummyClam():
+        return DummyClamServer()
+
+    @staticmethod
+    def spawn_Exception():
+        #The most useful method
+        raise ValueError("Some arbitrary thing occured!!!")
         return DummyClamServer()
 
 
@@ -218,10 +224,12 @@ class Test_ProcessMethods(TestCase):
 
     def test_statusString(self):
         """Tests whether the status to string works"""
-        target = (
-            "Ready to start"  # Ripped straight from the code, was hardcoded
-        )
-        self.assertEqual(self.dummyProcess.get_status_string(), target)
+        targets = [(0, "Ready to start"), (2, "Running"), (3, "CLAM Done, waiting for download"), (4, "Downloading files from CLAM"), (5, "Done"), (-1, "An error occurred"), (-10, "Unknown")]
+        res = True
+        for t in targets:
+            self.dummyProcess.status = t[0]
+            res = res and (self.dummyProcess.get_status_string() == t[1])
+        self.assertEqual(res, True)
 
     def test_finishedFlag(self):
         """Tests whether the is_finished method works"""
@@ -390,4 +398,22 @@ class Test_ProcessMethods(TestCase):
             self.dummyProcess.cleanup()
         res = (self.dummyProcess.clam_id == None) and (DummyClamServer.deleteCall)
         self.assertEqual(res, True)
+
+    def test_cleanup_Exception(self):
+        """
+        Test whether cleanup performs wanted functionality when no exception occurs
+        """
+        DummyClamServer.deleteCall = False
+        with patch.object(self.dummyscript, 'get_clam_server', new=DummyClamServer.spawn_Exception):
+            try:
+                self.dummyProcess.cleanup()
+                self.fail("This should be logically unreachable code!")
+            except:
+                res = (not self.dummyProcess.clam_id == None) or (DummyClamServer.deleteCall)
+                self.assertEqual(res, False)
+        
+    def test_is_finishedTrue(self):
+        finished_status = 5
+        self.dummyProcess.status = finished_status
+        self.assertEquals(self.dummyProcess.is_finished(), True)
 
