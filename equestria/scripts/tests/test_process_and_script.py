@@ -15,7 +15,7 @@ from django.contrib.auth import get_user_model
 from django.conf import settings
 from unittest.mock import patch, Mock
 from django.conf import settings
-import shutil, os, inspect, pathlib, datetime, pytz, logging, clam.common.status
+import shutil, os, inspect, pathlib, datetime, pytz, logging, clam.common.status, clam.common.parameters
 
 """
 Both only as notes
@@ -61,12 +61,36 @@ _templatevars = {
     "unique": False,
     "accept_archive": True,
 }
+_dummyClamParams = {
+    "bool": clam.common.parameters.BooleanParameter('a', 'a'), 
+    "static": clam.common.parameters.StaticParameter('a', 'a', value='whatever'), 
+    "string": clam.common.parameters.StringParameter('a', 'a'), 
+    "choice": clam.common.parameters.ChoiceParameter('a', 'a', 'description', choices=["sure","whatever"]), 
+    "integer": clam.common.parameters.IntegerParameter('a', 'a'), 
+    "float": clam.common.parameters.FloatParameter('a', 'a'),
+    "text": clam.common.parameters.TextParameter('a', 'a')
+}
+
+_dummyParameterInputs = {
+    'bool' : True,
+    'static' : "text",
+    'string' : "text",
+    'choice' : ["sure","whatever"],
+    'integer': 2,
+    'float' : 2.2,
+    'text' : "more text"
+}
 _dummglogmessages = [r"wait a second!1", r"Oi this went well"]
 
 
 class DummyClamServer:
     """The dummy clam server mocks the actual clam server by doing fuck all"""
    
+    class DummyClamData:
+        """This dummy Clam data object mocks a clam data object"""
+        def parameter(self, input):
+            return _dummyClamParams[input]
+
     class DummyClamStatus:
         """This dummy Clam status object mocks a clam status object"""
         def __init__(self, xmlcontent):
@@ -339,9 +363,6 @@ class Test_ProcessMethods(TestCase):
             )
         self.assertEquals(res, True)
 
-    def test_generate_parameters_from_clamdata(self):
-        pass  # TODO: this
-
     def test_2startingClamNew_WithoutBaseParams_WithInputForTemplate_NotOptional_notUnique(self):
         """Tests whether the start method behaves properly when missing provided paramaters"""
         created_status = 0
@@ -471,9 +492,16 @@ class Test_ProcessMethods(TestCase):
         self.assertEquals(res, True)
 
     def test_downloadNDelete_wrongStatus(self):
+        """
+        Tests first branch in download and delete
+        """
         running_status = 2
         self.dummyProcess.status = running_status
         res = self.dummyProcess.download_and_delete()
         self.assertEquals(res, False)
 
-    
+    def test_generate_paramaters_NoException(self):
+        """
+        Tests ALL branches in generate_paramaters_from_clam_data. Only fails if exception occurs
+        """
+        self.dummyscript.generate_parameters_from_clam_data(_dummyClamParams.keys(),DummyClamServer.DummyClamData(),_dummyParameterInputs)
