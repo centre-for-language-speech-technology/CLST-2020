@@ -42,6 +42,7 @@ TYPES = (
 
 _umodel = get_user_model()
 _clamID = 1
+_projID = "someproject"
 _status = 0
 _dummyvars = {
     "folder": "temptesting",
@@ -84,6 +85,7 @@ _dummyParameterInputs = {
     "float": 2.2,
     "text": "more text",
 }
+_zipdir = "testingDecompress"
 _dummglogmessages = [r"wait a second!1", r"Oi this went well"]
 
 
@@ -117,6 +119,7 @@ class DummyClamServer:
 
     deleteCall = False
     xmlContent = ""
+    targetfolder = ""
 
     def create(self, id):
         pass
@@ -129,6 +132,14 @@ class DummyClamServer:
 
     def get(self, id):
         return DummyClamServer.DummyClamStatus(self.xmlContent)
+
+    def downloadarchive(self, id, bool, ext):
+        """Creates a dir with a single file in it, then zips it. Mocks downloadarchive"""
+        nfolder = os.path.join(self.targetfolder, _zipdir)
+        targetname = os.path.join(self.targetfolder, str(_clamID))
+        if not os.path.exists(nfolder):
+            os.mkdir(nfolder)
+        shutil.make_archive(targetname, "zip", nfolder)
 
     @staticmethod
     def delete(id):
@@ -175,8 +186,8 @@ class Test_ProcessMethods(TestCase):
             corresponding_profile=self.dummyprofile,
         )
         self.thisfolder = pathlib.Path(__file__).parent.absolute()
-        if os.path.exists(self.folder):
-            shutil.rmtree(self.folder)  # Recursively destroy the file
+        # if os.path.exists(self.folder):
+        #     shutil.rmtree(self.folder)  # Recursively destroy the file
 
     def writeFile(self, name):
         """Adds a specific file to the user associated project directory"""
@@ -564,6 +575,20 @@ class Test_ProcessMethods(TestCase):
         res = self.dummyProcess.download_and_delete()
         self.assertEquals(res, False)
 
+    def test_downloadNDelete_Nominal(self):
+        """
+        Tests second branch in download and delete
+        """
+        running_status = 2
+        self.dummyProcess.status = running_status
+        with patch.object(
+            self.dummyProcess,
+            "download_archive_and_decompress",
+            new=lambda: True,
+        ):
+            res = self.dummyProcess.download_and_delete()
+        self.assertEquals(res, False)
+
     def test_generate_paramaters_NoException(self):
         """
         Tests ALL branches in generate_paramaters_from_clam_data. Only fails if exception occurs
@@ -581,3 +606,32 @@ class Test_ProcessMethods(TestCase):
         self.dummyscript.create_templates_from_data(
             [DummyClamServer.DummyTemplate()]
         )
+
+    def test_download_archive_and_decompress_Exception(self):
+        """
+        Tests first branch of download_archive_and_decompress
+        """
+        with patch.object(
+            self.dummyscript,
+            "get_clam_server",
+            new=DummyClamServer.spawn_Exception,
+        ):
+            try:
+                self.dummyProcess.download_archive_and_decompress()
+                self.fail("Should throw an exception")
+            except:
+                pass
+
+    def test_download_archive_and_decompress_Nominal(self):
+        """
+        Tests first branch of download_archive_and_decompress
+        """
+        DummyClamServer.targetfolder = self.folder
+        self.make_tempdir()
+        with patch.object(
+            self.dummyscript,
+            "get_clam_server",
+            new=DummyClamServer.spawn_dummyClam,
+        ):
+            res = self.dummyProcess.download_archive_and_decompress()
+        self.assertEquals(res, True)
