@@ -15,7 +15,7 @@ from django.contrib.auth import get_user_model
 from django.conf import settings
 from unittest.mock import patch, Mock
 from django.conf import settings
-import shutil, os, inspect, pathlib, datetime, pytz, logging
+import shutil, os, inspect, pathlib, datetime, pytz, logging, clam.common.status
 
 """
 Both only as notes
@@ -66,7 +66,15 @@ _dummglogmessages = [r"wait a second!1", r"Oi this went well"]
 
 class DummyClamServer:
     """The dummy clam server mocks the actual clam server by doing fuck all"""
+   
+    class DummyClamStatus:
+        """This dummy Clam status object mocks a clam status object"""
+        def __init__(self, xmlcontent):
+            self.status = clam.common.status.DONE
+            self.xml = xmlcontent
+    
     deleteCall = False
+    xmlContent = ""
 
     def create(self, id):
         pass
@@ -76,6 +84,9 @@ class DummyClamServer:
 
     def addinputfile(self, id, templateid, path):
         pass
+
+    def get(self, id):
+        return DummyClamServer.DummyClamStatus(self.xmlContent)
 
     @staticmethod
     def delete(id):
@@ -155,10 +166,10 @@ class Test_ProcessMethods(TestCase):
             temp = f.read()
         return temp
 
-    # You really can't test this for shit but we gotta get that code cov boi
-    @patch("scripts.models.Process.get_random_clam_id", return_value="works")
-    def test_token(self, mock):
-        self.assertEquals(Process.get_random_clam_id(), "works")
+    def test_token(self):
+        """Tests whether a token hex is created of desired length"""
+        res = Process.get_random_clam_id()
+        self.assertEquals(len(res), 64)
 
     def test_xml_feed_creation(self):
         """Tests logmessage creation"""
@@ -166,6 +177,15 @@ class Test_ProcessMethods(TestCase):
         self.dummyProcess.update_log_messages_from_xml(teststr)
         logmessages = LogMessage.objects.all()
         self.assertEquals(len(logmessages), 2)
+
+    def test_xml_feed_Exception(self):
+        """Tests second branch in update_log_messages_from_xml"""
+        teststr = self.readXML("xmlmockFaulty.xml")
+        try:
+            self.dummyProcess.update_log_messages_from_xml(teststr)
+            self.fail("Shouldn't be able to parse this XML file")
+        except:
+            pass
 
     def test_xml_feed_message(self):
         """Tests logmessage string entry"""
@@ -413,7 +433,45 @@ class Test_ProcessMethods(TestCase):
                 self.assertEqual(res, False)
         
     def test_is_finishedTrue(self):
+        """
+        Test whether finished functions as expected
+        """
         finished_status = 5
         self.dummyProcess.status = finished_status
         self.assertEquals(self.dummyProcess.is_finished(), True)
+    
+    def test_clam_update_NotRunning(self):
+        """
+        Tests first branch in clam_update
+        """
+        finished_status = 5
+        self.dummyProcess.status = finished_status
+        res = self.dummyProcess.clam_update()
+        self.assertEquals(res, False)
 
+    def test_clam_update_Exception(self):
+        """
+        Tests second branch in clam_update
+        """
+        finished_status = 5
+        self.dummyProcess.status = finished_status
+        with patch.object(self.dummyscript, 'get_clam_server', new=DummyClamServer.spawn_Exception):
+            res = self.dummyProcess.clam_update()
+        self.assertEquals(res, False)
+
+    def test_clam_update_Nominal(self):
+        """
+        Tests third branch in clam_update
+        """
+        running_status = 2
+        self.dummyProcess.status = running_status
+        DummyClamServer.xmlContent = self.readXML("xmlmock.xml")
+        with patch.object(self.dummyscript, 'get_clam_server', new=DummyClamServer.spawn_dummyClam):
+            res = self.dummyProcess.clam_update()
+        self.assertEquals(res, True)
+
+    def test_downloadNDelete_wrongStatus(self):
+        running_status = 2
+        self.dummyProcess.status = running_status
+        res = self.dummyProcess.download_and_delete()
+        self.assertEquals(res, False)
