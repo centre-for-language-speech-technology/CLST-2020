@@ -622,7 +622,7 @@ class Process(Model):
             if not os.path.exists(self.output_folder):
                 os.makedirs(self.output_folder)
             downloaded_archive = os.path.join(
-                self.output_folder, self.clam_id + ".{}".format("zip")
+                self.output_folder, str(self.clam_id) + ".{}".format("zip")
             )
             clamclient.downloadarchive(self.clam_id, downloaded_archive, "zip")
             with zipfile.ZipFile(downloaded_archive, "r") as zip_ref:
