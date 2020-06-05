@@ -69,7 +69,7 @@ class DummyClamServer:
     deleteCall = False
 
     def create(self, id):
-        deleteCall = False #reset upon respawn
+        pass
 
     def startsafe(self, id, **kwargs):
         pass
@@ -77,8 +77,9 @@ class DummyClamServer:
     def addinputfile(self, id, templateid, path):
         pass
 
-    def delete(self, id):
-        deleteCall = True
+    @staticmethod
+    def delete(id):
+        DummyClamServer.deleteCall = True
 
     @staticmethod
     def spawn_dummyClam():
@@ -384,5 +385,9 @@ class Test_ProcessMethods(TestCase):
         """
         Test whether cleanup performs wanted functionality when no exception occurs
         """
-        pass
+        DummyClamServer.deleteCall = False
+        with patch.object(self.dummyscript, 'get_clam_server', new=DummyClamServer.spawn_dummyClam):
+            self.dummyProcess.cleanup()
+        res = (self.dummyProcess.clam_id == None) and (DummyClamServer.deleteCall)
+        self.assertEqual(res, True)
 
