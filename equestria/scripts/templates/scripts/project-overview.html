@@ -11,31 +11,45 @@
 
 {% block body %}
     <div class="container">
-        {% if form %}
-            <div class="lighter padding mb-3">
-                <h3>Forced Alignment scripts</h3>
+        <div class="row">
+            <div class="col-md-7">
                 <div class="lighter padding mb-3">
-                  <form class="md-form" method="POST">
-                    {% csrf_token %}
-                    <div class="mb-3">
-                      {{ form.as_p }}
-                      <input type="submit" value="Create" class="btn btn-primary"/>
+                    <h1>Select a project</h1>
+                    <p class="mb-5">Projects are used to store the progress of the forced alignment process. Before
+                    starting forced alignment, you must create a new project or select an already created one.</p>
+                    <h2>Create a new project</h2>
+                    <div class="lighter padding mb-3">
+                        <form class="md-form" method="POST">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                {{ form.as_p }}
+                                <input type="submit" value="Create project" class="btn btn-primary"/>
+                            </div>
+                        </form>
                     </div>
-                  </form>
                 </div>
             </div>
-        {% endif %}
-        {% if projects %}
-            <div class="lighter padding mb-3">
-                <h3>My projects</h3>
-                {% for project in projects %}
-                    <div class="darker padding mb-3">
-                        <h4>Name: {{ project.name }}</h4>
-                        {% include 'scripts/project-continue.html' with project=project %}
-                        <a class="btn btn-danger" href="{% url "scripts:delete_project" project=project %}">Delete {{ project.name }}</a>
+            <div class="col-md-4 rounded lighter padding">
+                {% if projects %}
+                    <div class="lighter padding mb-3">
+                        <h2>My projects</h2>
+                        <p>Manage your already created projects below.</p>
+                        {% for project in projects %}
+                            <div class="my-2">
+                                <h4>{{ project.name }}</h4>
+                                {% include 'scripts/project-continue.html' with project=project %}
+                                <a class="btn btn-danger" href="{% url "scripts:delete_project" project=project %}">Delete {{ project.name }}</a>
+                                <div class="border mt-3"></div>
+                            </div>
+                        {% endfor %}
                     </div>
-                {% endfor %}
+                {% else %}
+                    <div class="lighter padding mb-3">
+                        <h2>My projects</h2>
+                        <p>You have not created any projects yet.</p>
+                    </div>
+                {% endif %}
             </div>
-        {% endif %}
+        </div>
     </div>
 {% endblock %}
