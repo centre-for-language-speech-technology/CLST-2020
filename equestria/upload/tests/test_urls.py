@@ -1,6 +1,5 @@
 from django.test import TestCase, Client
 from django.urls import reverse, resolve
-from scripts.models import Project
 from upload.views import *
 
 
@@ -18,8 +17,6 @@ class TestUrls(TestCase):
     def test_upload_page(self):
         """Check if upload resolves."""
         self.assertEqual(resolve(self.url).func.view_class, UploadProjectView)
-        # self.assertEquals(resolve("/upload/2/upload", upload_file_view))
-        # self.name_resolves_to_class("welcome", WelcomePage)
 
     def test_redirect_before_auth(self):
         """Test whether redirection is working properly."""
