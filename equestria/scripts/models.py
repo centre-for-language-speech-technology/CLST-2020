@@ -351,8 +351,6 @@ class Process(Model):
         output_path                   Path to the primary output file (e.g. output/error.log)
     """
 
-    OUTPUT_FOLDER_NAME = "output"
-
     script = ForeignKey(Script, on_delete=SET_NULL, blank=False, null=True)
     clam_id = CharField(max_length=256, null=True, default=None)
     status = IntegerField(choices=STATUS, default=0)
@@ -423,7 +421,7 @@ class Process(Model):
 
         :return: the absolute path to the output folder
         """
-        return os.path.join(self.folder, self.OUTPUT_FOLDER_NAME)
+        return os.path.join(self.folder, Project.OUTPUT_FOLDER)
 
     def set_status(self, status):
         """
@@ -627,7 +625,7 @@ class Process(Model):
             clamclient.downloadarchive(self.clam_id, downloaded_archive, "zip")
             with zipfile.ZipFile(downloaded_archive, "r") as zip_ref:
                 zip_ref.extractall(
-                    os.path.join(self.folder, self.OUTPUT_FOLDER_NAME)
+                    os.path.join(self.folder, Project.OUTPUT_FOLDER)
                 )
             os.remove(downloaded_archive)
             return True
@@ -969,6 +967,9 @@ class Project(Model):
         (CHECK_DICTIONARY, "Check dictionary"),
     )
 
+    EXTRACT_FOLDER = "extract"
+    OUTPUT_FOLDER = "output"
+
     name = CharField(max_length=512)
     folder = FilePathField(
         allow_folders=True, allow_files=False, path=user_data_folder_path
@@ -978,6 +979,26 @@ class Project(Model):
     current_process = ForeignKey(
         Process, on_delete=SET_NULL, null=True, blank=True
     )
+
+    def move_extracted_files(self, extensions):
+        """
+        Move extracted files to the project folder.
+
+        :param extensions: the allowed extensions
+        :return: a list of non-moved files
+        """
+        non_copied = list()
+        if os.path.exists(os.path.join(self.folder, Project.EXTRACT_FOLDER)):
+            for root, _, files in os.walk(
+                os.path.join(self.folder, Project.EXTRACT_FOLDER)
+            ):
+                for file in files:
+                    name, extension = os.path.splitext(file)
+                    if extension[1:] in extensions:
+                        shutil.copy(os.path.join(root, file), self.folder)
+                    else:
+                        non_copied.append(file)
+        return non_copied
 
     def __str__(self):
         """Convert this object to string."""
@@ -1012,7 +1033,7 @@ class Project(Model):
                 )
             else:
                 os.makedirs(folder)
-                os.makedirs(os.path.join(folder, Process.OUTPUT_FOLDER_NAME))
+                os.makedirs(os.path.join(folder, Project.OUTPUT_FOLDER))
                 return Project.objects.create(
                     name=name, folder=folder, pipeline=pipeline, user=user
                 )
@@ -1122,8 +1143,7 @@ class Project(Model):
         :return: True if a .ctm file is present in the project directory, False otherwise
         """
         return self.has_non_empty_extension_file(
-            ["ctm"],
-            folder=os.path.join(self.folder, Process.OUTPUT_FOLDER_NAME),
+            ["ctm"], folder=os.path.join(self.folder, Project.OUTPUT_FOLDER),
         )
 
     def create_downloadable_archive(self):

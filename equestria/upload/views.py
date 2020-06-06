@@ -3,6 +3,8 @@ import os
 from django.http import Http404
 from django.shortcuts import render, redirect
 from django.views.generic import TemplateView
+from scripts.models import InputTemplate, Project
+
 from .forms import UploadForm
 from django.core.files.storage import FileSystemStorage
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -18,6 +20,27 @@ class UploadProjectView(LoginRequiredMixin, TemplateView):
 
     template_name = "upload/upload-project.html"
 
+    def get_standard_context(self, project):
+        """
+        Get the standard context for rendering this view.
+
+        :param project: the project to render the view for
+        :return: a context attribute with standard context for the view
+        """
+        files = [
+            x
+            for x in os.listdir(project.folder)
+            if os.path.isfile(os.path.join(project.folder, x))
+        ]
+        templates = InputTemplate.objects.filter(
+            corresponding_profile__script=project.pipeline.fa_script
+        )
+        extensions = [x.extension for x in templates]
+        context = {"project": project, "files": files, "extensions": extensions}
+        if project.can_start_new_process():
+            context["can_start"] = True
+        return context
+
     def get(self, request, **kwargs):
         """
         Handle a GET request for the file upload page.
@@ -30,36 +53,52 @@ class UploadProjectView(LoginRequiredMixin, TemplateView):
         project = kwargs.get("project")
         if not request.user.has_perm("access_project", project):
             raise PermissionDenied
-        removed_list = handle_filetypes(project)
-        files = os.listdir(project.folder)
-        context = {
-            "project": project,
-            "files": files,
-            "removed_list": removed_list,
-        }
+        context = self.get_standard_context(project)
         if project.can_upload():
             context["upload_form"] = UploadForm()
-        if project.can_start_new_process():
-            context["can_start"] = True
         return render(request, self.template_name, context)
 
     def post(self, request, **kwargs):
         """
-        Handle POST request for file upload page.
+        Upload file view for uploading a file from a form.
 
         :param request: the request
         :param kwargs: keyword arguments
-        :return: a ValueError if the profile in the form is not valid, a render of the upload_project.html page if there
-        is already a started process, a redirect to the fa_start view otherwise
+        :return: a redirect if the file upload succeeded, raises a StateException if the file can't be uploaded because the
+        project has a running process
         """
         project = kwargs.get("project")
-        if not project.can_start_new_process():
-            return self.get(request, **kwargs)
-        return redirect(
-            "scripts:start_automatic",
-            project=project,
-            script=project.pipeline.fa_script,
+        if not request.user.has_perm("access_project", project):
+            raise PermissionDenied
+
+        if not project.can_upload():
+            raise Http404("Can't upload files to this project")
+
+        templates = InputTemplate.objects.filter(
+            corresponding_profile__script=project.pipeline.fa_script
         )
+        extensions = [x.extension for x in templates]
+
+        upload_form = UploadForm(request.POST, request.FILES)
+        non_saved = list()
+        if upload_form.is_valid():
+            uploaded_files = request.FILES.getlist("f")
+            for file in uploaded_files:
+                name, extension = os.path.splitext(file.name)
+                if extension[1:] == "zip":
+                    non_saved += save_zipped_files(project, file)
+                elif extension[1:] in extensions:
+                    save_file(project, file)
+                else:
+                    non_saved.append(file)
+            context = self.get_standard_context(project)
+            context["upload_form"] = UploadForm()
+            context["removed_list"] = non_saved
+            return render(request, self.template_name, context)
+        else:
+            context = self.get_standard_context(project)
+            context["upload_form"] = upload_form
+            return render(request, self.template_name, context)
 
 
 def handle_folders(project):
@@ -83,60 +122,6 @@ def handle_folders(project):
         shutil.rmtree(sd)
 
 
-def handle_filetypes(project):
-    """
-    Handle the filetypes in the project folder after they are uploaded.
-
-    :param request: the project
-    :return: a list of files that had the wrong extension, excluding zip files and folders
-    """
-    files = os.listdir(project.folder)
-    removed_list = []
-    for file in files:
-        full_path = os.path.join(project.folder, file)
-        ext = file.split(".")[-1]
-        if ext not in ["wav", "txt", "tg"] and not (os.path.isdir(full_path)):
-            os.remove(full_path)
-            if ext != "zip":
-                removed_list.append(file)
-    return removed_list
-
-
-def upload_file_view(request, **kwargs):
-    """
-    Upload file view for uploading a file from a form.
-
-    :param request: the request
-    :param kwargs: keyword arguments
-    :return: a redirect if the file upload succeeded, raises a StateException if the file can't be uploaded because the
-    project has a running process
-    """
-    project = kwargs.get("project")
-    if not project.can_upload():
-        raise Http404("Can't upload files to this project")
-    upload_form = UploadForm(request.POST, request.FILES)
-    if upload_form.is_valid():
-        uploaded_files = request.FILES.getlist("f")
-        for file in uploaded_files:
-            check_file_extension(project, file)
-    return redirect("upload:upload_project", project=project)
-
-
-def check_file_extension(project, file):
-    """
-    Check the file extension of the given file.
-    
-    :param project: the project to save the file to
-    :param file: the file to be checked
-    :return: None
-    """
-    ext = file.name.split(".")[-1]
-    if ext == "zip":
-        save_zipped_files(project, file)
-    elif ext in ["wav", "txt", "tg"]:
-        save_file(project, file)
-
-
 def save_zipped_files(project, file):
     """
     Save zipped files to a project.
@@ -145,18 +130,18 @@ def save_zipped_files(project, file):
     :param file: the zip file of type <class 'django.core.files.uploadedfile.InMemoryUploadedFile'>
     :return: None
     """
+    templates = InputTemplate.objects.filter(
+        corresponding_profile__script=project.pipeline.fa_script
+    )
+    extensions = [x.extension for x in templates]
     with zipfile.ZipFile(file) as zip_file:
-        names = zip_file.namelist()
-        for name in names:
-            with zip_file.open(name) as file:
-                fs = file.name.split(".")
-                ext = fs[-1]
-                if ext == "zip":
-                    save_zipped_files(project, file)
-                elif len(fs) > 1:  # test if it is a folder or has no extension.
-                    save_file(project, file)
+        zip_file.extractall(
+            os.path.join(project.folder, Project.EXTRACT_FOLDER)
+        )
 
-    handle_folders(project)
+    non_copied = project.move_extracted_files(extensions)
+    shutil.rmtree(os.path.join(project.folder, Project.EXTRACT_FOLDER))
+    return non_copied
 
 
 def save_file(project, file):
@@ -172,7 +157,6 @@ def save_file(project, file):
     if fs.exists(file.name):
         """Delete previously uploaded file with same name."""
         fs.delete(file.name)
-
     fs.save(file.name, file)
 
 

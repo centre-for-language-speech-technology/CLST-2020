@@ -1,8 +1,17 @@
+import clam.common.parameters
+import clam.common.status
+import datetime
+import os
+import pathlib
+import pytz
+import shutil
+from unittest.mock import patch
+
+from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.test import TestCase
 from scripts.models import (
     Script,
-    Pipeline,
-    Project,
     Process,
     STATUS,
     BaseParameter,
@@ -13,12 +22,8 @@ from scripts.models import (
     STATUS_CREATED,
     STATUS_RUNNING,
     STATUS_FINISHED,
+    Project,
 )
-from django.contrib.auth import get_user_model
-from django.conf import settings
-from unittest.mock import patch, Mock
-from django.conf import settings
-import shutil, os, inspect, pathlib, datetime, pytz, logging, clam.common.status, clam.common.parameters
 
 _umodel = get_user_model()
 _clamID = 1
@@ -116,10 +121,10 @@ class DummyClamServer:
     def downloadarchive(self, id, bool, ext):
         """Creates a dir with a single file in it, then zips it. Mocks downloadarchive"""
         nfolder = os.path.join(
-            self.targetfolder, Process.OUTPUT_FOLDER_NAME, _zipdir
+            self.targetfolder, Project.OUTPUT_FOLDER, _zipdir
         )
         targetname = os.path.join(
-            self.targetfolder, Process.OUTPUT_FOLDER_NAME, str(_clamID)
+            self.targetfolder, Project.OUTPUT_FOLDER, str(_clamID)
         )
         if not os.path.exists(nfolder):
             os.mkdir(nfolder)
@@ -498,7 +503,7 @@ class Test_ProcessMethods(TestCase):
                 self.dummyProcess.cleanup()
                 self.fail("This should be logically unreachable code!")
             except:
-                res = (not self.dummyProcess.clam_id == None) or (
+                res = (self.dummyProcess.clam_id is not None) or (
                     DummyClamServer.deleteCall
                 )
                 self.assertEqual(res, False)

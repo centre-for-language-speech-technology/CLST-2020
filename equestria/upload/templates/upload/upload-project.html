@@ -15,11 +15,11 @@
         <div class="rounded lighter padding">
             <h1>Upload files</h1>
             {% if upload_form %}
-                <h3>Upload your files (.txt .tg .wav or .zip):</h3>
-		<p>Tip: Select multiple files by holding ctr-key and clicking multiple files!</p>
-		<p>Note: the corresponding files must have the same name, but different extension.</p>
-		<p>For exmaple: file.txt and file.wav.</p>
-                <form class="md-form" action="{% url 'upload:upload_file' project=project %}" method="post" enctype="multipart/form-data">
+                <h3>Upload your files {% if extensions %}({% for extension in extensions %}.{{ extension }}{% if not forloop.last %}, {% endif %}{% endfor %}){% endif %}:</h3>
+                <p>Tip: Select multiple files by holding ctr-key and clicking multiple files!</p>
+		            <p>Note: the corresponding files must have the same name, but different extension.</p>
+		            <p>For exmaple: file.txt and file.wav.</p>
+                <form class="md-form" action="{% url 'upload:upload_project' project=project %}" method="post" enctype="multipart/form-data">
                     <div class="mb-3">
                         <div class="custom-file">
                             {{ upload_form }}
@@ -30,24 +30,20 @@
                 </form>
             {% endif %}
             {% if can_start %}
-                <form class="md-form" method="post" enctype="multipart/form-data">
-                    <div class="input-group mb-3">
-                        <div class="custom-file">
-                            {% csrf_token %}
-                            <input type="submit" value="Continue" class="btn btn-primary">
-                        </div>
-                    </div>
-                </form>
+                <a class="btn btn-primary" href="{% url "scripts:start_automatic" project=project script=project.pipeline.fa_script %}">Start FA</a>
             {% else %}
                 <p class="alert alert-danger">There is currently a running process. You cannot start a new process.
                     First, wait for the current process to finish and reload this page.</p>
                 {% include 'scripts/project-continue.html' with project=project %}
             {% endif %}
             {% if removed_list %}
-                <b> Warning! These files you just attempted to upload had the wrong extensions: </b> <br/>
-                {% for file in removed_list %}
-                    {{ file }} <br/>
-                {% endfor %}
+                <p class="mt-3"><strong>Warning! Some files you tried to upload had the wrong extension and are therefore not saved. The following files
+                have been discarded:</strong></p>
+                <ul>
+                    {% for file in removed_list %}
+                        <li>{{ file }}</li>
+                    {% endfor %}
+                </ul>
             {% endif %}
         </div>
     </div>
@@ -74,7 +70,7 @@
 	        	var file = $(this).attr('file');
                 var counter = $(this).attr('counter');
                 var filepara = document.getElementById("fileid_"+counter);
-                filepara.style.visibility = 'hidden';
+                filepara.style.display = 'none';
 	        	$.ajax({
 			      	url: "{% url 'upload:delete_file' project=project %}",
 			      	data: { csrfmiddlewaretoken: "{{ csrf_token }}",

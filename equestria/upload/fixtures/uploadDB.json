@@ -78,16 +78,5 @@
       "user": 1,
       "current_process": null
     }
-  },
-  {
-    "model": "scripts.project",
-    "pk": 2,
-    "fields": {
-      "name": "test2",
-      "folder": "",
-      "pipeline": 1,
-      "user": 1,
-      "current_process": null
-    }
   }
 ]
