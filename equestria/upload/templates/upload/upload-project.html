@@ -16,6 +16,9 @@
             <h1>Upload files</h1>
             {% if upload_form %}
                 <h3>Upload your files {% if extensions %}({% for extension in extensions %}.{{ extension }}{% if not forloop.last %}, {% endif %}{% endfor %}){% endif %}:</h3>
+                <p>Tip: Select multiple files by holding ctr-key and clicking multiple files!</p>
+		            <p>Note: the corresponding files must have the same name, but different extension.</p>
+		            <p>For exmaple: file.txt and file.wav.</p>
                 <form class="md-form" action="{% url 'upload:upload_project' project=project %}" method="post" enctype="multipart/form-data">
                     <div class="mb-3">
                         <div class="custom-file">

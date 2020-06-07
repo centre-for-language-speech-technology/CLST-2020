@@ -418,7 +418,13 @@ class CheckDictionaryScreen(LoginRequiredMixin, TemplateView):
         form = AlterDictionaryForm(initial={"dictionary": content})
 
         return render(
-            request, self.template_name, {"form": form, "project": project,},
+            request,
+            self.template_name,
+            {
+                "form": form,
+                "project": project,
+                "showWarningOov": (len(content) == 0),
+            },
         )
 
     def post(self, request, **kwargs):

@@ -17,6 +17,10 @@
     <div class="container">
         <div class="col rounded lighter padding">
             <h1>Check dictionary</h1>
+            {% if showWarningOov %}
+            <p>There are no out of vocabulary words (OOV's) to check. </p>
+            {% endif %}
+
                 <form action="" method = "post">
                     {% csrf_token %}
                     {{ form }}
