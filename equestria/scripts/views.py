@@ -78,6 +78,7 @@ class AutomaticScriptStartView(LoginRequiredMixin, TemplateView):
                 " project, please select one.",
                 "project": project,
                 "script": script,
+                "profiles": Profile.objects.filter(script=script),
             },
         )
 
