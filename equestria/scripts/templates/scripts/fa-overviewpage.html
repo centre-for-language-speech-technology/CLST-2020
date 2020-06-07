@@ -19,8 +19,9 @@
                     <p>You can continue to analyze forced alignment or rerun your forced alignment with changes.</p>
 		    <p>'download project archive' gives a Zip file with the aligned output (.out.tg) file.</p>
                 {% else %}
-                    <p class="alert alert-warning">Your forced alignment is not finished yet.</p>
-                    <p>Please finish forced alignment before continuing.</p>
+                    <p class="alert alert-warning">Your forced alignment did not finish correctly.</p>
+                    <p>We did not find a forced alignment output file. Either there was an error during FA or there are still out of vocabulary words. Download the project archive to inspect what is wrong.</p>
+		    		     
                 {% endif %}
                 <a class="btn btn-primary" href="{% url 'upload:upload_project' project=project %}">Go back to upload files</a>
                 <a class="btn btn-primary" href="{% url 'scripts:cd_screen' project=project %}">Go back to alter dictionary</a>
