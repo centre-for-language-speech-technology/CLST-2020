@@ -14,7 +14,10 @@ def update_script(process_id):
     process = scripts.models.Process.objects.get(id=process_id)
     status = process.get_status()
     if status == scripts.models.STATUS_RUNNING:
-        process.clam_update()
+        if not process.clam_update():
+            process.status = scripts.models.STATUS_ERROR
+            return
+
         update_script(process_id)
     elif status == scripts.models.STATUS_WAITING:
         try:
