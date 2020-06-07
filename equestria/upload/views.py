@@ -3,7 +3,7 @@ import os
 from django.http import Http404
 from django.shortcuts import render, redirect
 from django.views.generic import TemplateView
-from scripts.models import InputTemplate, Project
+from scripts.models import InputTemplate, Project, Profile
 
 from .forms import UploadForm
 from django.core.files.storage import FileSystemStorage
@@ -36,7 +36,14 @@ class UploadProjectView(LoginRequiredMixin, TemplateView):
             corresponding_profile__script=project.pipeline.fa_script
         )
         extensions = [x.extension for x in templates]
-        context = {"project": project, "files": files, "extensions": extensions}
+        context = {
+            "project": project,
+            "files": files,
+            "extensions": extensions,
+            "profiles": Profile.objects.filter(
+                script=project.pipeline.fa_script
+            ),
+        }
         if project.can_start_new_process():
             context["can_start"] = True
         return context

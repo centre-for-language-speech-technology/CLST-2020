@@ -3,20 +3,15 @@ from django.views.generic import TemplateView
 from django.shortcuts import render, redirect
 from os.path import basename, dirname
 from django.views.static import serve
-from .models import Project, Profile, Pipeline, BaseParameter, Process
+from .models import Project, Profile, Pipeline, BaseParameter
 from django.http import JsonResponse
-from django.contrib.auth.mixins import (
-    LoginRequiredMixin,
-    PermissionRequiredMixin,
-)
+from django.contrib.auth.mixins import LoginRequiredMixin
 from .forms import (
     ProjectCreateForm,
     AlterDictionaryForm,
     ProfileSelectForm,
     ParameterForm,
 )
-import logging
-from django.urls import reverse
 from guardian.shortcuts import assign_perm
 from django.core.exceptions import PermissionDenied
 

@@ -805,6 +805,15 @@ class Profile(Model):
                 valid_for[template.id] = []
         return valid_for
 
+    @property
+    def templates(self):
+        """
+        Get the templates corresponding to this profile.
+
+        :return: a QuerySet of templates corresponding to this profile
+        """
+        return InputTemplate.objects.filter(corresponding_profile=self)
+
     class IncorrectProfileException(Exception):
         """Exception to be thrown when the project has an incorrect state."""
 
