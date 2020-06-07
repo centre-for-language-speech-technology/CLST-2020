@@ -1,0 +1,15 @@
+**/__pycache__
+**/*.pyc
+**/*.pyo
+**/*.pyd
+equestria/db.sqlite3
+equestria/cover
+equestria/download
+equestria/media
+equestria/outputs
+equestria/static
+equestria/tmp
+equestria/userdata
+equestria/geckodriver.log
+equestria/run
+**/.idea

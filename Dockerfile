@@ -14,7 +14,7 @@ COPY resources/background.sh /usr/local/bin/background.sh
 COPY poetry.lock pyproject.toml /equestria/src/
 
 RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install --yes --quiet --no-install-recommends postgresql-client && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --quiet --no-install-recommends postgresql-client sudo && \
     rm --recursive --force /var/lib/apt/lists/* && \
     \
     mkdir --parents /equestria/src/ && \
