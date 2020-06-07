@@ -35,7 +35,7 @@ class UploadProjectView(LoginRequiredMixin, TemplateView):
         templates = InputTemplate.objects.filter(
             corresponding_profile__script=project.pipeline.fa_script
         )
-        extensions = [x.extension for x in templates]
+        extensions = list(set([x.extension for x in templates]))
         context = {
             "project": project,
             "files": files,
