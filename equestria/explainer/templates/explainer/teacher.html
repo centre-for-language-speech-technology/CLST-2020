@@ -1,0 +1,201 @@
+{% extends 'equestria/base.html' %}
+{% load static %}
+
+{% block title %}
+    Equestria: Teacher explainer
+{% endblock %}
+
+{% block header %}
+    {% include 'explainer/header.html' %}
+{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <h1>Teacher explainer</h1>
+        <p>
+            This explainer will try to elaborate upon all features provided by Equestria and will also discuss how to
+            manage these features in the backend of this application. First of all, make sure you are logged in to an
+            administrator account.
+        </p>
+        {% if not user.is_authenticated %}
+            <p class="alert alert-danger">We noticed that you have not logged in yet, please do so on
+                <a href="{% url 'accounts:login' %}">this page</a>.
+            </p>
+        {% elif user.is_authenticated and not user.is_staff %}
+            <p class="alert alert-danger">We noticed that you have logged in but you are not using a staff account.
+                Please log in with a staff account to continue.
+            </p>
+        {% endif %}
+        <p>
+            To get an insight in how this application works it might be best to first read the
+            <a href="{% url 'explainer:students' %}">Student explainer</a> as this already shows an insight into how
+            this application works.
+        </p>
+        <h2>Overview of the application</h2>
+        <p>
+            This application provides a way to chain <a href="http://proycon.github.io/clam/">CLAM servers</a> together
+            and form a Pipeline. Users can then use these Pipelines to easily process their input files without having
+            to download/upload them to different servers or without having to use command line based scripts for file
+            processing. At the core of this application there is an interface to talk with these CLAM servers and
+            register them within our application. Built on top of that is a way to register Pipelines by using these
+            established interfaces with CLAM servers. Below you will find an overview of the application in graph
+            format.
+        </p>
+        <img src="{% static 'explainer/img/application-overview.svg' %}" alt="Application overview"/>
+        <h2>The administrator interface</h2>
+        <p>
+            We will start by explaining the administrator interface. The administrator interface can be accessed
+            <a href="{% url 'admin:index' %}">here</a> and provides a way to configure this application. Each installed
+            application is displayed with a
+            <span style="text-transform: uppercase; background-color: #79aec9; color: #fff; padding: 8px; font-size: 12px; font-family: Roboto, sans-serif">Blue header</span>.
+            Each different model within an application is displayed as a link below a header. We will run through the
+            applications in a step by step manner explaining what each application adds to Equestria and how to
+            configure each application.
+        </p>
+        <h2>The Scripts application</h2>
+        <p>
+            The Scripts application is the most important application as it provides a way for the webserver to
+            communicate with CLAM servers. A quick overview of the installed models in the Scripts application are:
+        </p>
+        <ul>
+            <li><strong>Choice parameters</strong>: Choice parameters are parameters that have options. These options
+            can be edited under this model.</li>
+            <li><strong>Input templates</strong>: Input templates are settings for one file of a Profile. Input
+            templates are connected to Profiles.</li>
+            <li><strong>Parameters</strong>: Parameters can be defined if a CLAM server requires them. These can be used
+            to, for example, set the language for a G2P script.</li>
+            <li><strong>Profiles</strong>: Profiles specify which files should be uploaded before starting a script on
+            a CLAM server.</li>
+            <li><strong>Scripts</strong>: Scripts are used to provide the credentials to authenticate with a CLAM
+            server.</li>
+        </ul>
+        <p>
+            We will go over the entire Scripts application by showing how to add a new CLAM script to Equestria.
+        </p>
+        <h3>Adding a CLAM script</h3>
+        <p>
+            To add a CLAM script to Equestria, head over to the Scripts tab under the Scripts application on the
+            administrator dashboard. Here you can either view already added scripts or add one yourself by clicking the
+            "Add script" button in the top right corner.
+        </p>
+        <p>
+            A Script requires at least a name and a hostname to be set. The hostname must be a full URL such as:
+            <code>https://webservices.cls.ru.nl/forcedalignment</code>. If the server at the entered hostname requires
+            authentication then the username and password field should also be used to store the authentication details.
+        </p>
+        <p>
+            When you are done entering the details for a Script, click the SAVE button in the bottom right corner of
+            the screen.
+        </p>
+        <p>
+            Now we can do two things, either copy over the Profile and Parameter information from the CLAM server and
+            link it to the Script we have created or we can do this automatically by clicking the "Save and refresh"
+            button in the bottom right corner of the screen. This option will automatically download the profile and
+            parameter data from the CLAM server and mirror it within Equestria. You will see the profile and
+            parameter data pop up under the PROFILES and PARAMETERS tab on the configuration page of the Script.
+        </p>
+        <h3>Configuring Parameters</h3>
+        <p>
+            If you have done the above steps correctly you will notice that the PARAMETERS tab could include new
+            parameters (if the CLAM server had any specified). Remember the names of the parameters as we will need to
+            use them later. For now, go back to the <a href="{% url 'admin:index' %}">administrator dashboard</a> and
+            click on Parameters under the Scripts application.
+        </p>
+        <p>
+            You will see the parameters that were created for the Script in the previous tab displayed in the list here.
+            To edit a parameter, click on it.
+        </p>
+        <p>
+            On the parameter configuration screen, you can see what the name of a parameter is, to what Script it
+            belongs and what the type of the parameter is.
+        </p>
+        <p>
+            By default, all parameters are not "Preset". This means that the users will be given the option to set this
+            parameter to any value they like. To create a preset for a parameter (such that users do not have to set
+            these parameters themselves), you can tick the "Preset" box on the parameter configuration window. When
+            doing this you also have to specify a value for the parameter in the corresponding type. So if the "Type" of
+            a parameter is set to "Choice" and you want to specify a preset, tick the "Preset" box on the parameter
+            configuration window and choose a value from the values in the "CHOICE PARAMETERS" box. If the parameter
+            has a different type then you must specify the value in its corresponding "[TYPE] PARAMETERS" box.
+        </p>
+        <h3>Changing Profiles</h3>
+        <p>
+            Just as with the Parameters, we can also edit the Profiles that the automatic importer of CLAM data imported
+            for us. Note that this is not a necessary step and can even be discouraged as the interface with the CLAM
+            server might stop working due to a configuration error.
+        </p>
+        <p>
+            First, check the names of the Profiles associated with the Script on the Script configuration page. Then
+            head over to the Profiles under the Scripts application and click the corresponding Profile. Here you can
+            see all Input template files associated with the Profile and edit any details about them.
+        </p>
+        <h3>Configuring Output templates</h3>
+        <p>
+            Output templates are used when a process finishes. By default, no output files for a process are copied over
+            to the project that started the process. When this must happen, you have to specify Output templates under
+            the Output templates settings.
+        </p>
+        <p>
+            Specifying an output template is easy and can be done on the script admin page. Go to the admin page of a
+            Script and find "Output templates" in one of the sections. You can add or remove output templates here.
+            Output template specification works with regular expressions (regexes), more information
+            about regular expressions can be found <a href="https://en.wikipedia.org/wiki/Regular_expression">here</a>.
+            When a Process finishes, all regular expressions of the Output templates corresponding to the Script of the
+            Process will be matched against the file names of the output files. If a file name matches one of the
+            regular expressions it will be copied over to the Project. Examples of regular expressions are:
+        </p>
+        <ul>
+            <li><code>.*\.log</code>: This regular expression matches all files ending in <code>.log</code></li>
+            <li><code>g2p_problematic_words.dict</code>: This regular expression matches files with filename
+                <code>g2p_problematic_words.dict</code></li>
+        </ul>
+        <h3>Configuring Input Template</h3>
+        <p>
+            Each input template represents one file or set of files that can be uploaded to a CLAM server. There are
+            two things that should be changed about input templates, the File Presets and Preferable files. Both can
+            be edited within the admin screen of an Input Template.
+        </p>
+        <h4>File presets</h4>
+        <p>
+            With File Presets
+            you can do even more and connect specific files to specific Input Templates. As an example, consider the
+            input of the G2P process which is a <code>.txt</code> file. When a student is running a Pipeline, there
+            could be multiple <code>.txt</code> files within a Project and the automatic configuration tool will thus
+            fail as there are multiple <code>.txt</code> files and any could be used to run the G2P process. To
+            circumvent this we could specify a specific regular expression that should be treated as a preference for
+            a specific Input template. We could thus specify as a regular expression that
+            <code>g2p_problematic_words.txt</code> should always be used as an input for the G2P process.
+        </p>
+        <h4>Preferable files</h4>
+        <p>
+            Preferable files are files that should show up under this input template. You can for example specify that
+            only <code>.wav</code> files should be displayed under the selection box for starting a new Process by
+            adding a regex that allows <code>.wav</code> files under the Preferable files tab.
+        </p>
+        <h2>The Projects application</h2>
+        <p>
+            The Projects application in the administrator dashboard can be used to get an overview of all the Projects
+            and Files stored within those Projects on the server. Configuration for the Projects application is not
+            necessary.
+        </p>
+        <h2>The Processes application</h2>
+        <p>
+            The Processes application includes all necessary features to manage Processes. A Process is created for
+            each Script that a User runs.
+        </p>
+        <h2>The Pipelines application</h2>
+        <p>
+            The Pipelines application provides a way to connect Scripts into a Pipeline. For now, you can connect a
+            Forced Alignment script to a Grapheme to Phoneme script and give it a name. Users can create Projects for
+            a Pipeline.
+        </p>
+        <h3>Dictionary file formats</h3>
+        <p>
+            Within the admin screen of a Pipeline, there is the ability to change which files are displayed on the
+            Check dictionary screen. This works in the same way as Output Templates do by specifying regexes. Files
+            matching one of the regexes will be displayed on the Check dictionary screen.
+        </p>
+        <hr>
+        <p style="color: grey;">This page was last updated on 26-01-2021</p>
+    </div>
+{% endblock %}

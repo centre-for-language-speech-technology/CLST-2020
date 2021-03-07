@@ -2,7 +2,7 @@
 from django.apps import AppConfig
 
 
-class ScriptRunnerConfig(AppConfig):
-    """Config class for Django app 'script_runner'."""
+class ScriptsConfig(AppConfig):
+    """Config class for Django Scripts app."""
 
-    name = "script_runner"
+    name = "scripts"

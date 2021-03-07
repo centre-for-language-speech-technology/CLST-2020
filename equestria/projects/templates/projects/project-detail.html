@@ -1,0 +1,141 @@
+{% extends 'equestria/base.html' %}
+{% load static configure_process %}
+
+{% block title %}
+    Equestria: Upload files
+{% endblock %}
+
+{% block header %}
+    {% include 'equestria/header.html' with active="upload" %}
+{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-7">
+                <!-- Modal popup -->
+                <div class="modal fade" id="modal-progress" data-backdrop="static" data-keyboard="false">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h4 class="modal-title">Uploading...</h4>
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="progress">
+                                    <div class="progress-bar" role="progressbar" style="width: 0%;">0%</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- File upload -->
+                <h1>Upload files</h1>
+                <div class="well text-muted text-center" style="padding-top: 4rem; padding-bottom: 4rem;">
+                  <i class="fa fa-file-upload" style="font-size: 2rem;"></i>
+                  <h3>Drop files here to upload</h3>
+                </div>
+                <div class="d-flex">
+                    <button type="button" class="btn btn-primary js-upload-photos">
+                        Manual upload <i class="fa fa-file-upload"></i>
+                    </button>
+                </div>
+                <input id="fileupload" type="file" name="file" multiple
+                       style="display: none;"
+                       data-url="{% url 'v1:project-file-listcreate' project=project %}"
+                       data-form-data='{"csrfmiddlewaretoken": "{{ csrf_token }}"}'>
+                <div class="rounded lighter padding mt-3">
+                    <h2>Files</h2>
+                    <div class="file-actions mt-2 mb-2 d-flex flex-row">
+                        <div class="flex-grow-1"></div>
+                        <div class="btn btn-danger" onclick="clear_directory(project_id);">Clear project directory <i class="fas fa-recycle"></i></div>
+                    </div>
+                    <div class="tab-pane active mt-2" id="files" role="tabpanel" aria-labelledby="files-tab">
+                        <div id="file-list">
+                            <div class="file-item d-flex flex-column mb-3" v-for="file in files">
+                                <div class="file-item-name mb-2 font-weight-bold">
+                                    <% file.filename %>
+                                </div>
+                                <div class="button-row d-flex flex-row">
+                                    <a class="file-item-download btn btn-primary flex-grow-1 mr-1" :href="`/api/v1/projects/{{ project.id }}/files/${file.id}/download`">Download <i class="fas fa-download"></i></a>
+                                    <span class="file-item-delete btn btn-danger flex-grow-1" :onclick="`delete_item(${file.id});`">Delete <i class="fas fa-trash"></i></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-1">
+            </div>
+            <div class="col-md-4 rounded lighter padding">
+                <ul class="nav nav-tabs" id="myTab" role="tablist">
+                  <li class="nav-item">
+                    <a class="nav-link active" id="profiles-tab" data-toggle="tab" href="#profile-configuration" role="tab" aria-controls="files" aria-selected="true">Profile configuration</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" id="profiles-tab" data-toggle="tab" href="#available-profiles" role="tab" aria-controls="profiles" aria-selected="false">Available profiles</a>
+                  </li>
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane active mt-2" id="profile-configuration" role="tabpanel" aria-labelledby="profile-configuration-tab">
+                        {% render_profile_form project.pipeline.fa_script project True %}
+                    </div>
+                    <div class="tab-pane mt-2" id="available-profiles" role="tabpanel" aria-labelledby="available-profiles-tab">
+                        <h4>Available profiles</h4>
+                        <p>Below you will find the available profiles to run FA for. All required files for one profile
+                            need to be uploaded before you can start forced alignment.</p>
+                        {% for profile in profiles %}
+                            <h3>{{ profile }}</h3>
+                            <ul>
+                                {% for template in profile.templates %}
+                                    <li>{{ template.label }}</li>
+                                    <ul>
+                                        <li>This file must have the .{{ template.extension }} extension</li>
+                                        {% if template.unique %}
+                                            <li>This file must be unique</li>
+                                        {% endif %}
+                                        {% if template.optional %}
+                                            <li>This file is optional</li>
+                                        {% endif %}
+                                    </ul>
+                                {% endfor %}
+                            </ul>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        let project_id = {{ project.id }};
+        let script_id = {{ project.pipeline.fa_script.id }};
+    </script>
+    <script src="{% static 'projects/js/jquery-file-upload/vendor/jquery.ui.widget.js' %}"></script>
+    <script src="{% static 'projects/js/jquery-file-upload/jquery.iframe-transport.js' %}"></script>
+    <script src="{% static 'projects/js/jquery-file-upload/jquery.fileupload.js' %}"></script>
+    <script src="{% static 'projects/js/file-upload.js' %}"></script>
+    <script src="{% static 'projects/js/file-list.js' %}"></script>
+    <script>
+        let file_list_vue = new Vue({
+            el: '#file-list',
+            delimiters: ['<%', '%>'],
+            data: {
+                files: []
+            },
+            created() {
+                fetch('{% url 'v1:project-file-listcreate' project=project %}')
+                    .then(response => response.json())
+                    .then(json => {
+                        this.files = json;
+                    });
+            }
+        });
+        add_update_list(update_and_callback,
+            ["{% url 'v1:project-file-listcreate' project=project %}", {}, function(data) {file_list_vue.files = data}, method = "GET"], manual = true
+        );
+    </script>
+{% endblock %}

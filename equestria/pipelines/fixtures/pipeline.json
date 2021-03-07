@@ -1,0 +1,33 @@
+[
+  {
+    "model": "scripts.Script",
+    "pk": 1,
+    "fields": {
+      "name": "Dutch Forced Alignment",
+      "hostname": "https://webservices.cls.ru.nl/forcedalignment2",
+      "description": "Dutch Forced Alignment",
+      "username": "clst",
+      "password": ""
+    }
+  },
+  {
+    "model": "scripts.Script",
+    "pk": 2,
+    "fields": {
+      "name": "Dutch G2P service",
+      "hostname": "https://webservices.cls.ru.nl/g2pservice",
+      "description": "Dutch G2P service",
+      "username": "clst",
+      "password": ""
+    }
+  },
+  {
+    "model": "pipelines.Pipeline",
+    "pk": 1,
+    "fields": {
+      "name": "Dutch Forced Alignment pipeline",
+      "fa_script": 1,
+      "g2p_script": 2
+    }
+  }
+]

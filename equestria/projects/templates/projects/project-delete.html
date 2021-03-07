@@ -1,0 +1,26 @@
+{% extends 'equestria/base.html' %}
+{% load static %}
+
+{% block title %}
+    Equestria: Delete project
+{% endblock %}
+
+
+{% block body %}
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <h3>Are you sure you want to delete {{ project.name }}?</h3>
+                <p>All contents of the project will be removed</p>
+                <form method="POST">
+                    {% csrf_token %}
+                    <a href="{% url "projects:overview" %}" class="btn btn-primary"><i class="fas fa-arrow-left"></i> Back</a>
+                    <button type="submit" class="btn btn-danger w-auto">
+                        <i class="fas fa-trash"></i> Delete {{ project.name }}
+                    </button>
+                    <a class="btn btn-success" href="{% url 'v1:project-archive-download' project=project %}">Download project archive <i class="fas fa-download"></i></a>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

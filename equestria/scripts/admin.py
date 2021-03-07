@@ -2,11 +2,14 @@
 from django.contrib import admin
 from django.core.exceptions import ValidationError
 from django.http import HttpResponseRedirect
+from django.urls import reverse
+from django.utils.safestring import mark_safe
 from scripts import models
 from .forms import ChoiceParameterAdminForm
 from nested_inline.admin import NestedStackedInline, NestedModelAdmin
-from django import forms
 from django.contrib import messages
+from scripts.forms import OutputTemplateAdminForm
+from processes.admin import FileDisplayRegexInline, FilePresetInline
 
 
 class BooleanParameterInline(NestedStackedInline):
@@ -86,6 +89,20 @@ class ProfileInline(NestedStackedInline):
 
     model = models.Profile
     extra = 0
+    readonly_fields = ("admin_page",)
+    exclude = ["name"]
+
+    def admin_page(self, obj):
+        """Get a link to the admin page."""
+        if obj.id is None:
+            return mark_safe(
+                '<a class="disabled">Can not edit, please save model first</a>'
+            )
+        return mark_safe(
+            '<a href="{}">Click to edit</a>'.format(
+                reverse("admin:scripts_profile_change", args=(obj.id,))
+            )
+        )
 
 
 class BaseParameterInline(admin.StackedInline):
@@ -93,15 +110,39 @@ class BaseParameterInline(admin.StackedInline):
 
     model = models.BaseParameter
     extra = 0
+    inlines = []
+    readonly_fields = ("admin_page",)
+    exclude = ["name", "preset", "type"]
 
-    exclude = ["name", "type", "preset"]
+    def admin_page(self, obj):
+        """Get a link to the admin page."""
+        if obj.id is None:
+            return mark_safe(
+                '<a class="disabled">Can not edit, please save model first</a>'
+            )
+        return mark_safe(
+            '<a href="{}">Click to edit</a>'.format(
+                reverse("admin:scripts_baseparameter_change", args=(obj.id,))
+            )
+        )
+
+
+class OutputTemplateInline(admin.StackedInline):
+    """Inline for OutputTemplates."""
+
+    form = OutputTemplateAdminForm
+    model = models.OutputTemplate
+    inlines = []
+    extra = 0
+
+    include = ["regex"]
 
 
 @admin.register(models.Script)
 class ScriptAdmin(NestedModelAdmin):
     """Profiles are displayed inline when creating/modifying processes."""
 
-    inlines = [ProfileInline, BaseParameterInline]
+    inlines = [ProfileInline, BaseParameterInline, OutputTemplateInline]
 
     list_display = ["name", "hostname"]
 
@@ -150,6 +191,7 @@ class InputTemplateInline(admin.StackedInline):
     """
 
     model = models.InputTemplate
+    inlines = []
     extra = 0
 
 
@@ -166,8 +208,8 @@ class ProfileAdmin(admin.ModelAdmin):
 class ParameterAdmin(NestedModelAdmin):
     """Admin screen for showing parameters inline."""
 
-    list_display = ["name", "type", "corresponding_script", "preset"]
-    list_filter = ["corresponding_script", "preset", "type"]
+    list_display = ["name", "corresponding_script"]
+    list_filter = ["name", "corresponding_script"]
 
     inlines = [
         BooleanParameterInline,
@@ -191,27 +233,5 @@ class InputTemplateAdmin(admin.ModelAdmin):
         "optional",
         "unique",
     ]
+    inlines = [FileDisplayRegexInline, FilePresetInline]
     list_filter = ["corresponding_profile", "extension"]
-
-
-@admin.register(models.Pipeline)
-class PipelineAdmin(admin.ModelAdmin):
-    """Model admin for Pipelines."""
-
-    list_display = ["name", "fa_script", "g2p_script"]
-
-
-@admin.register(models.Process)
-class ProcessAdmin(admin.ModelAdmin):
-    """Model admin for Processes."""
-
-    list_display = ["folder", "script", "status"]
-    list_filter = ["status", "script"]
-
-
-@admin.register(models.Project)
-class ProjectAdmin(admin.ModelAdmin):
-    """Model admin for Projects."""
-
-    list_display = ["name", "user", "pipeline", "current_process"]
-    list_filter = ["user", "pipeline"]

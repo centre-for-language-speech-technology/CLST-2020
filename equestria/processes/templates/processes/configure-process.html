@@ -1,0 +1,128 @@
+{% load static parameters %}
+
+<link rel="stylesheet" href="{% static 'processes/css/configure-process.css' %}">
+
+<div id="process-configure-container">
+    <h4>Profile settings for {{ script_type }}</h4>
+    <div class="profile-select mb-4">
+        <label for="profile-selector">Profile</label>
+        <select class="w-100" id="profile-selector" v-model="selected_profile">
+            <option v-for="profile in process_settings.profiles" :value="`${profile.id}`"><% profile.name %></option>
+        </select>
+        <p class="form-description">The profile you want to run {{ script_type }} for.</p>
+    </div>
+    <div class="profile-forms" id="profile-item-wrapper">
+        <form v-show="selected_profile == profile.id" v-for="profile in process_settings.profiles" class="profile-item" :id="`profile-item-${profile.id}`">
+            <div v-for="template in profile.input_templates" class="form-input-template">
+                <label v-if="!template.optional" :for="`file-selector-${template.id}`" class="form-label"><strong><% template.template_id %>*</strong></label>
+                <label v-else :for="`file-selector-${template.id}`" class="form-label"><% template.template_id %></label>
+                <select v-if="template.unique && template.optional" v-model="template.files" :value="template.files" class="w-100 file-selector" :id="`file-selector-${template.id}`">
+                    <option value="null">----------</option>
+                    <template v-if="template.preferable_files.length > 0">
+                        <option v-for="file in template.preferable_files" :value="file.id"><% file.filename %></option>
+                    </template>
+                    <template v-else>
+                        <option v-for="file in files" :value="file.id"><% file.filename %></option>
+                    </template>
+                </select>
+                <select v-else-if="template.unique && !template.optional" v-model="template.files" :value="template.files" required class="w-100 file-selector" :id="`file-selector-${template.id}`">
+                    <template v-if="template.preferable_files.length > 0">
+                        <option v-for="file in template.preferable_files" :value="file.id"><% file.filename %></option>
+                    </template>
+                    <template v-else>
+                        <option v-for="file in files" :value="file.id"><% file.filename %></option>
+                    </template>
+                </select>
+                <select v-else-if="!template.unique && template.optional" v-model="template.files" :value="template.files" multiple class="w-100 file-selector" :id="`file-selector-${template.id}`">
+                    <option value="null">----------</option>
+                    <template v-if="template.preferable_files.length > 0">
+                        <option v-for="file in template.preferable_files" :value="file.id"><% file.filename %></option>
+                    </template>
+                    <template v-else>
+                        <option v-for="file in files" :value="file.id"><% file.filename %></option>
+                    </template>
+                </select>
+                <select v-else v-model="template.files" :value="template.files" multiple required class="w-100 file-selector" :id="`file-selector-${template.id}`">
+                    <template v-if="template.preferable_files.length > 0">
+                        <option v-for="file in template.preferable_files" :value="file.id"><% file.filename %></option>
+                    </template>
+                    <template v-else>
+                        <option v-for="file in files" :value="file.id"><% file.filename %></option>
+                    </template>
+                </select>
+                <p class="form-description"><% template.label %></p>
+            </div>
+        </form>
+    </div>
+    <div v-if="process_settings.parameters.length > 0" class="parameter-form">
+        <h4>Parameter settings</h4>
+        <form id="parameter-form">
+            <div v-for="parameter in process_settings.parameters">
+                <label :for="`id_${parameter.name}`"><% parameter.name %></label>
+                <input v-if="parameter.type === 'Boolean'" type="checkbox" v-model="parameter.value" :name="`${parameter.name}`" :id="`id_${parameter.name}`"/>
+                <input v-else-if="parameter.type === 'String'" type="text" v-model="parameter.value" :value="parameter.value" :name="`${parameter.name}`" :id="`id_${parameter.name}`"/>
+                <select v-else-if="parameter.type === 'Choice'" :name="`${parameter.name}`" v-model="parameter.value" :value="parameter.value" :id="`id_${parameter.name}`">
+                    <option v-for="choice in parameter.choices" :value="`${choice}`"><% choice %></option>
+                </select>
+                <textarea v-else-if="parameter.type === 'Text'" v-model="parameter.value" :value="parameter.value" :name="`${parameter.name}`" :id="`id_${parameter.name}`"></textarea>
+                <input v-else-if="parameter.type === 'Integer'" type="number" v-model="parameter.value" :value="parameter.value" :name="`${parameter.name}`" :id="`id_${parameter.name}`"/>
+                <input v-else-if="parameter.type === 'Float'" type="number" step="any" v-model="parameter.value" :value="parameter.value" :name="`${parameter.name}`" :id="`id_${parameter.name}`"/>
+            </div>
+        </form>
+    </div>
+    <template v-if="loading">
+        <div class="btn btn-primary disabled mt-2 w-100" id="start-button">Start {{ script_type }} <span class="loader"></span></div>
+    </template>
+    <template v-else>
+        <div class="btn btn-primary mt-2 w-100" id="start-button" onclick="start_process()">
+            Start {{ script_type }} <i class="fas fa-play-circle"></i>
+        </div>
+    </template>
+</div>
+
+
+<script src="{% static 'processes/js/sync-settings.js' %}"></script>
+<script>
+    let process_configure_vue = new Vue({
+        el: '#process-configure-container',
+        delimiters: ['<%', '%>'],
+        data: {
+            selected_profile: null,
+            process_settings: [],
+            files: [],
+            loading: false,
+        },
+        watch: {
+            process_settings: {
+                deep: true,
+                handler(val, oldVal) {
+                    let copy = JSON.parse(JSON.stringify(val));
+                    copy.profiles.forEach(profile => profile.input_templates.forEach(input_template => input_template.files = Array.isArray(input_template.files) ? input_template.files : [input_template.files]));
+                    sync_with_server(copy);
+                }
+            }
+        },
+        created() {
+            fetch('{% url 'v1:script-settings' project=project pk=script.pk %}')
+                .then(response => response.json())
+                .then(json => {
+                    json.profiles.forEach(profile => profile.input_templates.forEach(input_template => input_template.files = input_template.unique ? (input_template.files.length > 0 ? input_template.files[0] : null) : input_template.files));
+                    this.process_settings = json;
+                    this.selected_profile = json.profiles.length > 0 ? json.profiles[0].id : null;
+                });
+            fetch('{% url 'v1:project-file-listcreate' project=project %}')
+                .then(response => response.json())
+                .then(json => {
+                    this.files = json;
+                });
+        }
+    });
+    add_update_list(update_and_callback,
+            ["{% url 'v1:project-file-listcreate' project=project %}", {}, function(data) {process_configure_vue.files = data}, method = "GET"], manual = true
+    );
+    add_update_list(update_and_callback,
+            ["{% url 'v1:script-settings' project=project pk=script.pk %}", {}, function(data) {data.profiles.forEach(profile => profile.input_templates.forEach(input_template => input_template.files = input_template.unique ? (input_template.files.length > 0 ? input_template.files[0] : null) : input_template.files));
+                    process_configure_vue.process_settings = data;}, method = "GET"], manual = true
+    );
+    let SYNC_SETTINGS_URL = '{% url 'v1:script-settings' project=project pk=script.pk %}';
+</script>

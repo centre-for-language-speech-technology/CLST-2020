@@ -1,57 +1,13 @@
 """Module to define db models related to the upload app."""
-import shutil
+import re
+import secrets
 
-import pytz
 from django.core.exceptions import ValidationError
 from django.db.models import *
 import clam.common.client
 import clam.common.data
 import clam.common.status
-import xml.etree.ElementTree as ET
-import datetime
-import logging
-from django.conf import settings
-import os
-import secrets
-from django.contrib.auth import get_user_model
-import zipfile
-from .services import zip_dir
-from .tasks import update_script
-
-# Create your models here.
-
-STATUS_CREATED = 0
-STATUS_UPLOADING = 1
-STATUS_RUNNING = 2
-STATUS_WAITING = 3
-STATUS_DOWNLOADING = 4
-STATUS_FINISHED = 5
-STATUS_ERROR = -1
-STATUS_ERROR_DOWNLOAD = -2
-
-STATUS = (
-    (STATUS_CREATED, "Created"),
-    (STATUS_UPLOADING, "Uploading files to CLAM"),
-    (STATUS_RUNNING, "Running"),
-    (STATUS_WAITING, "Waiting for download from CLAM"),
-    (STATUS_DOWNLOADING, "Downloading files from CLAM"),
-    (STATUS_FINISHED, "Finished"),
-    (STATUS_ERROR, "Error"),
-    (STATUS_ERROR_DOWNLOAD, "Error while downloading files from CLAM"),
-)
-
-User = get_user_model()
-
-
-def user_data_folder_path():
-    """
-    Get the user data folder path.
-
-    This function exists because otherwise the migrations for the Django Process and Project object
-    will not display the correct path
-    :return: settings.USER_DATA_FOLDER
-    """
-    return settings.USER_DATA_FOLDER
+from clam.common import parameters as clam_parameters
 
 
 class Script(Model):
@@ -70,25 +26,61 @@ class Script(Model):
         description                   Documentation of the purpose of the script.
     """
 
-    name = CharField(max_length=512, blank=False, null=False)
+    name = CharField(
+        max_length=512,
+        blank=False,
+        null=False,
+        help_text="The name of the script, used for " "identification only.",
+    )
 
-    hostname = URLField(blank=False, null=False)
+    hostname = URLField(
+        blank=False,
+        null=False,
+        help_text="The full URL where the CLAM server for this Script is "
+        "accessible.",
+    )
 
-    description = TextField(max_length=32768, blank=True)
+    description = TextField(
+        max_length=32768,
+        blank=True,
+        help_text="The description of this Script.",
+    )
 
-    username = CharField(max_length=200, blank=True)
-    password = CharField(max_length=200, blank=True)
+    username = CharField(
+        max_length=200,
+        blank=True,
+        help_text="If the CLAM server requires authentication, enter the "
+        "username for the authentication here.",
+    )
+    password = CharField(
+        max_length=200,
+        blank=True,
+        help_text="If the CLAM server requires authentication, enter the "
+        "password for the authentication here.",
+    )
+
+    @staticmethod
+    def get_random_clam_id():
+        """
+        Get a random 32 bit string.
+
+        :return: a random 32 bit string
+        """
+        return secrets.token_hex(32)
+
+    @property
+    def output_templates(self):
+        """Get all output templates associated with this script."""
+        return OutputTemplate.objects.filter(script=self)
 
     def refresh(self):
         """
         Save function to load profile data from CLAM.
 
-        :param args: arguments
-        :param kwargs: keyword arguments
         :return: super(Script, self).save()
         """
         # First contact CLAM to get the profile data
-        random_token = Process.get_random_clam_id()
+        random_token = Script.get_random_clam_id()
         try:
             clamclient = self.get_clam_server()
             clamclient.create(random_token)
@@ -167,6 +159,11 @@ class Script(Model):
         :return: a QuerySet of BaseParameter objects corresponding to this script
         """
         return BaseParameter.objects.filter(corresponding_script=self)
+
+    @property
+    def variable_parameters(self):
+        """Get variable parameters (parameters without a preset)."""
+        return self.get_variable_parameters()
 
     def get_variable_parameters(self):
         """
@@ -284,10 +281,7 @@ class Script(Model):
 
         :return: None
         """
-        profiles = Profile.objects.filter(script=self)
-        for profile in profiles:
-            profile.remove_corresponding_templates()
-            profile.delete()
+        Profile.objects.filter(script=self).delete()
 
     def remove_corresponding_parameters(self):
         """
@@ -295,10 +289,7 @@ class Script(Model):
 
         :return: None
         """
-        parameters = BaseParameter.objects.filter(corresponding_script=self)
-        for parameter in parameters:
-            parameter.remove_corresponding_presets()
-            parameter.delete()
+        BaseParameter.objects.filter(corresponding_script=self).delete()
 
     def get_clam_server(self):
         """
@@ -313,21 +304,6 @@ class Script(Model):
         else:
             return clam.common.client.CLAMClient(self.hostname)
 
-    def get_valid_profiles(self, folder):
-        """
-        Get the profiles for which the current files meet the requirements.
-
-        :param folder: the folder to check for files
-        :return:
-        """
-        profiles = Profile.objects.filter(script=self)
-        valid_profiles = []
-
-        for p in profiles:
-            if p.is_valid(folder):
-                valid_profiles.append(p)
-        return valid_profiles
-
     class Meta:
         """
         Display configuration for admin pane.
@@ -340,402 +316,49 @@ class Script(Model):
         verbose_name_plural = "Scripts"
 
 
-class Process(Model):
-    """
-    Database model for processes in CLAM.
-
-    Attributes:
-        name                          Name of the process.
-                                      Used for identification only, can be anything.
-        clam_id                       Identification number given by CLAM.
-        output_path                   Path to the primary output file (e.g. output/error.log)
-    """
-
-    script = ForeignKey(Script, on_delete=SET_NULL, blank=False, null=True)
-    clam_id = CharField(max_length=256, null=True, default=None)
-    status = IntegerField(choices=STATUS, default=0)
-    folder = FilePathField(
-        allow_folders=True, allow_files=False, path=user_data_folder_path
-    )
-
-    def __str__(self):
-        """Convert this object to string."""
-        return "Process for {} ({})".format(self.script, STATUS[self.status][1])
-
-    @staticmethod
-    def get_random_clam_id():
-        """
-        Get a random 32 bit string.
-
-        :return: a random 32 bit string
-        """
-        return secrets.token_hex(32)
-
-    def update_log_messages_from_xml(self, xml_data):
-        """
-        Update the log messages of this process from the CLAM xml data.
-
-        :param xml_data: the XML data send by CLAM including a <status> tag with an arbitrary amount of <log> tags
-        :return: None
-        """
-        try:
-            # The clamclient does not have a way to retrieve the log messages so we will do it ourselves.
-            xml = ET.fromstring(xml_data)
-            for index, item in enumerate(
-                reversed(list(xml.find("status").iter("log")))
-            ):
-                time = Process.parse_time_string(item.attrib["time"])
-                if not LogMessage.objects.filter(
-                    time=time, message=item.text, process=self, index=index
-                ).exists():
-                    LogMessage.objects.create(
-                        time=time, message=item.text, process=self, index=index
-                    )
-        except Exception as e:
-            logging.error(
-                "Failed to parse XML response from CLAM server. Error: {}".format(
-                    e
-                )
-            )
-
-    @staticmethod
-    def parse_time_string(time):
-        """
-        Parse the time string that CLAM passes.
-
-        :param time: the time string from CLAM
-        :return: a timezone aware datetime object, None when a ValueError was encountered
-        """
-        try:
-            tz = pytz.timezone(settings.TIME_ZONE)
-            return tz.localize(
-                datetime.datetime.strptime(time, "%d/%b/%Y %H:%M:%S")
-            )
-        except ValueError:
-            return None
-
-    @property
-    def output_folder(self):
-        """
-        Get an absolute path to the output folder.
-
-        :return: the absolute path to the output folder
-        """
-        return os.path.join(self.folder, Project.OUTPUT_FOLDER)
-
-    def set_status(self, status):
-        """
-        Set the status for this process and save it to the Database.
-
-        :param status: the status to set for this process
-        :return: None
-        """
-        self.status = status
-        self.save()
-
-    def set_clam_id(self, clam_id):
-        """
-        Set the CLAM id for this process and save it to the Database.
-
-        :param clam_id: the CLAM id to set for this process
-        :return: None
-        """
-        self.clam_id = clam_id
-        self.save()
-
-    def start_safe(self, profile, parameter_values=None):
-        """
-        Start uploading files to CLAM and start the CLAM server in a safe way.
-
-        Actually only executes the start() method and runs the cleanup() method when an exception is raised.
-        :param profile: the profile to start this process with
-        :param parameter_values: a dictionary of (key, value) pairs with the parameter values to fill in, only
-        overwrites variable parameters
-        :return: True when the process was started, False otherwise, raises a ValueError if there was an error with the
-        input templates, raises an Exception if there was an error when uploading files to CLAM or when starting the
-        CLAM server, raises a ParameterException if one or more parameters are not satisfied
-        """
-        try:
-            return self.start(profile, parameter_values=parameter_values)
-        except Exception as e:
-            self.cleanup()
-            raise e
-
-    def start(self, profile, parameter_values=None):
-        """
-        Add inputs to clam server and starts it.
-
-        :param profile: the profile to run the process with
-        :param parameter_values: a dictionary of (key, value) pairs with the parameter values to fill in, only
-        overwrites variable parameters
-        :return: the status of this project, or a ValueError when an error is encountered with the uploaded files and
-        selected profile, an Exception for CLAM errors, or a ParameterException when a parameter is not satisfied
-        """
-        if parameter_values is None:
-            parameter_values = dict()
-
-        if self.status == STATUS_CREATED:
-            self.set_status(STATUS_UPLOADING)
-            self.set_clam_id(Process.get_random_clam_id())
-            clamclient = self.script.get_clam_server()
-            clamclient.create(self.clam_id)
-            templates = InputTemplate.objects.filter(
-                corresponding_profile=profile
-            )
-
-            merged_parameters = self.script.get_parameters_as_dict(
-                preset_parameters=parameter_values
-            )
-
-            if (
-                len(
-                    self.script.get_unsatisfied_parameters(
-                        merged_parameters.keys()
-                    )
-                )
-                != 0
-            ):
-                raise BaseParameter.ParameterException(
-                    "Not all parameters are satisfied"
-                )
-
-            self.upload_input_templates(templates)
-
-            clamclient.startsafe(self.clam_id, **merged_parameters)
-            self.set_status(STATUS_RUNNING)
-            update_script(self.pk)
-            return True
-        else:
-            return False
-
-    def upload_input_templates(self, templates):
-        """
-        Upload files corresponding to the input templates.
-
-        :param templates: a list of InputTemplate objects
-        :return: None, raises a ValueError if there is no file for the template or more than one file for a unique
-        template
-        """
-        clamclient = self.script.get_clam_server()
-        for template in templates:
-            files = template.is_valid_for(self.folder)
-            if not files and not template.optional:
-                raise ValueError(
-                    "No file specified for template {}".format(template)
-                )
-            if files:
-                if len(files) > 1 and template.unique:
-                    raise ValueError(
-                        "More than one file specified for unique template {}".format(
-                            template
-                        )
-                    )
-                for file in files:
-                    full_file_path = os.path.join(self.folder, file)
-                    clamclient.addinputfile(
-                        self.clam_id, template.template_id, full_file_path
-                    )
-
-    def cleanup(self, status=STATUS_CREATED):
-        """
-        Reset a project on the CLAM server by deleting it and resetting the clam id and status on Django.
-
-        :param status: the status to set the process to after this function has been ran, default=STATUS_CREATED
-        :return: None
-        """
-        if self.clam_id is not None:
-            try:
-                clamclient = self.script.get_clam_server()
-                clamclient.delete(self.clam_id)
-            except Exception as e:
-                logging.error(e)
-        self.clam_id = None
-        self.status = status
-        self.save()
-
-    def clam_update(self):
-        """
-        Update a process.
-
-        :return: True when the status was successfully updated (this means the status of this process could also be left
-        unchanged), False otherwise
-        """
-        if self.status == STATUS_RUNNING:
-            try:
-                clamclient = self.script.get_clam_server()
-                data = clamclient.get(self.clam_id)
-            except Exception as e:
-                logging.error(e)
-                return False
-            self.update_log_messages_from_xml(data.xml)
-            if data.status == clam.common.status.DONE:
-                self.set_status(STATUS_WAITING)
-            return True
-        else:
-            return False
-
-    def download_and_delete(self, next_script=None):
-        """
-        Download all files from a process, decompress them and delete the project from CLAM.
-
-        :return: True if downloading the files and extracting them succeeded, False otherwise
-        """
-        if (
-            self.status == STATUS_WAITING
-            or self.status == STATUS_ERROR_DOWNLOAD
-        ):
-            self.set_status(STATUS_DOWNLOADING)
-            if self.download_archive_and_decompress():
-                if next_script is not None:
-                    self.move_downloaded_output_files(next_script)
-                self.cleanup(status=STATUS_FINISHED)
-                return True
-            else:
-                self.set_status(STATUS_ERROR_DOWNLOAD)
-                return False
-        else:
-            return False
-
-    def move_downloaded_output_files(self, script):
-        """
-        Move downloaded output files that are needed for the next script to the main directory.
-
-        :param script: the next script
-        :return: None
-        """
-        templates = InputTemplate.objects.filter(
-            corresponding_profile__script=script
-        )
-        for template in templates:
-            template.move_corresponding_files(self.output_folder, self.folder)
-
-    def download_archive_and_decompress(self):
-        """
-        Download the output archive from the CLAM server.
-
-        :return: the location of the downloaded archive on success, False on failure
-        """
-        try:
-            clamclient = self.script.get_clam_server()
-            if not os.path.exists(self.output_folder):
-                os.makedirs(self.output_folder)
-            downloaded_archive = os.path.join(
-                self.output_folder, str(self.clam_id) + ".{}".format("zip")
-            )
-            clamclient.downloadarchive(self.clam_id, downloaded_archive, "zip")
-            with zipfile.ZipFile(downloaded_archive, "r") as zip_ref:
-                zip_ref.extractall(
-                    os.path.join(self.folder, Project.OUTPUT_FOLDER)
-                )
-            os.remove(downloaded_archive)
-            return True
-        except Exception as e:
-            print(
-                "An error occurred while downloading and decompressing files from CLAM. Error: {}".format(
-                    e
-                )
-            )
-            return False
-
-    def is_finished(self):
-        """
-        Check if this process is finished.
-
-        :return: True if this process has a status of STATUS_FINISHED, False otherwise
-        """
-        return self.status == STATUS_FINISHED
-
-    def get_status_messages(self):
-        """
-        Get the status messages of this process.
-
-        :return: the status messages in a QuerySet
-        """
-        return LogMessage.objects.filter(process=self)
-
-    def get_output_file_name(self, extension="zip"):
-        """
-        Get a name of an not existing file to store data to.
-
-        :return: a path to a non existing file
-        """
-        return os.path.join(
-            self.folder, str(self.clam_id) + ".{}".format(extension)
-        )
-
-    def get_status_string(self):
-        """
-        Get the status of this project in string format.
-
-        :return: a string format of self.status
-        """
-        if self.status == STATUS_CREATED:
-            return "Ready to start"
-        elif self.status == STATUS_RUNNING:
-            return "Running"
-        elif self.status == STATUS_WAITING:
-            return "CLAM Done, waiting for download"
-        elif self.status == STATUS_DOWNLOADING:
-            return "Downloading files from CLAM"
-        elif self.status == STATUS_FINISHED:
-            return "Done"
-        elif self.status == STATUS_ERROR:
-            return "An error occurred"
-        else:
-            return "Unknown"
-
-    def get_status(self):
-        """
-        Get the status of this project.
-
-        :return: the status of the project
-        """
-        return self.status
-
-    def get_valid_profiles(self):
-        """
-        Get the profiles for which the current files meet the requirements.
-
-        :return:
-        """
-        profiles = Profile.objects.filter(script=self.script)
-        valid_profiles = []
-
-        for p in profiles:
-            if p.is_valid(self.folder):
-                valid_profiles.append(p)
-        return valid_profiles
-
-    class Meta:
-        """
-        Display configuration for admin pane.
-
-        Order admin list alphabetically by name.
-        Display plural correctly.
-        """
-
-        verbose_name_plural = "Processes"
-
-
-class LogMessage(Model):
-    """Class for saving CLAM log messages."""
-
-    time = DateTimeField(null=True)
-    message = CharField(max_length=16384)
-    process = ForeignKey(Process, on_delete=CASCADE)
-    index = PositiveIntegerField()
-
-
 class Profile(Model):
     """
     Database model for profiles.
 
     A profile is a set of InputTemplates (possibly more later on)
     Attributes:
-        process                 The process associated with this profile.
+        script                 The script associated with this profile.
     """
 
-    script = ForeignKey(Script, on_delete=SET_NULL, null=True)
+    name = CharField(
+        max_length=1024,
+        null=True,
+        blank=True,
+        help_text="Optional name, will be showed instead of profile number.",
+    )
+    script = ForeignKey(
+        Script,
+        related_name="profiles",
+        on_delete=CASCADE,
+        null=False,
+        blank=False,
+        help_text="The Script this Profile belongs to.",
+    )
+
+    def __str__(self):
+        """
+        Use identifier in admin pane.
+
+        :return: string including the identifier of this object
+        """
+        if self.name:
+            return self.name
+        else:
+            return "Profile {}".format(self.pk)
+
+    @property
+    def templates(self):
+        """
+        Get the templates corresponding to this profile.
+
+        :return: a QuerySet of templates corresponding to this profile
+        """
+        return InputTemplate.objects.filter(corresponding_profile=self)
 
     class Meta:
         """
@@ -748,76 +371,6 @@ class Profile(Model):
         ordering = ["id"]
         verbose_name = "Profile"
         verbose_name_plural = "Profiles"
-
-    def __str__(self):
-        """
-        Use identifier in admin pane.
-
-        :return: string including the identifier of this object
-        """
-        return "Profile {}".format(self.pk)
-
-    def remove_corresponding_templates(self):
-        """
-        Remove the templates corresponding to this profile object.
-
-        :return: None
-        """
-        input_templates = InputTemplate.objects.filter(
-            corresponding_profile=self
-        )
-        for template in input_templates:
-            template.delete()
-
-    def is_valid(self, folder):
-        """
-        Check if a profile is valid for a given folder (check if all input templates are valid for a given folder).
-
-        :param folder: the folder to check
-        :return: True if all InputTemplates corresponding to this profile are valid for the folder, False otherwise
-        """
-        templates = InputTemplate.objects.filter(corresponding_profile=self)
-        for template in templates:
-            if not template.is_valid(folder):
-                return False
-        return True
-
-    def get_valid_files(self, folder):
-        """
-        Get a dictionary of valid files for all input templates corresponding to this profile.
-
-        :param folder: the folder to search for the files
-        :return: a dictionary of the form:
-        dict(
-            template.id -> [relative_path_to_valid_file, relative_path_to_valid_file, ...],
-            template.id -> [...],
-            ...
-        )
-        containing for each template corresponding to this profile, a set of files corresponding to that template
-        """
-        templates = InputTemplate.objects.filter(corresponding_profile=self)
-        valid_for = dict()
-        for template in templates:
-            valid_files = template.is_valid_for(folder)
-            if valid_files:
-                valid_for[template.id] = valid_files
-            else:
-                valid_for[template.id] = []
-        return valid_for
-
-    @property
-    def templates(self):
-        """
-        Get the templates corresponding to this profile.
-
-        :return: a QuerySet of templates corresponding to this profile
-        """
-        return InputTemplate.objects.filter(corresponding_profile=self)
-
-    class IncorrectProfileException(Exception):
-        """Exception to be thrown when the project has an incorrect state."""
-
-        pass
 
 
 class InputTemplate(Model):
@@ -838,69 +391,47 @@ class InputTemplate(Model):
         corresponding_profile   The corresponding profile of this input template.
     """
 
-    template_id = CharField(max_length=1024)
-    format = CharField(max_length=1024)
-    label = CharField(max_length=1024)
-    mime = CharField(max_length=1024, default="text/plain")
-    extension = CharField(max_length=32)
-    optional = BooleanField()
-    unique = BooleanField()
-    accept_archive = BooleanField()
-    corresponding_profile = ForeignKey(Profile, on_delete=SET_NULL, null=True)
-
-    def move_corresponding_files(self, from_directory, to_directory):
-        """
-        Move the corresponding files of this template from a directory to a directory (overwrite if necessary).
-
-        :param from_directory: the directory to check files from
-        :param to_directory: the directory to move files to
-        :return: None
-        """
-        for file in [
-            f
-            for f in os.listdir(from_directory)
-            if f.endswith("." + self.extension)
-        ]:
-            shutil.copyfile(
-                os.path.join(from_directory, file),
-                os.path.join(to_directory, file),
-            )
-
-    def is_valid(self, folder):
-        """
-        Check if a file with the extension of this object is present in the folder.
-
-        :param folder: the folder to search for the file
-        :return: True if at least one file is found with the extension from this object, False otherwise
-        """
-        matching_files = 0
-        for file in os.listdir(folder):
-            if file.endswith(self.extension):
-                matching_files += 1
-        if matching_files == 0 and not self.optional:
-            return False
-        elif matching_files > 1 and self.unique:
-            return False
-        else:
-            return True
-
-    def is_valid_for(self, folder):
-        """
-        Get all the files corresponding to this input template from a folder.
-
-        :param folder: the folder to search for the files with specific extension
-        :return: a list relative paths to with the extension of this object in the folder,
-        if no files are found False is returned
-        """
-        valid_files = list()
-        for file in os.listdir(folder):
-            if file.endswith(self.extension):
-                valid_files.append(file)
-
-        if len(valid_files) == 0:
-            return False
-        else:
-            return valid_files
+    template_id = CharField(
+        max_length=1024,
+        help_text="Template ID as mirrored from the CLAM server.",
+    )
+    format = CharField(
+        max_length=1024,
+        help_text="CLAM format as mirrored from the CLAM server.",
+    )
+    label = CharField(
+        max_length=1024,
+        help_text="Label used for describing what files to select for this Input "
+        "template",
+    )
+    mime = CharField(
+        max_length=1024,
+        default="text/plain",
+        help_text="The mime class used for files selected for "
+        "this Input template.",
+    )
+    extension = CharField(
+        max_length=32,
+        help_text="The preferred extension a file should have when it is selected "
+        "to be used for this Input template.",
+    )
+    optional = BooleanField(
+        help_text="Whether or not this Input template is optional."
+    )
+    unique = BooleanField(
+        help_text="Whether or not multiple files could be uploaded for this Input template."
+    )
+    accept_archive = BooleanField(
+        help_text="Whether or not this Input template accepts archives."
+    )
+    corresponding_profile = ForeignKey(
+        Profile,
+        related_name="input_templates",
+        on_delete=CASCADE,
+        null=False,
+        blank=False,
+        help_text="The Profile associated with this Input template.",
+    )
 
     def __str__(self):
         """
@@ -914,11 +445,16 @@ class InputTemplate(Model):
         else:
             optional = "Optional" if self.optional else ""
         if self.unique or self.optional:
-            return "{}{} file with extension {}".format(
-                unique, optional, self.extension
+            return "{}{} file with extension {} for script {}".format(
+                unique,
+                optional,
+                self.extension,
+                self.corresponding_profile.script,
             )
         else:
-            return "File with extension {}".format(self.extension)
+            return "File with extension {} for script {}".format(
+                self.extension, self.corresponding_profile.script
+            )
 
     class Meta:
         """
@@ -933,354 +469,56 @@ class InputTemplate(Model):
         verbose_name_plural = "Input templates"
 
 
-class Pipeline(Model):
-    """Pipeline model class."""
+class OutputTemplate(Model):
+    """
+    OutputTemplate model.
 
-    name = CharField(max_length=512)
-    fa_script = ForeignKey(
+    Output templates are used when a Process finishes running. By default, no files that a Process outputs are copied
+    over to the Project. Only files with file names that match an Output template will be copied over to the Project
+    directory.
+    """
+
+    script = ForeignKey(
         Script,
         on_delete=CASCADE,
-        blank=False,
         null=False,
-        related_name="fa_script",
-    )
-    g2p_script = ForeignKey(
-        Script,
-        on_delete=CASCADE,
         blank=False,
+        help_text="The Script corresponding to" " this Output template.",
+    )
+    regex = CharField(
+        max_length=1024,
         null=False,
-        related_name="g2p_script",
+        blank=False,
+        help_text="The regular expression to use when "
+        "matching output file names of processes. "
+        "Matching output files will be copied over to"
+        " the Project directory.",
     )
 
-    def __str__(self):
-        """
-        Convert this object to a string.
-
-        :return: the name property of this object
-        """
-        return self.name
-
-
-class Project(Model):
-    """Project model class."""
-
-    UPLOADING = 0
-    FA_RUNNING = 1
-    G2P_RUNNING = 2
-    CHECK_DICTIONARY = 3
-
-    TYPES = (
-        (UPLOADING, "Uploading"),
-        (FA_RUNNING, "FA running"),
-        (G2P_RUNNING, "G2P running"),
-        (CHECK_DICTIONARY, "Check dictionary"),
-    )
-
-    EXTRACT_FOLDER = "extract"
-    OUTPUT_FOLDER = "output"
-
-    name = CharField(max_length=512)
-    folder = FilePathField(
-        allow_folders=True, allow_files=False, path=user_data_folder_path
-    )
-    pipeline = ForeignKey(Pipeline, on_delete=CASCADE, blank=False, null=False)
-    user = ForeignKey(User, on_delete=SET_NULL, null=True)
-    current_process = ForeignKey(
-        Process, on_delete=SET_NULL, null=True, blank=True
-    )
-
-    def move_extracted_files(self, extensions):
-        """
-        Move extracted files to the project folder.
-
-        :param extensions: the allowed extensions
-        :return: a list of non-moved files
-        """
-        non_copied = list()
-        if os.path.exists(os.path.join(self.folder, Project.EXTRACT_FOLDER)):
-            for root, _, files in os.walk(
-                os.path.join(self.folder, Project.EXTRACT_FOLDER)
-            ):
-                for file in files:
-                    name, extension = os.path.splitext(file)
-                    if extension[1:] in extensions:
-                        shutil.copy(os.path.join(root, file), self.folder)
-                    else:
-                        non_copied.append(file)
-        return non_copied
-
-    def __str__(self):
-        """Convert this object to string."""
-        return self.name
+    def __init__(self, *args, **kwargs):
+        """Initialise OutputTemplate model."""
+        super().__init__(*args, **kwargs)
+        self._regex = re.compile(self.regex)
 
     @staticmethod
-    def create_project(name, pipeline, user):
-        """
-        Create a project, also create a directory for storing the files of the created project.
-
-        :param name: the name of the project, per user there can only be one unique project per name
-        :param pipeline: the pipeline for which to create the project
-        :param user: the user for which to create the project
-        :return: a ValueError if either the project name or directory already exists, otherwise a new Project object
-        """
-        project_qs = Project.objects.filter(name=name, user=user)
-        if project_qs.exists():
-            raise ValueError(
-                "Failed to create project, project called {} from {} does already exist.".format(
-                    name, user
-                )
-            )
-        else:
-            folder = os.path.join(
-                os.path.join(settings.USER_DATA_FOLDER, user.username), name
-            )
-            if os.path.exists(folder):
-                raise ValueError(
-                    "Failed to create project, folder {} does already exist.".format(
-                        folder
-                    )
-                )
-            else:
-                os.makedirs(folder)
-                os.makedirs(os.path.join(folder, Project.OUTPUT_FOLDER))
-                return Project.objects.create(
-                    name=name, folder=folder, pipeline=pipeline, user=user
-                )
-
-    @property
-    def status(self):
-        """
-        GET the status of this project.
-
-        :return: the next step of this project
-        """
-        return self.get_next_step()
-
-    def get_next_step(self):
-        """
-        Get the project status.
-
-        :return: a value in self.TYPES indicating the project status
-        """
-        if self.current_process is None:
-            if self.finished_fa():
-                return self.CHECK_DICTIONARY
-            else:
-                return self.UPLOADING
-        else:
-            if self.current_process.script == self.pipeline.fa_script:
-                return self.FA_RUNNING
-            elif self.current_process.script == self.pipeline.g2p_script:
-                return self.G2P_RUNNING
-            else:
-                raise ValueError(
-                    "Current script process is not an FA or G2P script"
-                )
-
-    def write_oov_dict_file_contents(self, content, name="default.oov.dict"):
-        """
-        Write content to .oov.dict file in project folder.
-
-        :param content: the content to write to the file
-        :param name: the name of the default file to write to
-        :return: None
-        """
-        path = self.get_oov_dict_file_path()
-        if path is not None:
-            with open(path, "w") as file:
-                file.write(content)
-        else:
-            with open(os.path.join(self.folder, name), "w") as file:
-                file.write(content)
-
-    def get_oov_dict_file_contents(self):
-        """
-        Get the content of the .oov.dict file in the project folder.
-
-        :return: the content of the .oov.dict file, an emtpy string if such a file does not exist
-        """
-        path = self.get_oov_dict_file_path()
-        if path is not None:
-            with open(path, "r") as file:
-                return file.read()
-        else:
-            return ""
-
-    def get_oov_dict_file_path(self):
-        """
-        Get the file path of the .oov.dict file in the folder directory.
-
-        :return: the file path of the .oov.dict file, or None if such a file does not exist
-        """
-        for file_name in os.listdir(self.folder):
-            full_file_path = os.path.join(self.folder, file_name)
-            if os.path.isfile(full_file_path):
-                if file_name.endswith(".oov.dict"):
-                    return full_file_path
-        return None
-
-    def has_non_empty_extension_file(self, extensions, folder=None):
-        """
-        Check if a file ends with some extension.
-
-        :param extensions: a list of extensions that are valid.
-        :param folder: the folder to check, if None this function uses self.folder
-        :return: True if an .extension file is present with some text, False otherwise. Note: we may have multiple
-        files, but as long as one is non empty we return true. (e.g. we have a.ext and b.ext, a is empty but b is not
-        thus we return true).
-        """
-        if folder is None:
-            folder = self.folder
-
-        if not os.path.exists(folder) or not os.path.isdir(folder):
-            return False
-        if type(extensions) is not list:
-            raise TypeError("Extensions must be a list type")
-        for file_name in os.listdir(folder):
-            full_file_path = os.path.join(folder, file_name)
-            if os.path.isfile(full_file_path):
-                if file_name.endswith(tuple(extensions)):
-                    if os.stat(full_file_path).st_size != 0:
-                        return True
-
+    def match_any(filename, output_templates):
+        """Check if any of the output templates matches filename."""
+        for output_template in output_templates:
+            if output_template.match(filename):
+                return True
         return False
 
-    def finished_fa(self):
-        """
-        Check if FA has finished.
+    @staticmethod
+    def match_all(filename, output_templates):
+        """Check if all of the output templates matches filename."""
+        for output_template in output_templates:
+            if not output_template.match(filename):
+                return False
+        return True
 
-        :return: True if a .ctm file is present in the project directory, False otherwise
-        """
-        return self.has_non_empty_extension_file(
-            ["ctm"], folder=os.path.join(self.folder, Project.OUTPUT_FOLDER),
-        )
-
-    def create_downloadable_archive(self):
-        """
-        Create a downloadable archive.
-
-        :return: the filename of the downloadable archive
-        """
-        _, zip_filename = os.path.split(self.folder)
-        zip_filename = zip_filename + ".zip"
-        return os.path.join(
-            self.folder,
-            zip_dir(self.folder, os.path.join(self.folder, zip_filename)),
-        )
-
-    def can_upload(self):
-        """
-        Check whether files can be uploaded to this project.
-
-        :return: True if files can be uploaded to this project, False otherwise
-        """
-        return self.current_process is None
-
-    def can_start_new_process(self):
-        """
-        Check whether a new process can be started for this project.
-
-        :return: True if there are not running processes for this project, False otherwise
-        """
-        return self.current_process is None
-
-    def start_fa_script(self, profile, **kwargs):
-        """
-        Start the FA script with a given profile.
-
-        :param profile: the profile to start FA with
-        :return: the process with the started script, raises a ValueError if the files in the folder do not match the
-        profile, raises an Exception if a CLAM error occurred
-        """
-        return self.start_script(profile, self.pipeline.fa_script, **kwargs)
-
-    def start_g2p_script(self, profile, **kwargs):
-        """
-        Start the G2P script with a given profile.
-
-        :param profile: the profile to start G2P with
-        :return: the process with the started script, raises a ValueError if the files in the folder do not match the
-        profile, raises an Exception if a CLAM error occurred
-        """
-        return self.start_script(profile, self.pipeline.g2p_script, **kwargs)
-
-    def start_script(self, profile, script, parameter_values=None):
-        """
-        Start a new script and add the process to this project.
-
-        :param parameter_values: parameter values in (key, value) format in a dictionary
-        :param profile: the profile to start the script with
-        :param script: the script to start
-        :return: the process with the started script, raises a ValueError if the files in the folder do not match the
-        profile, raises an Exception if a CLAM error occurred
-        """
-        parameter_values = (
-            dict() if parameter_values is None else parameter_values
-        )
-
-        if not self.can_start_new_process():
-            raise Project.StateException
-        elif profile.script != script:
-            raise Profile.IncorrectProfileException
-
-        self.current_process = Process.objects.create(
-            script=script, folder=self.folder
-        )
-        self.save()
-        try:
-            self.current_process.start_safe(
-                profile, parameter_values=parameter_values
-            )
-            return self.current_process
-        except Exception as e:
-            self.cleanup()
-            raise e
-
-    def cleanup(self):
-        """
-        Reset the project to a clean state.
-
-        Resets the current process to None
-        :return: None
-        """
-        self.current_process = None
-        self.save()
-
-    def delete(self, **kwargs):
-        """
-        Delete a Project.
-
-        :param kwargs: keyword arguments
-        :return: None, deletes a project and removes the folder of that project
-        """
-        if os.path.exists(self.folder):
-            shutil.rmtree(self.folder, ignore_errors=True)
-        super(Project, self).delete(**kwargs)
-
-    def is_project_script(self, script):
-        """
-        Check if a script corresponds to this project.
-
-        :param script: the script to check
-        :return: True if it corresponds to this project, False otherwise
-        """
-        return (
-            script == self.pipeline.fa_script
-            or script == self.pipeline.g2p_script
-        )
-
-    class StateException(Exception):
-        """Exception to be thrown when the project has an incorrect state."""
-
-        pass
-
-    class Meta:
-        """Meta class for Project model."""
-
-        unique_together = ("name", "user")
-        permissions = [
-            ("access_project", "Access project"),
-        ]
+    def match(self, filename):
+        """Check if this output template matches filename."""
+        return self._regex.match(filename)
 
 
 class BaseParameter(Model):
@@ -1304,10 +542,32 @@ class BaseParameter(Model):
         (FLOAT_TYPE, "Float"),
     )
 
-    name = CharField(max_length=1024)
-    corresponding_script = ForeignKey(Script, on_delete=SET_NULL, null=True)
-    preset = BooleanField(default=False)
-    type = IntegerField(choices=TYPES)
+    name = CharField(
+        max_length=1024,
+        help_text="Identifier for a Base Parameter. This is set automatically when "
+        "synchronizing with a CLAM server.",
+    )
+    corresponding_script = ForeignKey(
+        Script,
+        related_name="parameters",
+        on_delete=CASCADE,
+        null=False,
+        blank=False,
+        help_text="The Script this Parameter belongs to.",
+    )
+    preset = BooleanField(
+        default=False,
+        help_text="Whether or not this Parameter can be set by Users themselves. When "
+        "this is False, Users will be able to set this Parameter themselves"
+        " when running Processes. When this is True a value for this "
+        "parameter should be specified in one of the fields below.",
+    )
+    type = IntegerField(
+        choices=TYPES,
+        help_text="Indicates what the type is of this Parameter. When specifying a "
+        "preset you should enter the value of the Parameter within the right "
+        "typed field below.",
+    )
 
     @staticmethod
     def get_type(parameter):
@@ -1317,19 +577,19 @@ class BaseParameter(Model):
         :param parameter: the CLAM parameter object
         :return: the type of the CLAM parameter in BaseParameter.TYPES types
         """
-        if parameter.__class__ == clam.common.parameters.BooleanParameter:
+        if parameter.__class__ == clam_parameters.BooleanParameter:
             return BaseParameter.BOOLEAN_TYPE
-        elif parameter.__class__ == clam.common.parameters.StaticParameter:
+        elif parameter.__class__ == clam_parameters.StaticParameter:
             return BaseParameter.STATIC_TYPE
-        elif parameter.__class__ == clam.common.parameters.StringParameter:
+        elif parameter.__class__ == clam_parameters.StringParameter:
             return BaseParameter.STRING_TYPE
-        elif parameter.__class__ == clam.common.parameters.ChoiceParameter:
+        elif parameter.__class__ == clam_parameters.ChoiceParameter:
             return BaseParameter.CHOICE_TYPE
-        elif parameter.__class__ == clam.common.parameters.TextParameter:
+        elif parameter.__class__ == clam_parameters.TextParameter:
             return BaseParameter.TEXT_TYPE
-        elif parameter.__class__ == clam.common.parameters.IntegerParameter:
+        elif parameter.__class__ == clam_parameters.IntegerParameter:
             return BaseParameter.INTEGER_TYPE
-        elif parameter.__class__ == clam.common.parameters.FloatParameter:
+        elif parameter.__class__ == clam_parameters.FloatParameter:
             return BaseParameter.FLOAT_TYPE
         else:
             raise TypeError("Type of parameter {} unknown".format(parameter))
@@ -1383,29 +643,21 @@ class BaseParameter(Model):
             else:
                 return None
 
-    def remove_corresponding_presets(self):
+    @property
+    def value(self):
         """
-        Remove all typed parameters corresponding to this parameter.
+        Get the default value of a parameter.
 
-        :return: None
+        :return: the default value of a parameter, None if the default value is not set
         """
-        parameter_classes = [
-            BooleanParameter,
-            StaticParameter,
-            StringParameter,
-            ChoiceParameter,
-            TextParameter,
-            IntegerParameter,
-            FloatParameter,
-        ]
-        for parameter_class in parameter_classes:
-            try:
-                obj = parameter_class.objects.get(base=self)
-                if parameter_class.__class__ == ChoiceParameter:
-                    obj.remove_corresponding_choices()
-                obj.delete()
-            except parameter_class.DoesNotExist:
-                pass
+        if not self.preset:
+            return None
+        else:
+            typed_parameter = self.get_typed_parameter()
+            if typed_parameter is not None:
+                return typed_parameter.get_value()
+            else:
+                return None
 
     def get_corresponding_value(self, value):
         """
@@ -1420,6 +672,8 @@ class BaseParameter(Model):
         returned, None is returned if the type of the value does not match the type of the parameter
         """
         typed_parameter = self.get_typed_parameter()
+        if typed_parameter is None:
+            raise BaseParameter.ParameterException("Typed parameter not found.")
         return typed_parameter.get_corresponding_value(value)
 
     def __str__(self):
@@ -1440,13 +694,25 @@ class BaseParameter(Model):
 
         verbose_name_plural = "Parameters"
         verbose_name = "Parameter"
+        unique_together = ("name", "corresponding_script")
 
 
 class BooleanParameter(Model):
     """Parameter for boolean values."""
 
-    base = OneToOneField(BaseParameter, on_delete=SET_NULL, null=True)
-    value = BooleanField(default=False, null=True, blank=True)
+    base = OneToOneField(
+        BaseParameter,
+        on_delete=CASCADE,
+        null=False,
+        blank=False,
+        help_text="The Base parameter this typed parameter " "belongs to.",
+    )
+    value = BooleanField(
+        default=False,
+        null=True,
+        blank=True,
+        help_text="The boolean value for this parameter.",
+    )
 
     def get_value(self):
         """
@@ -1485,8 +751,19 @@ class BooleanParameter(Model):
 class StaticParameter(Model):
     """Parameter for static values."""
 
-    base = OneToOneField(BaseParameter, on_delete=SET_NULL, null=True)
-    value = CharField(max_length=2048, null=True, blank=True)
+    base = OneToOneField(
+        BaseParameter,
+        on_delete=CASCADE,
+        null=False,
+        blank=False,
+        help_text="The Base parameter this typed parameter " "belongs to.",
+    )
+    value = CharField(
+        max_length=2048,
+        null=True,
+        blank=True,
+        help_text="The static value for this parameter.",
+    )
 
     def get_value(self):
         """
@@ -1522,8 +799,19 @@ class StaticParameter(Model):
 class StringParameter(Model):
     """Parameter for string values."""
 
-    base = OneToOneField(BaseParameter, on_delete=SET_NULL, null=True)
-    value = CharField(max_length=2048, null=True, blank=True)
+    base = OneToOneField(
+        BaseParameter,
+        on_delete=CASCADE,
+        null=False,
+        blank=False,
+        help_text="The Base parameter this typed parameter " "belongs to.",
+    )
+    value = CharField(
+        max_length=2048,
+        null=True,
+        blank=True,
+        help_text="The string value for this parameter.",
+    )
 
     def get_value(self):
         """
@@ -1563,9 +851,13 @@ class Choice(Model):
     """Model for choices in ChoiceParameter."""
 
     corresponding_choice_parameter = ForeignKey(
-        "ChoiceParameter", on_delete=SET_NULL, null=True
+        "ChoiceParameter",
+        on_delete=CASCADE,
+        null=False,
+        blank=False,
+        help_text="The Choice parameter the Choice " "belongs to.",
     )
-    value = CharField(max_length=2048)
+    value = CharField(max_length=2048, help_text="The value of a choice.")
 
     def get_value(self):
         """
@@ -1601,8 +893,20 @@ class Choice(Model):
 class ChoiceParameter(Model):
     """Parameter for choice values."""
 
-    base = OneToOneField(BaseParameter, on_delete=SET_NULL, null=True)
-    value = ForeignKey(Choice, on_delete=SET_NULL, null=True, blank=True)
+    base = OneToOneField(
+        BaseParameter,
+        on_delete=CASCADE,
+        null=False,
+        blank=False,
+        help_text="The Base parameter this typed parameter " "belongs to.",
+    )
+    value = ForeignKey(
+        Choice,
+        on_delete=SET_NULL,
+        null=True,
+        blank=True,
+        help_text="The choice value for this " "parameter.",
+    )
 
     def get_value(self):
         """
@@ -1641,6 +945,10 @@ class ChoiceParameter(Model):
         for choice in choices:
             choice.delete()
 
+    def get_available_choices(self):
+        """Get Choice object corresponding to this ChoiceParameter."""
+        return Choice.objects.filter(corresponding_choice_parameter=self)
+
     def set_preset(self, value):
         """
         Set a preset for this parameter.
@@ -1671,8 +979,16 @@ class ChoiceParameter(Model):
 class TextParameter(Model):
     """Parameter for text values."""
 
-    base = OneToOneField(BaseParameter, on_delete=SET_NULL, null=True)
-    value = TextField(null=True, blank=True)
+    base = OneToOneField(
+        BaseParameter,
+        on_delete=CASCADE,
+        null=False,
+        blank=False,
+        help_text="The Base parameter this typed parameter " "belongs to.",
+    )
+    value = TextField(
+        null=True, blank=True, help_text="The text value for this parameter."
+    )
 
     def get_value(self):
         """
@@ -1711,8 +1027,16 @@ class TextParameter(Model):
 class IntegerParameter(Model):
     """Parameter for integer values."""
 
-    base = OneToOneField(BaseParameter, on_delete=SET_NULL, null=True)
-    value = IntegerField(null=True, blank=True)
+    base = OneToOneField(
+        BaseParameter,
+        on_delete=CASCADE,
+        null=False,
+        blank=False,
+        help_text="The Base parameter this typed parameter " "belongs to.",
+    )
+    value = IntegerField(
+        null=True, blank=True, help_text="The integer value for this parameter."
+    )
 
     def get_value(self):
         """
@@ -1751,8 +1075,16 @@ class IntegerParameter(Model):
 class FloatParameter(Model):
     """Parameter for float values."""
 
-    base = OneToOneField(BaseParameter, on_delete=SET_NULL, null=True)
-    value = FloatField(null=True, blank=True)
+    base = OneToOneField(
+        BaseParameter,
+        on_delete=CASCADE,
+        null=False,
+        blank=False,
+        help_text="The Base parameter this typed parameter " "belongs to.",
+    )
+    value = FloatField(
+        null=True, blank=True, help_text="The float value for this parameter."
+    )
 
     def get_value(self):
         """

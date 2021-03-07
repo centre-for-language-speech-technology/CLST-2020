@@ -1,0 +1,75 @@
+{% extends 'equestria/base.html' %}
+{% load static %}
+
+{% block title %}
+    Equestria: {% if process.script == process.project.pipeline.fa_script %}FA status{% else %}G2P status{% endif %}
+{% endblock %}
+
+{% block header %}
+    {% if process.script == process.project.pipeline.fa_script %}
+        {% include 'equestria/header.html' with active="fa" %}
+    {% else %}
+        {% include 'equestria/header.html' with active="g2p" %}
+    {% endif %}
+{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <div class="row" id="process-detail-container">
+            <div class="col-md-7">
+                {% if process.script == process.project.pipeline.fa_script %}
+                    <a style="font-size: 14px;" class="mb-1" href="{% url 'processes:fa-process-overview' project=project %}"><i class="fas fa-arrow-left"></i> FA process overview</a>
+                {% else %}
+                    <a style="font-size: 14px;" class="mb-1" href="{% url 'processes:g2p-process-overview' project=project %}"><i class="fas fa-arrow-left"></i> G2P process overview</a>
+                {% endif %}
+                <h1>{% if process.script == process.project.pipeline.fa_script %}Forced Alignment{% else %}G2P{% endif %} progress</h1>
+                <p>Status: <span id="process-django-status" class="font-weight-bold"><% process_detail.status_string %></span></p>
+                {% if process.script == process.project.pipeline.fa_script %}
+                    <div v-if="process_detail.status == 5" class="btn btn-primary mb-1" id="process-continue-button"
+                         onclick="update_and_callback_no_data('/api/v1/processes/settings/{{ process.project.id }}/{{ process.project.pipeline.g2p_script.id }}/configure-automatically', {}, try_g2p_start, method = 'POST')"
+                    >Continue with G2P <i class="fas fa-arrow-right"></i></div>
+                {% else %}
+                    <a v-if="process_detail.status == 5" href="{% url 'projects:cd_screen' project=process.project %}" class="btn btn-primary mb-1" id="process-continue-button">Continue to check dictionary <i class="fas fa-arrow-right"></i></a>
+                {% endif %}
+            </div>
+            <div class="col-md-1">
+            </div>
+            <div class="col-md-4 rounded lighter padding">
+                <h3>Console Output</h3>
+                <div class="p-1">
+                    <div id="console_output">
+                        <div class="mw-100" v-for="log_message in process_detail.log_messages">
+                            <div class="log-message-time" v-if="log_message.time"><% log_message.time %></div>
+                            <code class="log-message-message"><% log_message.message %></code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        let project_id = '{{ project.id }}';
+        let process_detail_vue = new Vue({
+            el: '#process-detail-container',
+            delimiters: ['<%', '%>'],
+            data: {
+                process_detail: []
+            },
+            created() {
+                fetch('{% url 'v1:process-retrieve' pk=process.pk %}')
+                    .then(response => response.json())
+                    .then(json => {
+                        this.process_detail = json;
+                    });
+            }
+        });
+        {% if process.script == process.project.pipeline.fa_script %}
+            let next_script_id = '{{ project.pipeline.g2p_script.id }}';
+        {% endif %}
+        add_update_list(send_update_request, ["{% url 'v1:process-retrieve' pk=process.pk %}", function(data) {process_detail_vue.process_detail = data;}, "GET"]);
+    </script>
+    <script src="{% static "processes/js/start-g2p-automatically.js" %}"></script>
+{% endblock %}

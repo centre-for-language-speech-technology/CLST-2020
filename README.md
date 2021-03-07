@@ -1,19 +1,13 @@
-[![BCH compliance](https://bettercodehub.com/edge/badge/GipHouse/CLST-2020?branch=master&token=49ec5b1fd248e296877a63e1b775cd5c828877fe)](https://bettercodehub.com/)
-![Server testing](https://github.com/GipHouse/CLST-2020/workflows/Server%20testing/badge.svg)
-![Coding style](https://github.com/GipHouse/CLST-2020/workflows/Coding%20style/badge.svg?branch=master)
-[![codecov](https://codecov.io/gh/GipHouse/CLST-2020/branch/master/graph/badge.svg?token=97JZOEZOAS)](https://codecov.io/gh/GipHouse/CLST-2020)
-
 # Equestria: A Forced Alignment Pipeline
 
 Welcome to the Equestria repo, a Django application build for chaining forced alignment scripts on [CLAM](https://clam.readthedocs.io/en/latest/) servers. This application was build on the CLAM servers of the [Centre of Language and Speech Technology](https://www.ru.nl/clst/) of the Radboud University in Nijmegen. It currently features a couple of things:
 
 - Project separation and file storage.
-- A full blown backend interface for managing different language pipelines.
-- A fully automatic CLAM importer for importing CLAM input templates and parameters into this Django based application.
-- Automatic execution of Grapheme to Phoneme (G2P) conversion if necessary after forced alignment.
+- A backend interface for managing different language pipelines.
+- A fully automatic CLAM importer for importing CLAM input templates and parameters into a Django based application.
+- Automatic execution of Grapheme to Phoneme (G2P) conversion after forced alignment.
 
 More explanation about the features of this project and a detailed explanation of the database structure is stated below.
-
 
 ## Getting started
 
@@ -23,7 +17,7 @@ This project is built using the [Django](https://github.com/django/django) frame
 
 To setup the project, follow the steps below:
 
-0. Get at least [Python](https://www.python.org) 3.7 installed on your system. An Ubuntu or macOS installation is also needed as some of the dependencies ([pycrypto](https://pypi.org/project/pycrypto/)) of this project will not work on Windows.
+0. Get at least [Python](https://www.python.org) 3.9 installed on your system. An Ubuntu or macOS installation is also needed as some of the dependencies ([pycrypto](https://pypi.org/project/pycrypto/)) of this project will not work on Windows.
 1. Clone this repository.
 2. If ```pip3``` is not installed on your system yet, execute ```apt install python3-pip``` on your system.
 3. Also make sure ```python3-dev``` is installed on your system, execute ```apt install python3-dev```.
@@ -43,7 +37,7 @@ The project now works and you are able to interact with the website on your loca
 - Two scripts, one being a forced alignment script and the other being a G2P script.
 - A Pipeline including the two scripts above.
 
-You can create these database entries yourself or load the default ones that are in a fixture under ```equestria/scripts/fixtures``` by executing ```./manage.py loaddata clam```. Note that these default fixtures do NOT include passwords yet (and the default servers require a password before working). You thus need to obtain the password for the CLAM servers (they are most likely the same for every CLAM server of the CLST faculty) and enter them in the administrator interface. Head over to ```localhost:8000/admin``` and find the added scripts under ```Scripts/Scripts```. For each Script listed, you must enter the password in the ```Password``` field and hit ```Save and refresh```. It is very important to use the ```Save and refresh``` option to pull the configuration files from the CLAM server automatically and load them into our system. The ```SAVE``` option will only save the data you have inputted and will not load any profiles or parameters from the CLAM instance.
+You can create these database entries yourself or load the default ones that are in a fixture under ```equestria/pipelines/fixtures``` by executing ```./manage.py loaddata pipeline```. Note that these default fixtures do NOT include passwords yet (and the default servers require a password before working). You thus need to obtain the password for the CLAM servers and enter them in the administrator interface. Head over to ```localhost:8000/admin``` and find the added scripts under ```Scripts/Scripts```. For each Script listed, you must enter the password in the ```Password``` field and hit ```Save and refresh```. It is very important to use the ```Save and refresh``` option to pull the configuration files from the CLAM server automatically and load them into our system. The ```SAVE``` option will only save the data you have inputted and will not load any profiles or parameters from the CLAM instance.
 
 After running through these steps the server works as intented and you are able to create projects. We only need to do one last thing before you can actually use the application. When you are running through a pipeline and executing a script, a background process is spawned in the database to be executed in the background. The background processes make sure that the CLAM status is requested once every _x_ seconds and that the files are downloaded to the server after a CLAM process is done. To run the background processes, take the following steps:
 
@@ -64,23 +58,29 @@ Django is thus a web framework built in Python and has a lot of things needed fo
 
 Django works by separating different parts of the website in different applications called _apps_. An app can be created by executing the following command in a Django project: ```django-admin startapp [app name]```. There are currently three self-written apps used in Equestria:
 
-- ```accounts```, this application defines user accounts.
-- ```upload```, this application defines uploaded files and handles them.
-- ```scripts```, this application handles all things that have to interface with CLAM servers.
+- ```accounts```, this application defines the user account pages.
+- ```pipelines```, this application provides the model to define pipelines.
+- ```processes```, this application provides all necessary utilities to executes processes on a CLAM server.
+- ```projects```, this application provides the features to manage projects and up/download files from the server.
+- ```scripts```, this application includes the dependencies needed to synchronise the database of CLAM servers with the one of the websercer.
 
-We will briefly explain some more things about the ```scripts``` application as this is the largest application in this project.
+We will briefly explain some more thing about the applications below.
+
+#### Pipelines application
+
+The ```pipelines``` application includes a model ```Pipeline``` that can be used to define Pipeline instances. When projects are created, a user must specify with which pipeline he/she wants to use. A pipeline defines a Forced Alignment and Grapheen to Phoneem script.
+
+#### Processes application
+
+The ```processes``` application defines a ```Process``` model which creates the ability to synchronises CLAM processes and the processes on the Equestria server. The ```processes``` application also provides models for specifying file and parameter settings.
+
+#### Projects application
+
+The ```projects``` application includes a ```Project``` model which is needed for project creation and bookkeeping. It also keeps track of the uploaded files that are available to the projects.
 
 #### Scripts application
-The ```scripts``` application handles all things that have to interface with CLAM servers. This project is designed around the use of CLAM servers and so Scripts are actually a database representation of a live CLAM server. 
 
-##### Script model
 The ```scripts``` application includes a model ```Script``` which saves data regarding a CLAM server. This model can also be used to request a ```clamclient``` instance which can be used to interact with s CLAM server. Password validation will automatically be taken care of. 
-
-##### Process model
-The ```scripts``` application also includes a model for representing processes in the database. The ```Process``` class stores information regarding a running process. Note that we only store processes on the CLAM servers for as long as they are needed, they will be removed automatically after a file download is done or if an error occured. This to prevent cluttering on the CLAM server.
-
-##### Project model
-The ```Project``` class in the ```scripts``` application stores data regarding a users' project. The ```Project``` model keeps track of a currently running script and can be used to see which stage of the pipeline a user is in.
 
 ### Migrations
 
@@ -160,7 +160,7 @@ For each of these types, a parameter model class is also present in our model. N
 
 ### Automatic import of CLAM data
 
-For our project to function, we need to know what CLAM profiles, input templates and parameters are used. Therefor, when pressing ```Save``` on the admin page of a Script, we automatically ask the CLAM server for its data and import it in our database model. Upon resaving, all profiles, input templates and parameters are recreated. Input templates are static and need not to be modified as are profiles. 
+For our project to function, we need to know what CLAM profiles, input templates and parameters are used. Therefor, when pressing ```Save and refresh``` on the admin page of a Script, we automatically ask the CLAM server for its data and import it in our database model. Upon resaving, all profiles, input templates and parameters are recreated. Input templates are static and need not to be modified as are profiles. 
 
 #### Setting default values for parameters
 

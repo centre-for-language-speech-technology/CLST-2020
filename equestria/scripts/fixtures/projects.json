@@ -1,7 +1,0 @@
-[
-  {"model": "scripts.script", "pk": 1, "fields": {"name": "Dutch Forced Alignment", "hostname": "http://localhost:12345", "description": "Dutch Forced Alignment", "username": "clst", "password": "clst"}},
-  {"model": "scripts.process", "pk": 1, "fields": {"script": 1, "clam_id": "34", "status": 0, "folder": ""}}, {"model": "scripts.profile", "pk": 1, "fields": {"script": 1}},
-  {"model": "scripts.pipeline", "pk": 1, "fields": {"name": "FA Pipeline", "fa_script": 1, "g2p_script": 1}},
-  {"model": "scripts.project", "pk": 1, "fields": {"name": "test", "folder": "", "pipeline": 1, "user": 1, "current_process": null}},
-  {"model": "scripts.profile", "pk": 1, "fields": {"script": 1}}
-]

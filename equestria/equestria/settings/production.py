@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 
 import os
 
-from equestria.settings.base import *
+from equestria.settings import *
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
@@ -61,12 +61,11 @@ if os.environ.get("DOWNLOAD_FOLDER"):
 if os.environ.get("USER_FOLDER"):
     USER_DATA_FOLDER = os.environ.get("USER_FOLDER")
 
+if os.environ.get("PROCESS_DATA_FOLDER"):
+    PROCESS_DATA_FOLDER = os.environ.get("PROCESS_DATA_FOLDER")
 
-if not os.path.exists(TMP_DIR):
-    os.makedirs(TMP_DIR)
+if not os.path.exists(os.path.join(MEDIA_ROOT, USER_DATA_FOLDER)):
+    os.makedirs(os.path.join(MEDIA_ROOT, USER_DATA_FOLDER))
 
-if not os.path.exists(DOWNLOAD_DIR):
-    os.makedirs(DOWNLOAD_DIR)
-
-if not os.path.exists(USER_DATA_FOLDER):
-    os.makedirs(USER_DATA_FOLDER)
+if not os.path.exists(os.path.join(MEDIA_ROOT, PROCESS_DATA_FOLDER)):
+    os.makedirs(os.path.join(MEDIA_ROOT, PROCESS_DATA_FOLDER))

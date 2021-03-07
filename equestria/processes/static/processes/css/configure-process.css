@@ -1,0 +1,9 @@
+.form-description {
+    color: grey;
+    font-size: 10pt;
+}
+
+.form-label {
+    margin-top: 2px;
+    margin-bottom: 0;
+}

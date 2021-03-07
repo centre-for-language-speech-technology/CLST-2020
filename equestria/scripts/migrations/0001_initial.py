@@ -92,7 +92,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('clam_id', models.CharField(default=None, max_length=256, null=True)),
                 ('status', models.IntegerField(choices=[(0, 'Created'), (1, 'Uploading files to CLAM'), (2, 'Running'), (3, 'Waiting for download from CLAM'), (4, 'Downloading files from CLAM'), (5, 'Finished'), (-1, 'Error'), (-2, 'Error while downloading files from CLAM')], default=0)),
-                ('folder', models.FilePathField(allow_files=False, allow_folders=True, path=scripts.models.user_data_folder_path)),
+                ('folder', models.FilePathField(allow_files=False, allow_folders=True, path="")),
                 ('script', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='scripts.Script')),
             ],
             options={
@@ -185,7 +185,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.CharField(max_length=512)),
-                ('folder', models.FilePathField(allow_files=False, allow_folders=True, path=scripts.models.user_data_folder_path)),
+                ('folder', models.FilePathField(allow_files=False, allow_folders=True, path="")),
                 ('current_process', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='scripts.Process')),
                 ('pipeline', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='scripts.Pipeline')),
                 ('user', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to=settings.AUTH_USER_MODEL)),

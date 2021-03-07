@@ -1,0 +1,293 @@
+{% extends 'equestria/base.html' %}
+{% load static %}
+
+{% block title %}
+    Equestria: Student explainer
+{% endblock %}
+
+{% block header %}
+    {% include 'explainer/header.html' %}
+{% endblock %}
+
+{% block style %}
+    <link rel="stylesheet" href="{% static 'processes/css/configure-process.css' %}">
+{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <h1>Student explainer</h1>
+        <p>
+            Welcome to Equestria! An online tool to help you with Forced Alignment. This page will explain most of the
+            features Equestria has and how to use these features. Note that you need an account on this website in order
+            to follow the tutorial on this page.
+        </p>
+        <p>
+            In this module you will learn about forced alignment and experiment with it. Forced alignment is the
+            synchronisation of an audiofile with its corresponding text. Forced alignment will yield the timestamps for
+            every word (and phoneme) in the text that belongs to the sound file. So as input you minimally need an
+            audiofile and a plain text file with the corresponding text. You may (but need not) supply a dictionary
+            file with words and their phonemic transcription   for words that are not foreseen in the Forced Aligner
+            itself but this you will find out in this module.
+        </p>
+        <p>
+            Note that you can go to any stage of Forced Alignment at any time with the buttons in the header below.
+            However, also note that the Forced Alignment process is to be completed in the order presented in the header
+            menu. Later, when you are done with one run of Forced Alignment you will be able to rerun any stage of the
+            project at any time. We will go through the process of Forced Alignment by following the header menu items
+            beginning with selecting a project.
+        </p>
+        <div class="navbar navbar-expand-md navbar-dark bg-dark mb-5">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link">
+                        1. Select project
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link">
+                        2. Upload files
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link">
+                        3. Forced Alignment
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link">
+                        4. Grapheme to Phoneme
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link">
+                        5. Check dictionary
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link">
+                        6. Overview
+                    </a>
+                </li>
+            </ul>
+        </div>
+        {% if not user.is_authenticated %}
+            <p class="alert alert-danger">We noticed that you have not logged in yet, please do so on
+                <a href="{% url 'accounts:login' %}">this page</a>.
+            </p>
+        {% endif %}
+        <h2>Starting your first project</h2>
+        <p>
+            All the tools that are available on this website require the usage of "Projects". Projects provide a way
+            to store and retrieve files later. Only files uploaded to a certain project can be used in the Forced
+            Alignment tools on Equestria. You can create a project on
+            <a href="{% url 'projects:overview' %}">this page</a>. Please make sure to only use alphanumeric characters
+            for your project name (e.g. [a-z, A-Z, 0-9]) and don't use any spaces in the project name. When you have
+            created a project you will be automatically redirected to the "Upload files" page.
+        </p>
+        <div class="d-flex justify-content-center">
+            <div class="my-3">
+                <p>
+                    <label for="id_project_name">Project name:</label>
+                    <input type="text" name="project_name" required="" id="id_project_name">
+                </p>
+                <p>
+                    <label for="id_pipeline">Pipeline:</label>
+                    <select name="pipeline" id="id_pipeline">
+                        <option value="1">Dutch Forced Alignment pipeline</option>
+                    </select>
+                </p>
+                <button class="btn btn-primary">
+                    Create project <i class="fas fa-plus"></i>
+                </button>
+            </div>
+        </div>
+        <h2>Managing project files</h2>
+        <p>
+            The next page you come across is the "Upload files" page. This pages allows you to upload, download and
+            manage all files within a project. You can upload files by dragging and dropping them in the box on the
+            website. The container is displayed below. If this does not work you can always use the
+            <button type="button" class="btn btn-primary js-upload-photos">
+                Manual upload <i class="fa fa-file-upload"></i>
+            </button>
+            button. The already uploaded files and the files later generated by the
+            Forced Alignment process will show up in the "Files" list below the upload container. Here you can either
+            <button type="button" class="btn btn-primary">Download <i class="fas fa-download"></i></button>
+            or
+            <button type="button" class="btn btn-danger">Delete <i class="fas fa-trash"></i></button>
+            all project files.
+        </p>
+        <div class="">
+            <div class="well text-muted text-center" style="padding-top: 4rem; padding-bottom: 4rem;">
+                <i class="fa fa-file-upload" style="font-size: 2rem;"></i>
+                <h3>Drop files here to upload</h3>
+            </div>
+        </div>
+        <h3>Managing profiles</h3>
+        <p>
+            Another important thing to note about running Forced Alignment is that it consists of several processes
+            chained together. For each process, required files are needed to start this process. A set of these
+            requirements is called a "Profile". Before running a stage of Forced Alignment, you must thus make sure that
+            you have all the required files for at least one Profile uploaded in the Project. The right hand menu of
+            the Upload files page will display a "Profile Configuration" and a "Available profiles" tab. Let's first
+            discuss the "Available profiles" tab.
+        </p>
+        <h4>Available profiles</h4>
+        <p>
+            The available profiles tab will display all Profiles (configurations) for which a certain part of Forced
+            Alignment can be ran. Profiles can have four types of files characterized by two types of options. Files can
+            be:
+        </p>
+        <ul>
+            <li>Optional or not optional</li>
+            <li>Unique or not unique</li>
+        </ul>
+        <p>
+            This thus gives the possibility to four types of files:
+        </p>
+        <ul>
+            <li><strong>Optional unique files</strong>: the file is optional but when specifying a file only one can be
+                selected
+            </li>
+            <li><strong>Optional files</strong>: the file is optional and multiple files can be selected</li>
+            <li><strong>Unique files</strong>: the file is required and only one file can be selected</li>
+            <li><strong>Normal files</strong>: the file is required and multiple files can be selected</li>
+        </ul>
+        <p>
+            In the available profiles tab, a list of profiles is displayed and for each profile all (optional) files are
+            listed. You can thus use this overview to see which files are needed to start a part of Forced Alignment.
+        </p>
+        <h4>Profile configuration</h4>
+        <p>
+            For some parts of the Forced Alignment process, you are required to specify the profile configuration
+            before being able to start that part. An example of such a window is displayed below. You are first required
+            to select a Profile in the upper selection container. After selecting a profile the files for that
+            profile will appear. When a file is required, it is displayed like this: <strong>Required file*</strong>.
+            When a file is optional it is displayed like normal text. When a file is unique it is displayed as a single
+            selector box like the <strong>InputWavFile*</strong> in the example below. When a file is not unique it is
+            displayed as a multiple selector box like the LexAddOn file in the example below.
+        </p>
+        <div class="d-flex justify-content-center my-3">
+            <div id="process-configure-container"><h4>Profile settings FA</h4>
+                <div class="profile-select"><label for="profile-selector">Profile</label> <select id="profile-selector"
+                                                                                                  class="w-100">
+                    <option value="13">Profile 13</option>
+                </select></div>
+                <div id="profile-item-wrapper" class="profile-forms">
+                    <form id="profile-item-13" class="profile-item"><label
+                            for="file-selector-26"><strong>InputWavFile*</strong></label> <select required="required"
+                                                                                                  id="file-selector-26"
+                                                                                                  class="w-100 file-selector">
+                        <option value="1">fn007223.txt</option>
+                        <option value="2">fn007223.wav</option>
+                        <option value="3">fn007223.ctm2</option>
+                        <option value="4">LEX.out.oov</option>
+                        <option value="5">error.log</option>
+                        <option value="6">fn007223.out.tg</option>
+                        <option value="7">g2p_problematic_words.txt</option>
+                        <option value="8">fn007223.ctm</option>
+                        <option value="9">fn007223.tg</option>
+                        <option value="10">fn007223.out.tg2</option>
+                        <option value="11">g2p_problematic_words.dict</option>
+                    </select>
+                        <p class="form-description">Speech file in .wav format</p><label
+                                for="file-selector-27">LexAddOn</label> <select multiple id="file-selector-27"
+                                                                                class="w-100 file-selector">
+                            <option value="1">fn007223.txt</option>
+                            <option value="2">fn007223.wav</option>
+                            <option value="3">fn007223.ctm2</option>
+                            <option value="4">LEX.out.oov</option>
+                            <option value="5">error.log</option>
+                            <option value="6">fn007223.out.tg</option>
+                            <option value="7">g2p_problematic_words.txt</option>
+                            <option value="8">fn007223.ctm</option>
+                            <option value="9">fn007223.tg</option>
+                            <option value="10">fn007223.out.tg2</option>
+                            <option value="11">g2p_problematic_words.dict</option>
+                        </select>
+                        <p class="form-description">Optional user dictionary .dict (will overrule bg lexicon)</p><label
+                                for="file-selector-28"><strong>TranscriptionFile*</strong></label> <select
+                                required="required" id="file-selector-28" class="w-100 file-selector">
+                            <option value="1">fn007223.txt</option>
+                            <option value="2">fn007223.wav</option>
+                            <option value="3">fn007223.ctm2</option>
+                            <option value="4">LEX.out.oov</option>
+                            <option value="5">error.log</option>
+                            <option value="6">fn007223.out.tg</option>
+                            <option value="7">g2p_problematic_words.txt</option>
+                            <option value="8">fn007223.ctm</option>
+                            <option value="9">fn007223.tg</option>
+                            <option value="10">fn007223.out.tg2</option>
+                            <option value="11">g2p_problematic_words.dict</option>
+                        </select>
+                        <p class="form-description">Transcription .txt (utf8)</p></form>
+                </div> <!---->
+                <div id="start-button" class="btn btn-primary mt-2 w-100">Start FA <i class="fas fa-play-circle"></i></div>
+            </div>
+        </div>
+        <p>
+            When changing profile settings, be sure to wait a little bit before the settings are synchronised to the
+            server. The synchronisation process is indicated with a <span class="loader"></span> icon. After the
+            synchronisation is complete you can start Forced Alignment with the
+            <button type="button" class="btn btn-primary">Start FA <i class="fas fa-play-circle"></i></button> button.
+        </p>
+        <p>
+            Also note that all files have a preferred extension (e.g. <code>.txt</code> for text files or
+            <code>.wav</code> for audio files). It is best to select files with the same extension as the profile
+            indicates as otherwise the Forced Alignment process might not work.
+        </p>
+        <h2>Forced Alignment</h2>
+        <p>
+            For all parts of the Forced Alignment process, the same interface is used. On the Forced Alignment screen
+            you can see the output of your process under the "Console output" header. The status of the process can
+            be seen next to the "Status" indicator. After the process is completed there will be two buttons on the
+            process page. The button <button class="btn btn-primary">Contine with G2P <i class="fas fa-arrow-right"></i></button> will take you to the next
+            part of Forced Alignment and the button <a href="" style="font-size: 14px;"><i class="fas fa-arrow-left"></i> FA process overview</a> will
+            take you to the overview page for all forced alignment processes. Note that G2P is <strong>always</strong>
+            ran after Forced Alignment, even if your out of vocabulary words. If you want to skip this step you can
+            do so by clicking on the Check Dictionary menu item directly.
+        </p>
+        <h3>Forced Alignment process overview page</h3>
+        <p>
+            The Forced Alignment process overview page will show you all running Forced Alignment processes for the
+            current project. You can go back to those processes by clicking on them. The page also allows you to start
+            a new Forced Alignment process in the same way as was done for the Upload files page.
+        </p>
+        <h3>Forced Alignment output files</h3>
+        <p>
+            There are a couple of (non trivial) files that could be outputted by the Forced Alignment process. These
+            files are:
+        </p>
+        <ul>
+            <li><code>.oov</code> files: User lexicon file, can be used to provide add-on functionality for all input
+            textgrid files.</li>
+            <li><code>.ctm</code> files: A file which has lines with the following information: filename, channel,
+            onset (seconds), offset (seconds), word, confidence score.</li>
+            <li><code>.out.tg</code> files: A textgrid file with two tiers: word and phoneme. Can be used in
+            combination with original <code>.wav</code> file in e.g. Praat for further editing.</li>
+        </ul>
+        <h2>Grapheme to Phoneme</h2>
+        <p>
+            After running Forced Alignment the next process that should be ran is Grapheme to Phoneme. This works in the
+            same way as Forced Alignment and this part of the Forced Alignment process also has a process overview on
+            which you can manually start Grapheme to Phoneme processes. The button
+            <button class="btn btn-primary">Continue to check dictionary <i class="fas fa-arrow-right"></i></button> will take you to the next part of the
+            Forced Alignment process.
+        </p>
+        <h2>Check dictionary</h2>
+        <p>
+            Sometimes a Forced Alignment run will not result in success directly. Sometimes the Forced Aligner does
+            not recognize all words you have put in the transcription file. When this is the case, these words end up
+            in a <code>.dict</code> file in the project. On the Check dictionary page you can view the contents of all
+            <code>.dict</code> files on the server and edit them. Afterwards you can save all files and restart Forced
+            Alignment.
+        </p>
+        <h2>Overview</h2>
+        <p>
+            When your Forced Alignment process is done you will end up on the overview page which will show you whether
+            or not your Forced Alignment process completed. You can go back to any stage of the project or download the
+            project archive with all project files.
+        </p>
+        <hr>
+        <p style="color: grey;">This page was last updated on 26-01-2021</p>
+    </div>
+{% endblock %}

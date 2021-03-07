@@ -1,5 +1,5 @@
 from django.urls.converters import IntConverter
-from .models import Project, Profile, Process, Script
+from .models import Profile, Script
 
 
 class ScriptConverter(IntConverter):
@@ -27,31 +27,6 @@ class ScriptConverter(IntConverter):
         return str(obj.pk)
 
 
-class ProjectConverter(IntConverter):
-    """Converter for Project model."""
-
-    def to_python(self, value):
-        """
-        Cast integer to Project.
-
-        :param value: the public key of the Project
-        :return: a Project or ValueError
-        """
-        try:
-            return Project.objects.get(id=int(value))
-        except Project.DoesNotExist:
-            raise ValueError
-
-    def to_url(self, obj):
-        """
-        Cast an object of Project to a string.
-
-        :param obj: the Project object
-        :return: the public key of the Project object in string format
-        """
-        return str(obj.pk)
-
-
 class ProfileConverter(IntConverter):
     """Converter for Profile model."""
 
@@ -73,30 +48,5 @@ class ProfileConverter(IntConverter):
 
         :param obj: the Profile object
         :return: the public key of the Profile object in string format
-        """
-        return str(obj.pk)
-
-
-class ProcessConverter(IntConverter):
-    """Converter for Process model."""
-
-    def to_python(self, value):
-        """
-        Cast integer to Process.
-
-        :param value: the public key of the Process
-        :return: a Process or ValueError
-        """
-        try:
-            return Process.objects.get(id=int(value))
-        except Process.DoesNotExist:
-            raise ValueError
-
-    def to_url(self, obj):
-        """
-        Cast an object of Process to a string.
-
-        :param obj: the Process object
-        :return: the public key of the Process object in string format
         """
         return str(obj.pk)

@@ -18,7 +18,7 @@
             {% if user.is_authenticated %}
                 <h2>Start your first project</h2>
                 <p>Before you can start forced alignment, you have to create a project.</p>
-                <a href="{% url 'scripts:projects' %}" class="btn btn-primary">Project overview</a>
+                <a href="{% url 'projects:overview' %}" class="btn btn-primary">Project overview</a>
             {% else %}
                 <h2>Log in to continue</h2>
                 <p>Don't have an account? Click on signup to make one.</p>

@@ -140,4 +140,4 @@ db.sqlite3
 geckodriver.log
 outputs/
 tmp/
-equestria/userdata/
+equestria/media/

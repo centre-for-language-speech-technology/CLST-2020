@@ -1,0 +1,63 @@
+{% extends 'equestria/base.html' %}
+{% load static %}
+
+{% block title %}
+    Equestria: Projects
+{% endblock %}
+
+{% block style %}
+    <link rel="stylesheet" href="{% static 'scripts/css/formstyle.css' %}">
+{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-7">
+                <h1>Select a project</h1>
+                <p class="mb-5">Projects are used to store the progress of the forced alignment process. Before
+                starting forced alignment, you must create a new project or select an already created one.</p>
+                {% if projects %}
+                    <div class="lighter padding mb-3">
+                        <h2>My projects</h2>
+                        <p>Manage your already created projects below.</p>
+                        <div class="d-flex flex-column">
+                        <p><strong>Project name</strong></p>
+                        {% for project in projects %}
+                            <div class="d-flex flex-row mb-1">
+                                <span class="flex-grow-1"><strong>{{ project.name }}</strong></span>
+                                <a class="btn btn-primary" href="{% url 'projects:project_detail' project=project %}">
+                                    Continue <i class="far fa-arrow-alt-circle-right"></i>
+                                </a>
+                                <a class="btn btn-danger ml-1" href="{% url "projects:delete_project" project=project %}">
+                                    Delete <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        {% endfor %}
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="lighter padding mb-3">
+                        <h2>My projects</h2>
+                        <p>You have not created any projects yet.</p>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="col-md-4 rounded lighter padding">
+                <div class="lighter padding mb-3">
+                    <h2>Create a new project</h2>
+                    <div class="lighter padding mb-3">
+                        <form class="md-form" method="POST">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                {{ form.as_p }}
+                                <button type="submit" class="btn btn-primary">
+                                    Create project <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

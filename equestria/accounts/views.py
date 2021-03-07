@@ -2,26 +2,23 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import login, logout
-from equestria.views import GenericTemplate
 from django.views.generic import TemplateView
 from django.contrib import messages
 from django.conf import settings
 from .forms import UserUpdateForm
 
-"""Module serving responses to user upon request."""
 
-
-class Signup(GenericTemplate):
+class Signup(TemplateView):
     """Page to create new account."""
 
     template = "accounts/signup.html"
 
-    def get(self, request):
+    def get(self, request, **kwargs):
         """Render django user creation form."""
         form = UserCreationForm()
         return render(request, self.template, {"form": form})
 
-    def post(self, request):
+    def post(self, request, **kwargs):
         """Validate form, create new user account, login user, redirect to main page."""
         form = UserCreationForm(request.POST)
         if form.is_valid():
@@ -42,17 +39,17 @@ class Signup(GenericTemplate):
             return redirect("accounts:signup")
 
 
-class Login(GenericTemplate):
+class Login(TemplateView):
     """Page to login as existing user."""
 
     template = "accounts/login.html"
 
-    def get(self, request):
+    def get(self, request, **kwargs):
         """Render django user login form."""
         form = AuthenticationForm()
         return render(request, self.template, {"form": form})
 
-    def post(self, request):
+    def post(self, request, **kwargs):
         """Validate form, login user, redirect."""
         form = AuthenticationForm(data=request.POST)
         if form.is_valid():
@@ -62,7 +59,7 @@ class Login(GenericTemplate):
             if "next" in request.POST:
                 return redirect(request.POST.get("next"))
             else:
-                return redirect("welcome")
+                return redirect("projects:overview")
         else:
             # implement error handling here
             messages.info(request, "Invalid username or password")

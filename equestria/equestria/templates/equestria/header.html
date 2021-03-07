@@ -1,11 +1,5 @@
 {% load static %}
-{% load project_status %}
 
-{% if project %}
-    {% project_status project=project as project_status %}
-{% else %}
-    {% project_status as project_status %}
-{% endif %}
 <nav class="navbar navbar-expand-md navbar-dark bg-dark mb-5">
     <a class="navbar-brand" href="/">Equestria</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive">
@@ -19,55 +13,56 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link {% if active == "select" %}active{% endif %}" href="{% url 'scripts:projects' %}">
+                <a class="nav-link {% if active == "select" %}active{% endif %}" href="{% url 'projects:overview' %}">
                     1. Select project
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link {% if active == "upload" %}active{% elif project_status < 0 %}disabled{% endif %}" href="{% if project_status >= 0 %}{% url 'upload:upload_project' project=project %}{% endif %}">
+                <a class="nav-link{% if active == "upload" and project %} active{% elif not project %} disabled{% endif %}" href="{% if project %}{% url 'projects:project_detail' project=project %}{% endif %}">
                     2. Upload files
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link {% if active == "fa" %}active{% elif project_status < 1 %}disabled{% endif %}" href="{% if project_status >= 1 %}{% url 'scripts:loading' project=project script=project.pipeline.fa_script %}{% endif %}">
+                <a class="nav-link{% if active == "fa" and project %} active{% elif not project %} disabled{% endif %}" href="{% if project %}{% url 'processes:fa-process-overview' project=project %}{% endif %}">
                     3. Forced Alignment
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link {% if active == "g2p" %}active{% elif project_status < 2 %}disabled{% endif %}" href="{% if project_status >= 2 %}{% url 'scripts:loading' project=project script=project.pipeline.g2p_script %}{% endif %}">
+                <a class="nav-link {% if active == "g2p" and project %} active{% elif not project %} disabled{% endif %}" href="{% if project %}{% url 'processes:g2p-process-overview' project=project %}{% endif %}">
                     4. Grapheme to Phoneme
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link {% if active == "cd" %}active{% elif project_status < 3 %}disabled{% endif %}" href="{% if project_status >= 3 %}{% url 'scripts:cd_screen' project=project %}{% endif %}">
+                <a class="nav-link{% if active == "cd" and project %} active{% elif not project %} disabled{% endif %}" href="{% if project %}{% url 'projects:cd_screen' project=project %}{% endif %}">
                     5. Check dictionary
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link {% if active == "fa_done" %}active{% elif project_status < 3 %}disabled{% endif %}" href="{% if project_status >= 3 %}{% url 'scripts:fa_overview' project=project %}{% endif %}">
+                <a class="nav-link{% if active == "fa_done" and project %} active{% elif not project %} disabled{% endif %}" href="{% if project %}{% url 'projects:fa_overview' project=project %}{% endif %}">
                     6. Overview
                 </a>
             </li>
             <li class="nav-item dropdown pull-right">
-            <a class="nav-link dropdown-toggle" href="#" id="navbarAccountMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <i class="fas fa-user"></i>
-            </a>
-            {% if user.is_authenticated %}
-                <div class="dropdown-menu" aria-labelledby="navbarAccountMenuLink">
-                    {% if user.is_staff %}
-                        <a class="dropdown-item" href="{% url 'admin:index' %}">Site admin</a>
-                    {% endif %}
-                    <a class="dropdown-item" href="{% url "scripts:projects" %}">My projects</a>
-                    <a class="dropdown-item" href="{% url "accounts:password" %}">Change password</a>
-                    <a class="dropdown-item" href="{% url 'accounts:logout' %}">Log out</a>
-                </div>
-            {% else %}
-                <div class="dropdown-menu" aria-labelledby="navbarAccountMenuLink">
-                    <a class="dropdown-item" href="{% url 'accounts:login' %}">Log in</a>
-                    <a class="dropdown-item" href="{% url "accounts:forgot" %}">Forgot password</a>
-                </div>
-            {% endif %}
+                <a class="nav-link dropdown-toggle" href="#" id="navbarAccountMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i class="fas fa-user"></i>
+                </a>
+                {% if user.is_authenticated %}
+                    <div class="dropdown-menu" aria-labelledby="navbarAccountMenuLink">
+                        {% if user.is_staff %}
+                            <a class="dropdown-item" href="{% url 'admin:index' %}">Site admin</a>
+                        {% endif %}
+                        <a class="dropdown-item" href="{% url "projects:overview" %}">My projects</a>
+                        <a class="dropdown-item" href="{% url "accounts:password" %}">Change password</a>
+                        <a class="dropdown-item" href="{% url 'accounts:logout' %}">Log out</a>
+                    </div>
+                {% else %}
+                    <div class="dropdown-menu" aria-labelledby="navbarAccountMenuLink">
+                        <a class="dropdown-item" href="{% url 'accounts:login' %}">Log in</a>
+                        <a class="dropdown-item" href="{% url "accounts:forgot" %}">Forgot password</a>
+                    </div>
+                {% endif %}
+            </li>
         </ul>
     </div>
-	<a href="https://centre-for-language-speech-technology.github.io/CLST-2020/Student-Use-Case.html" class="btn btn-primary">Help</a>
+	<a href="{% url 'explainer:students' %}" class="btn btn-primary">Help <i class="far fa-question-circle"></i></a>
 </nav>

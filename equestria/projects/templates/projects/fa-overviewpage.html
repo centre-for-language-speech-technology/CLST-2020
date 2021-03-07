@@ -1,0 +1,46 @@
+{% extends 'equestria/base.html' %}
+{% load static %}
+
+{% block title %}
+    Equestria: Forced alignment overview
+{% endblock %}
+
+{% block header %}
+    {% include 'equestria/header.html' with active="fa_done" %}
+{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md rounded lighter padding">
+                <h1>Forced alignment</h1>
+                {% if success %}
+                    <p class="alert alert-success">Your forced alignment was successful!</p>
+                    <p>You can continue to analyze forced alignment or rerun your forced alignment with changes.</p>
+		            <p>'Download project archive' gives a Zip file with the aligned output (.out.tg) file.</p>
+                {% else %}
+                    <p class="alert alert-warning">Your forced alignment did not finish correctly.</p>
+                    <p>
+                        We did not find any forced alignment output file. Either there was an error during FA or there
+                        are still out of vocabulary words. Download the project archive to inspect what is wrong. You
+                        can download individual files and inspect the project content on the Upload files page if
+                        needed.
+                    </p>
+                {% endif %}
+                <a class="btn btn-primary mb-1" href="{% url 'projects:project_detail' project=project %}">
+                    <i class="fas fa-arrow-left"></i> Go back to upload files
+                </a>
+                <a class="btn btn-primary mb-1" href="{% url 'projects:cd_screen' project=project %}">
+                    <i class="fas fa-arrow-left"></i> Go back to alter dictionary
+                </a>
+                <a class="btn btn-success mb-1" href="{% url 'v1:project-archive-download' project=project %}">
+                    Download project archive <i class="fas fa-download"></i>
+                </a>
+                <a class="btn btn-danger mb-1" href="{% url "projects:delete_project" project=project %}">
+                    Delete project <i class="fas fa-trash"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+

@@ -1,0 +1,91 @@
+{% extends 'equestria/base.html' %}
+{% load static %}
+
+{% block title %}
+    Equestria: Check dictionary
+{% endblock %}
+
+{% block header %}
+    {% include 'equestria/header.html' with active="cd" %}
+{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <div class="col rounded lighter padding" id="check-dictionary-container">
+            <h1>Check dictionary</h1>
+            <template v-if="files.length > 0">
+                <p>
+                    This page allows you to edit the dictionary files within the project. You can select a dictionary
+                    file below and edit its contents in the textbox. Be sure to hit the Save button when you are done
+                    editing.
+                </p>
+                <div>
+                    <select v-model="selected_textarea" id="check-dictionary-select">
+                        <option v-for="file in files" :value="file.id"><% file.filename %></option>
+                    </select>
+                    <textarea v-show="file.id === selected_textarea" class="w-100" rows="20" v-model="file.content" v-for="file in files" :id="file.id" :value="file.content"></textarea>
+                </div>
+                <template v-if="loading">
+                    <div class="btn btn-success disabled">Save files <span class="loader"></span></div>
+                </template>
+                <template v-else>
+                    <template v-if="changes">
+                        <div class="btn btn-success" onclick="update_dictionary_containers()">Save files <i class="fas fa-cloud-upload-alt"></i></div>
+                    </template>
+                    <template v-else>
+                        <div class="btn btn-success disabled">Save files <i class="fas fa-cloud-upload-alt"></i></div>
+                    </template>
+                </template>
+            </template>
+            <template v-else>
+                <p class="alert alert-warning">
+                    We could not find any dictionary files in your project. This could be because G2P has not finished
+                    yet or because your FA finished without any missing words. You can continue or restart FA below.
+                </p>
+            </template>
+            <a class="btn btn-primary" href="{% url 'projects:project_detail' project=project %}">
+                Restart FA with different settings <i class="fas fa-undo"></i>
+            </a>
+            <a class="btn btn-primary" href="{% url 'projects:fa_overview' project=project %}">
+                Continue to FA overview <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    <script src="{% static 'projects/js/update-dictionary.js' %}"></script>
+    <script>
+        let project_id = '{{ project.id }}';
+    </script>
+    <script>
+        let check_dictionary_vue = new Vue({
+            el: '#check-dictionary-container',
+            delimiters: ['<%', '%>'],
+            data: {
+                files: [],
+                changes: null,
+                selected_textarea: null,
+                loading: false,
+            },
+            watch: {
+                files: {
+                    deep: true,
+                    handler(val, oldVal) {
+                        this.changes = this.changes !== null;
+                        let copy = JSON.parse(JSON.stringify(val));
+                        sync_with_server(copy);
+                    }
+                }
+            },
+            created() {
+                fetch('{% url 'v1:dictionary-get-update' project=project %}')
+                    .then(response => response.json())
+                    .then(json => {
+                        this.files = json.files;
+                        this.selected_textarea = json.files.length > 0 ? json.files[0].id : null;
+                    });
+            },
+        });
+    </script>
+{% endblock %}

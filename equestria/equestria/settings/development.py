@@ -10,7 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
-from equestria.settings.base import *
+from equestria.settings import *
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = "20!5%%x%+4j1un2v1p^cz!ld2fx00+jd!%!3%ax^d&mk4pl9w#"
@@ -32,22 +32,12 @@ LOGGING = {
     },
 }
 
-# Use nose to run all tests
-TEST_RUNNER = "django_nose.NoseTestSuiteRunner"
 
 ROOT_URLCONF = "equestria.urls"
 
-NOSE_ARGS = [
-    "--with-coverage",
-    "--cover-package=equestria,accounts,scripts,upload",
-    "--cover-html",
-]
 
-if not os.path.exists(TMP_DIR):
-    os.makedirs(TMP_DIR)
+if not os.path.exists(os.path.join(MEDIA_ROOT, USER_DATA_FOLDER)):
+    os.makedirs(os.path.join(MEDIA_ROOT, USER_DATA_FOLDER))
 
-if not os.path.exists(DOWNLOAD_DIR):
-    os.makedirs(DOWNLOAD_DIR)
-
-if not os.path.exists(USER_DATA_FOLDER):
-    os.makedirs(USER_DATA_FOLDER)
+if not os.path.exists(os.path.join(MEDIA_ROOT, PROCESS_DATA_FOLDER)):
+    os.makedirs(os.path.join(MEDIA_ROOT, PROCESS_DATA_FOLDER))

@@ -17,7 +17,7 @@
             </a>
             {% if user.is_authenticated %}
                 <div class="dropdown-menu" aria-labelledby="navbarAccountMenuLink">
-                    <a class="dropdown-item" href="{% url "scripts:projects" %}">My projects</a>
+                    <a class="dropdown-item" href="{% url "projects:overview" %}">My projects</a>
                     <a class="dropdown-item" href="{% url 'accounts:logout' %}">Log out</a>
                 </div>
             {% else %}
